@@ -14,7 +14,7 @@ const branchSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please tell us the department's name."],
     },
-});
+}); 
 
 const Branch = mongoose.model("Branch", branchSchema);
 module.exports = Branch;
