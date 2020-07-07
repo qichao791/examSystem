@@ -56,9 +56,9 @@ ClasssModel.aggregate([
         from: 'student', // 关联到学生表
         localField: 'students', // 班级表中关联的字段
         foreignField: '_id', // 学生表中被关联的id
-        as: 'students',
+        as: 'stus',
       }
-    }
+    },{$project:{_id:0,name:1,'stus.name':1}}
   ], (err, docs) => {
     if (err) {
       console.log('查询错误', err);

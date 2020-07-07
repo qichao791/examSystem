@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.getPublicQuesByID = async (req, res) => {
     try {
-      const ques = await PublicQues.findOne({ques_id:req.params.ques_id});
+      const ques = await PublicQues.findOne({_id:req.params.ques_id});
       res.status(200).json({
         status: "success",
         data: {
@@ -37,7 +37,7 @@ exports.getPublicQuesByGrade = async (req, res) => {
             //{$match: {branch_id:req.params.branch_id}},
             {$match: {grade:req.params.grade}},
             {$sample: { size: req.params.amount}}, 
-            {$project:{ _id:0,ques_id:1 }}
+            //{$project:{ _id:0,statement:1 }}
           
         ]);
         res.status(200).json({
@@ -76,7 +76,7 @@ exports.createPublicQues = async (req, res) => {
 };
 exports.deletePublicQues = async (req, res) => {
     try {
-      const readyToDeleteQues = await PublicQues.findOneAndDelete({ques_id:req.params.ques_id});
+      const readyToDeleteQues = await PublicQues.findOneAndDelete({ _id:req.params.ques_id});
       
       if (readyToDeleteQues!= null) {
         res.status(204).json({
@@ -92,7 +92,7 @@ exports.deletePublicQues = async (req, res) => {
 };
 exports.updatePublicQues = async (req, res) => {
     try {
-      const readyToUpdateQues = await PublicQues.findOneAndUpdate({ques_id:req.params.ques_id},req.body,{
+      const readyToUpdateQues = await PublicQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
         new: true,
         runValidators: true,
       });

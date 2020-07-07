@@ -9,8 +9,8 @@ const subpublicbankSchema = new mongoose.Schema({
         unique:true,
     },
     depart_id:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
+        type: mongoose.Schema.Types.String,
+        ref: 'Depart',
     },
     statement: {
         stem:{

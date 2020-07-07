@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.getBranch = async (req, res) => {
     try {
-      const branch = await Branch.findOne({branch_id:req.params.branch_id});
+      const branch = await Branch.findOne({ _id:req.params.branch_id });
       //.findById(req.params.branch_id);
       res.status(200).json({
         status: "success",
@@ -38,7 +38,7 @@ exports.createBranch = async (req, res) => {
 };
 exports.deleteBranch = async (req, res) => {
     try {
-      const readyToDeleteBranch = await Branch.findOneAndDelete({branch_id:req.params.branch_id});
+      const readyToDeleteBranch = await Branch.findOneAndDelete({_id:req.params.branch_id});
       
       if (readyToDeleteBranch!= null) {
         res.status(204).json({
@@ -54,7 +54,7 @@ exports.deleteBranch = async (req, res) => {
 };
 exports.updateBranch = async (req, res) => {
     try {
-      const readyToUpdateBranch = await Branch.findOneAndUpdate({branch_id:req.params.branch_id},req.body,{
+      const readyToUpdateBranch = await Branch.findOneAndUpdate({_id:req.params.branch_id},req.body,{
         new: true,
         runValidators: true,
       });
@@ -75,16 +75,16 @@ exports.getDepartByBranch = async (req, res) => {
       $lookup: {
         from: 'department', //the colletion named department in the database qc of mongodb
         localField: '_id',  //the field of the collection branch which also is the model Branch in mongoose
-        foreignField: 'branch_id', //the field of the collection department
-        as: 'department',
+        foreignField: 'branches', //the field of the collection department
+        as: 'belongedToDepart',
       }
     },
     {
       $project: {
         _id:0,
         branch_name: 1,
-        'department._id': 1,
-        'department.depart_name': 1
+        'belongedToDepart._id': 1,
+        'belongedToDepart.depart_name': 1
       }
     }
   ], (err, docs) => {

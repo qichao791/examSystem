@@ -13,7 +13,7 @@ const departSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please tell us the department's name."],
     },
-    branch_id: [
+    branches: [
         {
             type: mongoose.Schema.Types.String,//type: mongoose.Schema.Types.ObjectID,
             ref: 'Branch',
@@ -22,5 +22,5 @@ const departSchema = new mongoose.Schema({
 
 },{_id:false});
 
-const Department = mongoose.model("Department", departSchema,'department');
-module.exports = Department;
+const Depart = mongoose.model("Depart", departSchema,'department');
+module.exports = Depart;

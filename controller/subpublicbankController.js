@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.getSubQuesByID = async (req, res) => {
     try {
-      const ques = await SubQues.findOne({ques_id:req.params.ques_id});
+      const ques = await SubQues.findOne({_id:req.params.ques_id});
       res.status(200).json({
         status: "success",
         data: {
@@ -20,7 +20,7 @@ exports.getSubQuesByGrade = async (req, res) => {
             {$match: {depart_id:req.params.depart_id}},
             {$match: {grade:req.params.grade}},
             {$sample: { size: req.params.amount}}, 
-            {$project:{ _id:0,ques_id:1 }}
+            //{$project:{ _id:0,ques_id:1 }}
           
         ]);
         res.status(200).json({
@@ -44,7 +44,7 @@ exports.createSubQues = async (req, res) => {
 };
 exports.deleteSubQues = async (req, res) => {
     try {
-      const readyToDeleteQues = await SubQues.findOneAndDelete({ques_id:req.params.ques_id});
+      const readyToDeleteQues = await SubQues.findOneAndDelete({_id:req.params.ques_id});
       
       if (readyToDeleteQues!= null) {
         res.status(204).json({
@@ -60,7 +60,7 @@ exports.deleteSubQues = async (req, res) => {
 };
 exports.updateSubQues = async (req, res) => {
     try {
-      const readyToUpdateQues = await SubQues.findOneAndUpdate({ques_id:req.params.ques_id},req.body,{
+      const readyToUpdateQues = await SubQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
         new: true,
         runValidators: true,
       });

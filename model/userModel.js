@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 // name, departId, branchId, photo, password
 
 const userSchema = new mongoose.Schema({
-  user_id:{
+  _id:{
     type:String,
     required: [true, 'Please tell us user ID'],
     length: 18,
@@ -13,16 +13,16 @@ const userSchema = new mongoose.Schema({
     required: [true, "Please tell us user's name"],
   },
   depart_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Department',
+    type: mongoose.Schema.Types.String,
+    ref: 'Depart',
   },
   branch_id:{
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.Schema.Types.String,
     ref: 'Branch',
   },
   photo: { 
       type: String, 
-      default: "/avatar/default.png" 
+      default: '/avatar/default.png'
   },
   password: {
     type: String,
@@ -31,89 +31,7 @@ const userSchema = new mongoose.Schema({
     length: 6,
     select: false,
   },
-  /*
-  papers: [
-    {
-      paper: {
-        type: mongoose.Schema.ObjectId,
-        ref: "Paper",
-      },
-      is_finished:{
-        type:Boolean,
-        default:false,
-      },
-      answer_1: [
-        {
-          question:{
-              type: mongoose.Schema.ObjectId,
-              ref:"Public_ques_bank",
-          },
-          //right_answer:{
-              //type: String,
-              //required: [true, "Please tell us the right answer of this question."],
-          //},
-          user_answer:{
-              type: String,
-              default:'Z',
-          },
-        },
-      ],
-      answer_2: [
-        {
-          question:{
-            type: mongoose.Schema.ObjectId,
-            ref:"Sub_public_ques_bank",
-          },
-          //right_answer:{
-            //type: String,
-            //required: [true, "Please tell us the right answer of this question."],
-          //},
-          user_answer:{
-            type: String,
-            default:'Z',
-          },
-        },
-      ],
-      answer_3: [
-        {
-          question:{
-            type: mongoose.Schema.ObjectId,
-            ref:"Professional_ques_bank",
-          },
-          //right_answer:{
-            //type: String,
-            //required: [true, "Please tell us the right answer of this question."],
-          //},
-          user_answer:{
-            type: String,
-            default:'Z',
-          },
-        },
-      ],
-      score_1:{
-        type:Number,
-        default:0,
-      },
-      score_2:{
-        type:Number,
-        default:0,
-      },
-      score_3:{
-        type:Number,
-        default:0,
-      },
-      start_time: {
-        type: String,
-     
-      },
-      submit_time: {
-        type: String,
-
-      },
-    },
-  ],
-*/
-});
+},{_id:false});
 
 /*
 userSchema.pre("save", async function (next) {

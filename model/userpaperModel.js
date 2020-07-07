@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 
 const userpaperSchema = new mongoose.Schema({
   user_id:{
-    type: mongoose.Schema.ObjectId,
+    type: mongoose.Schema.String,
     ref: 'User',
   },
   paper_id:{
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.String,
         ref: "Paper",
   },
   is_finished:{
@@ -17,7 +17,7 @@ const userpaperSchema = new mongoose.Schema({
   public_questions: [
     {
           ques_id:{
-              type: mongoose.Schema.Types.ObjectId,
+              type: mongoose.Schema.Types.String,
               ref:"Questionbank",
           },
           user_answer:{
@@ -33,7 +33,7 @@ const userpaperSchema = new mongoose.Schema({
   subpublic_questions: [
     {
             ques_id:{
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.String,
                 ref:"Subpublicbank",
             },
             user_answer:{
@@ -49,7 +49,7 @@ const userpaperSchema = new mongoose.Schema({
   professional_questions: [
    {
             ques_id:{
-                type: mongoose.Schema.Types.ObjectId,
+                type: mongoose.Schema.Types.String,
                 ref:"Professionalbank",
             },
             user_answer:{

@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 exports.getProfQuesByID = async (req, res) => {
     try {
-      const ques = await ProfQues.findOne({ques_id:req.params.ques_id});
+      const ques = await ProfQues.findOne({_id:req.params.ques_id});
       res.status(200).json({
         status: "success",
         data: {
@@ -21,7 +21,7 @@ exports.getProfQuesByGrade = async (req, res) => {
             {$match: {branch_id:req.params.branch_id}},
             {$match: {grade:req.params.grade}},
             {$sample: { size: req.params.amount}}, 
-            {$project:{ _id:0,ques_id:1 }}
+            //{$project:{ _id:0,ques_id:1 }}
           
         ]);
         res.status(200).json({
@@ -45,7 +45,7 @@ exports.createProfQues = async (req, res) => {
 };
 exports.deleteProfQues = async (req, res) => {
     try {
-      const readyToDeleteQues = await ProfQues.findOneAndDelete({ques_id:req.params.ques_id});
+      const readyToDeleteQues = await ProfQues.findOneAndDelete({_id:req.params.ques_id});
       
       if (readyToDeleteQues!= null) {
         res.status(204).json({
@@ -61,7 +61,7 @@ exports.deleteProfQues = async (req, res) => {
 };
 exports.updateProfQues = async (req, res) => {
     try {
-      const readyToUpdateQues = await ProfQues.findOneAndUpdate({ques_id:req.params.ques_id},req.body,{
+      const readyToUpdateQues = await ProfQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
         new: true,
         runValidators: true,
       });

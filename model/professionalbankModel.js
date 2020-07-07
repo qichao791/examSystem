@@ -9,12 +9,12 @@ const professionalbankSchema = new mongoose.Schema({
         unique:true,
     },
     depart_id:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Department',
+        type: mongoose.Schema.Types.String,
+        ref: 'Depart',
     },
     branch_id:
     {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.String,
         ref: 'Branch',
     },
     statement: {

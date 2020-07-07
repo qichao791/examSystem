@@ -41,34 +41,13 @@ exports.createUser = async (req, res) => {
     },
   });
 };
-
-exports.updateUserRecords = async (req, res) => {
-  const newRecords = await User.findByIdAndUpdate(req.params.id, {
-    $push: {
-      buyCourses: { course: req.body.buyCourses[0].course },
-    },
-  });
-
-  res.status(201).json({
-    status: "success",
-    data: {
-      newRecords,
-    },
-  });
-};
-
 exports.updateUser = async (req, res) => {
-  // console.log(req.body);
-  // console.log(req.params.id);
-  const filter = { _id: req.params.id };
-  const update = { "buyCourses.course": req.body.byCourses[0].course };
   try {
-    const user = await Course.findOneAndUpdate(filter, update, {
+    const user = await User.findOneAndUpdate({_id:req.params.id},req.body, {
       new: true,
-      // runValidators: true,
     });
     res.status(200).json({
-      status: "scccess",
+      status: "success",
       data: {
         user,
       },
@@ -76,7 +55,7 @@ exports.updateUser = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
-};
+}; 
 exports.deleteUser = (req, res) => {
   res.status(500).json({
     status: "error",

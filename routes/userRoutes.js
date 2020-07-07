@@ -12,7 +12,5 @@ router
   .get(userController.getUser)
   .patch(userController.updateUser)
   .delete(userController.deleteUser)
-  .post(userController.updateUserRecords);
 
-//   router.use('/api/mobile/v1/users', courseRouter);
 module.exports = router;
