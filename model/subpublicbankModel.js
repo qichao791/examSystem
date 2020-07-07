@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const uuid = require("uuid");
 
 const subpublicbankSchema = new mongoose.Schema({
-    ques_id:{
+    _id:{
         type:String,
         required: [true, "Please tell us question's ID"],
         default:uuid.v1,
@@ -39,7 +39,7 @@ const subpublicbankSchema = new mongoose.Schema({
     attachment:{
         type:String,
     },
-});
+},{_id:false});
 
-const Subpublicbank = mongoose.model("Subpublicbank", subpublicbankSchema);
+const Subpublicbank = mongoose.model("Subpublicbank", subpublicbankSchema,'subpublicbank');
 module.exports = Subpublicbank;

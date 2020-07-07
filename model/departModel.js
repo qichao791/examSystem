@@ -3,7 +3,7 @@ const uuid = require("uuid");
 //let departID = uuid.v1().substring(0,4);//Generate the departID with 4 charactors.
 
 const departSchema = new mongoose.Schema({
-    depart_id:{
+    _id:{
         type:String,
         required: [true, "Please tell us department's ID"],
         default:uuid.v1,
@@ -15,12 +15,12 @@ const departSchema = new mongoose.Schema({
     },
     branch_id: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.String,//type: mongoose.Schema.Types.ObjectID,
             ref: 'Branch',
         },
     ],
 
-});
+},{_id:false});
 
-const Department = mongoose.model("Department", departSchema);
+const Department = mongoose.model("Department", departSchema,'department');
 module.exports = Department;

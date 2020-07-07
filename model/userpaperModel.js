@@ -71,5 +71,5 @@ const userpaperSchema = new mongoose.Schema({
   },
 });
 
-const Userpaper = mongoose.model("User", userpaperSchema);
+const Userpaper = mongoose.model("User", userpaperSchema,'userpaper');
 module.exports = Userpaper;

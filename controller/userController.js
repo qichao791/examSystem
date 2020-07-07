@@ -3,11 +3,11 @@ const User = require("../model/userModel");
 const mongoose = require("mongoose");
 
 exports.getAllUsers = async (req, res) => {
-  let filter = {};
-  if (req.params.courseId)
-    filter = { buyCourses: { $elemMatch: { course: req.params.courseId } } };
-  console.log(filter);
-  const users = await User.find(filter).select("email");
+  //let filter = {};
+  //if (req.params.courseId)
+  //  filter = { buyCourses: { $elemMatch: { course: req.params.courseId } } };
+  //console.log(filter);
+  const users = await User.find();
 
   res.status(200).json({
     status: "success",

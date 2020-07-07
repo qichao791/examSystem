@@ -38,8 +38,6 @@ exports.createBranch = async (req, res) => {
 };
 exports.deleteBranch = async (req, res) => {
     try {
-      console.log({"params":req.params});
-      console.log({"opopopo":req.query});
       const readyToDeleteBranch = await Branch.findOneAndDelete({branch_id:req.params.branch_id});
       
       if (readyToDeleteBranch!= null) {
@@ -71,6 +69,38 @@ exports.updateBranch = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 }; 
+exports.getDepartByBranch = async (req, res) => {
+  Branch.aggregate([
+    {
+      $lookup: {
+        from: 'department', //the colletion named department in the database qc of mongodb
+        localField: '_id',  //the field of the collection branch which also is the model Branch in mongoose
+        foreignField: 'branch_id', //the field of the collection department
+        as: 'department',
+      }
+    },
+    {
+      $project: {
+        _id:0,
+        branch_name: 1,
+        'department._id': 1,
+        'department.depart_name': 1
+      }
+    }
+  ], (err, docs) => {
+    if (err) {
+      //console.log('查询错误', err);
+      res.status(404).json({ status: "fail", message: err });
+    }
+    //console.log(JSON.stringify(docs));
+    res.status(200).json({
+      status: "success",
+      data: {
+          docs,
+      },
+    });
+  })
+}
 /* 根据发送的请求 进行相关的操作
 app.get("/",async(req,res)=>{
     //cosnt data = await Product.find().limit(2).skip(1) // 分页 1页2条数据

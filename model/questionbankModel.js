@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const uuid = require("uuid");
 
 const questionbankSchema = new mongoose.Schema({
-    ques_id:{
+    _id:{
         type:String,
         required: [true, "Please tell us question's ID"],
         default:uuid.v1,
@@ -35,7 +35,7 @@ const questionbankSchema = new mongoose.Schema({
     attachment:{
         type:String,
     },
-});
+},{_id:false});
 
-const Quesitonbank = mongoose.model("Quesitonbank", questionbankSchema);
+const Quesitonbank = mongoose.model("Quesitonbank", questionbankSchema,'questionbank');
 module.exports = Quesitonbank;

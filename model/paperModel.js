@@ -1,11 +1,12 @@
 const mongoose = require("mongoose");
-////const uuid = require("uuid");
+const uuid = require("uuid");
 ////let paperID = uuid.v1().substring(0,10);//Generate the paperID with 4 charactors.
 
 const paperSchema = new mongoose.Schema({
     _id:{
         type:String,
         required: [true, "Please tell us paper's ID"],
+        default:uuid.v1,
         unique:true,
     },
     paper_name: {
@@ -48,7 +49,7 @@ const paperSchema = new mongoose.Schema({
         type: Number,
         default:0,
     },
-});
+},{_id:false});
 
-const Paper = mongoose.model("Paper", paperSchema);
+const Paper = mongoose.model("Paper", paperSchema,'paper');
 module.exports = Paper;

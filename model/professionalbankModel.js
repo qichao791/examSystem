@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const uuid = require("uuid");
 
 const professionalbankSchema = new mongoose.Schema({
-    ques_id:{
+    _id:{
         type:String,
         required: [true, "Please tell us question's ID"],
         default:uuid.v1,
@@ -44,7 +44,7 @@ const professionalbankSchema = new mongoose.Schema({
     attachment:{
         type:String,
     },
-});
+},{_id:false});
 
-const Professionalbank = mongoose.model("Professionalbank", professionalbankSchema);
+const Professionalbank = mongoose.model("Professionalbank", professionalbankSchema,'profressionalbank');
 module.exports = Professionalbank;
