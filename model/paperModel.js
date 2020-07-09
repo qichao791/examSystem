@@ -7,7 +7,7 @@ const paperSchema = new mongoose.Schema({
         type:String,
         required: [true, "Please tell us paper's ID"],
         default:uuid.v1,
-        unique:true,
+        
     },
     paper_name: {
         type: String,

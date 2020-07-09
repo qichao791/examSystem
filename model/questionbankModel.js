@@ -6,7 +6,7 @@ const questionbankSchema = new mongoose.Schema({
         type:String,
         required: [true, "Please tell us question's ID"],
         default:uuid.v1,
-        unique:true,
+
     },
     statement: {
         stem:{

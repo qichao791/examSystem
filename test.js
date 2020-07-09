@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost:27017/qc');
-
-let schema = new mongoose.Schema({ 
+const uuid = require("uuid");
+const schema = new mongoose.Schema({ 
      _id:String,
+     
      username:String,
      depart_id: {
        type: mongoose.Schema.Types.String,
@@ -12,7 +13,7 @@ let schema = new mongoose.Schema({
    {
      _id:false
   });
-let schema1 = new mongoose.Schema({
+const schema1 = new mongoose.Schema({
   _id:String,
   departname:String
   },
@@ -20,8 +21,8 @@ let schema1 = new mongoose.Schema({
 
 //let Person = mongoose.model('Person',schema,'person');
 //let Department = mongoose.model('Department',schema1,'department');
-let Person = mongoose.model('Person',schema);
-let Department = mongoose.model('Department',schema1);
+const Person = mongoose.model('Person',schema);
+const Department = mongoose.model('Department',schema1);
 /*
 let dept1=new Department({
     departname:'yyyy',_id:'d01'
@@ -78,13 +79,13 @@ man3.save(function(err,target){
   }else{
       console.log(target);//{ __v: 0, name: 'noshower', _id: 1 }
   }
-});
+});*/
 
         
             Person.aggregate([
               {
                 $lookup: {
-                  from: 'department', // 关联到学生表
+                  from: 'departments', // 关联到学生表
                   localField: 'depart_id', // 班级表中关联的字段
                   foreignField: '_id', // 学生表中被关联的id
                   as: 'stus',
@@ -96,7 +97,8 @@ man3.save(function(err,target){
                 return
               }
               console.log(JSON.stringify(docs));
-            })   */    
+            })     
+            /* 
             Department.aggregate([
               {
                 $lookup: {
@@ -113,4 +115,4 @@ man3.save(function(err,target){
               }
               console.log(JSON.stringify(docs));
               return;
-            })   
+            })   */

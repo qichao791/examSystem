@@ -6,7 +6,7 @@ const professionalbankSchema = new mongoose.Schema({
         type:String,
         required: [true, "Please tell us question's ID"],
         default:uuid.v1,
-        unique:true,
+
     },
     depart_id:{
         type: mongoose.Schema.Types.String,

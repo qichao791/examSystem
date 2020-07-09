@@ -7,7 +7,7 @@ const departSchema = new mongoose.Schema({
         type:String,
         required: [true, "Please tell us department's ID"],
         default:uuid.v1,
-        unique:true,
+        
     },
     depart_name: {
         type: String,
