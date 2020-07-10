@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 
 const userpaperSchema = new mongoose.Schema({
   user_id:{
-    type: mongoose.Schema.String,
+    type: mongoose.Schema.Types.String,
     ref: 'User',
   },
   paper_id:{
