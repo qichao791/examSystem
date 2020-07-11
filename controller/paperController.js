@@ -15,7 +15,7 @@ exports.getPaper = async (req, res) => {
     }
 };
 
-exports.getAllPaperes = async (req, res) => {
+exports.getAllPapers = async (req, res) => {
     const paperes = await Paper.find();
   
     res.status(200).json({
@@ -68,37 +68,3 @@ exports.updatePaper = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 }; 
-/*
-exports.getDepartByPaper = async (req, res) => {
-  Paper.aggregate([
-    {
-      $lookup: {
-        from: 'department', //the colletion named department in the database qc of mongodb
-        localField: '_id',  //the field of the collection Paper which also is the model Paper in mongoose
-        foreignField: 'Paperes', //the field of the collection department
-        as: 'belongedToDepart',
-      }
-    },
-    {
-      $project: {
-        _id:0,
-        Paper_name: 1,
-        'belongedToDepart._id': 1,
-        'belongedToDepart.depart_name': 1
-      }
-    }
-  ], (err, docs) => {
-    if (err) {
-      //console.log('查询错误', err);
-      res.status(404).json({ status: "fail", message: err });
-    }
-    //console.log(JSON.stringify(docs));
-    res.status(200).json({
-      status: "success",
-      data: {
-          docs,
-      },
-    });
-  })
-}
-*/

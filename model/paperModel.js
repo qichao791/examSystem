@@ -26,7 +26,7 @@ const paperSchema = new mongoose.Schema({
         default:2,
     },
     duration: {
-        type: Number,
+        type: Number,//分钟
         required: [true, "Please tell us the paper's duration."],
     },
     start_time: {

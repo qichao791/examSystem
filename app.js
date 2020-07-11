@@ -3,6 +3,7 @@ const morgan = require("morgan");
 
 const branchRouter = require("./routes/branchRoutes");
 const userRouter = require("./routes/userRoutes");
+const paperRouter = require("./routes/paperRoutes");
 const questionbankRouter = require("./routes/questionbankRoutes");
 const subpublicbankRouter = require("./routes/subpublicbankRoutes");
 const professionalbankRouter = require("./routes/professionalbankRoutes");
@@ -23,4 +24,5 @@ app.use("/api/v1/publicquestion", questionbankRouter);
 app.use("/api/v1/subpublicquestion", subpublicbankRouter);
 app.use("/api/v1/professionalquestion", professionalbankRouter);
 app.use("/api/v1/userpaper", userpaperRouter);
+app.use("/api/v1/paper", paperRouter);
 module.exports = app;
