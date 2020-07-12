@@ -118,16 +118,31 @@ exports.getPaperByUid = async (req, res) => {
     { $match: { user_id: req.query.user_id } },
     { $match: { is_finished: req.query.is_finished==='true' } },
     { $match: { 'data.is_resit': req.query.is_resit==='true' }},
-    //{
-      //$group:{_id:user_id}
-    //},
+
+    {
+      $addFields: { score:
+        { $add: [ "$public_score", "$subpublic_score", "$professional_score" ] } } // 再添加一个score字段，值为原有三个字段相加之和
+    },
+    /*
+         //{
+         //    _id: 2,
+         //    student: "Ryan",
+         //    quiz: [ 8, 8 ],
+         //}
+    {
+      $addFields: {
+        totalQuiz: { $sum: "$quiz" } // 添加totalQuiz字段，值为quize数组字段的和
+      }
+    },
+   */
     {
       $project: {
         _id:0,
         paper_id: 1,
-        public_score:1,
-        subpublic_score:1,
-        professional_score:1,
+        //public_score:1,
+        //subpublic_score:1,
+        //professional_score:1,
+        score:1,
         'data.paper_name': 1,
         'data.paper_batch': 1,
         'data.paper_term': 1,
@@ -137,15 +152,15 @@ exports.getPaperByUid = async (req, res) => {
       }
     }
   ]);
+  /*
   result = result.map(item=>{
     item.score = item.public_score+item.subpublic_score+item.professional_score;
     delete item.public_score
     delete item.subpublic_score
     delete item.professional_score
     return item
-
   });
-  
+  */
   res.status(200).json({
     status: "success",
     data: {

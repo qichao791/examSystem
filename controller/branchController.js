@@ -31,7 +31,7 @@ exports.createBranch = async (req, res) => {
     try{
         const newBranch = await Branch.create(req.body);
         res.send(newBranch);
-      
+      console.log(req.body);
     }catch (err) {
         console.log(err);
     }

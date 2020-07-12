@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 
+const departRouter = require("./routes/departRoutes");
 const branchRouter = require("./routes/branchRoutes");
 const userRouter = require("./routes/userRoutes");
 const paperRouter = require("./routes/paperRoutes");
@@ -18,7 +19,8 @@ if (process.env.NODE_ENV === "development") {
 app.use(morgan("dev"));
 app.use(express.json());
 
-//app.use("/api/v1/users", userRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/departs", departRouter);
 app.use("/api/v1/branches", branchRouter);
 app.use("/api/v1/publicquestion", questionbankRouter);
 app.use("/api/v1/subpublicquestion", subpublicbankRouter);

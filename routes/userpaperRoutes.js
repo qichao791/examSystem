@@ -9,10 +9,10 @@ router
   .post(upController.generateOneUserPaper);
 router
   .route("/:user_id")
-  .get(upController.getPaperByUid)
+  //.get(upController.getPaperByUid)
   //.patch(upController.updateUserpaper)
  // .delete(upController.deleteUserpaper)
 router
-  .route("/up")
+  .route("/getPaperByUid")
   .get(upController.getPaperByUid)
 module.exports = router;

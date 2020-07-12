@@ -13,7 +13,7 @@ const branchSchema = new mongoose.Schema({
     
     branch_name: {
         type: String,
-        required: [true, "Please tell us the department's name."],
+        required: [true, "Please tell us the branch's name."],
     },
     
 },{_id:false}); 

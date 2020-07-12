@@ -73,7 +73,7 @@ exports.getBranchByDepart = async (req, res) => {
     {
       $lookup: {
         from: 'branch', //the colletion named branch in the database qc of mongodb
-        localField: 'branch_id',  //the field of the collection department which also is the model Depart in mongoose
+        localField: 'branches',  //the field of the collection department which also is the model Depart in mongoose
         foreignField: '_id', //the field of the collection branch
         as: 'Branches',
       }
@@ -83,7 +83,7 @@ exports.getBranchByDepart = async (req, res) => {
         _id:0,
         depart_name: 1,
         'Branches._id': 1,
-        'Branches.depart_name': 1
+        'Branches.branch_name': 1
       }
     }
   ], (err, docs) => {
