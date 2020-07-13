@@ -13,13 +13,15 @@ const questionbankSchema = new mongoose.Schema({
             type: String,
             required: [true, "Please tell us the question's statement."],
         },
-        options: [    
+        options: [  
             {
-                option_name:String,
-                option_value:String,
-                is_answer:{type:Boolean,default:false,},
-            },        
+               type: String,
+            },
         ],
+        right_answer:{
+            type:String,
+            required: [true, "Please tell us the answer."],
+        }
     },
       
     analysis: {
@@ -34,6 +36,7 @@ const questionbankSchema = new mongoose.Schema({
     },
     attachment:{
         type:String,
+        default:"/attachment/*.file"
     },
 },{_id:false});
 

@@ -4,6 +4,8 @@ const PublicQues = require("../model/questionbankModel");
 const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 
+const PQC = require("../controller/questionbankController");
+
 exports.generateOneUserPaper = async (req, res) => {
   try {
     let up = new Userpaper();
@@ -106,24 +108,27 @@ exports.getPaperByUid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }*/
   try {
-   let result = await Userpaper.aggregate([
-    {
-      $lookup: {
-        from: 'paper', 
-        localField: 'paper_id', 
-        foreignField: '_id', 
-        as: 'data',
-      }
-    },
-    { $match: { user_id: req.query.user_id } },
-    { $match: { is_finished: req.query.is_finished==='true' } },
-    { $match: { 'data.is_resit': req.query.is_resit==='true' }},
+    let result = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: "paper",
+          localField: "paper_id",
+          foreignField: "_id",
+          as: "data",
+        },
+      },
+      { $match: { user_id: req.query.user_id } },
+      { $match: { is_finished: req.query.is_finished === "true" } },
+      { $match: { "data.is_resit": req.query.is_resit === "true" } },
 
-    {
-      $addFields: { score:
-        { $add: [ "$public_score", "$subpublic_score", "$professional_score" ] } } // 再添加一个score字段，值为原有三个字段相加之和
-    },
-    /*
+      {
+        $addFields: {
+          score: {
+            $add: ["$public_score", "$subpublic_score", "$professional_score"],
+          },
+        }, // 再添加一个score字段，值为原有三个字段相加之和
+      },
+      /*
          //{
          //    _id: 2,
          //    student: "Ryan",
@@ -135,24 +140,24 @@ exports.getPaperByUid = async (req, res) => {
       }
     },
    */
-    {
-      $project: {
-        _id:0,
-        paper_id: 1,
-        //public_score:1,
-        //subpublic_score:1,
-        //professional_score:1,
-        score:1,
-        'data.paper_name': 1,
-        'data.paper_batch': 1,
-        'data.paper_term': 1,
-        'data.duration': 1,
-        'data.start_time': 1,
-        'data.end_time': 1,
-      }
-    }
-  ]);
-  /*
+      {
+        $project: {
+          _id: 0,
+          paper_id: 1,
+          //public_score:1,
+          //subpublic_score:1,
+          //professional_score:1,
+          score: 1,
+          "data.paper_name": 1,
+          "data.paper_batch": 1,
+          "data.paper_term": 1,
+          "data.duration": 1,
+          "data.start_time": 1,
+          "data.end_time": 1,
+        },
+      },
+    ]);
+    /*
   result = result.map(item=>{
     item.score = item.public_score+item.subpublic_score+item.professional_score;
     delete item.public_score
@@ -161,16 +166,15 @@ exports.getPaperByUid = async (req, res) => {
     return item
   });
   */
-  res.status(200).json({
-    status: "success",
-    data: {
-      result,
-    },
-  });
-  
- } catch (err) {
-   res.status(404).json({ status: "fail", message: err });
- }
+    res.status(200).json({
+      status: "success",
+      data: {
+        result,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
 exports.getPaperByPid = async (req, res) => {
   try {
@@ -190,19 +194,41 @@ exports.getPaperByPid = async (req, res) => {
 exports.getPaperByUidPid = async (req, res) => {
   try {
     const data = await Userpaper.findOne({
-      user_id: req.params.user_id,
-      paper_id: req.params.paper_id,
+      user_id: req.query.user_id,
+      paper_id: req.query.paper_id,
     });
+    let pqs = data.public_questions;
+
+    pqs = await getQuesByQid(pqs);
     res.status(200).json({
       status: "success",
       data: {
-        data,
+        pqs,
       },
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+async function getQuesByQid(pqs) {
+  try {
+    let result = [];
+    for (let i = 0; i < pqs.length; i++) {
+      let statement=await PublicQues.find(
+        { _id: pqs[i].ques_id },"statement attachment");
+      let item = {
+        user_answer: "Z",
+        ques_id: pqs[i].ques_id,
+        ...statement[0].statement,
+        attachment:statement[0].attachment
+      };
+      result.push(item);
+    }
+    return result;
+  } catch (err) {
+    console.log(err);
+  }
+}
 exports.getAllPapers = async (req, res) => {
   const data = await Userpaper.find();
 

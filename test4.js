@@ -13,7 +13,7 @@ mongoose
         useFindAndModify: false,
     })
     .then(() => console.log("DB connection successful!"));
-
+/*
 async function abc() {
     try {
         let result = await PublicQues.aggregate([
@@ -51,30 +51,22 @@ async function sss() {
 sss();
 //
 
-/*
+*/
+var ques = new PublicQues();
 var ques1 = new PublicQues();
 ques.statement = {
   stem: "1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.",
-  options: [
-    { option_name: "A.", option_value: "aaaaa", is_answer: true },
-    { option_name: "B.", option_value: "bbbbb" },
-    { option_name: "C.", option_value: "ccccc" },
-    { option_name: "D.", option_value: "ddddd" },
-  ],
+  options: ["aaaaa",  "bbbbb" , "ccccc" , "ddddd" ],
+  right_answer:"B"
 };
 ques.analysis = "analysisanalysisanalysisanalysisanalysis";
 ques.grade = 2;
 //ques.save();
 ques1.statement = {
-  stem: "1.yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy.",
-  options: [
-    { option_name: "A.", option_value: "aaaaa", is_answer: true },
-    { option_name: "B.", option_value: "bbbbb" },
-    { option_name: "C.", option_value: "ccccc" },
-    { option_name: "D.", option_value: "ddddd" },
-  ],
+    stem: "1.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb.",
+  options: ["aaaaa",  "bbbbb" , "ccccc" , "ddddd" ,"eeeee"],
+  right_answer:"CE"
 };
 ques1.analysis = "analysisanalysisanalysisanalysisanalysis";
 ques1.grade = 2;
 ques1.save().then(() => ques.save());
-*/

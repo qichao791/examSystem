@@ -61,10 +61,11 @@ dog
     })
   )
   .then(() =>
+  //var Animal = mongoose.model("Animal", animalSchema);
     Animal.find({ type: "dog" }, "name type").exec(function (err, result) {
       console.log(result);
     })
-  );
+  //);
 //woof.save();
 //dog.findSimilarTypes(function (err, dogs) {
 // console.log(dogs); // woof

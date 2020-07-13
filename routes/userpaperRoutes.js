@@ -15,4 +15,7 @@ router
 router
   .route("/getPaperByUid")
   .get(upController.getPaperByUid)
+router
+  .route("/getPaperByUidPid")
+  .get(upController.getPaperByUidPid)
 module.exports = router;
