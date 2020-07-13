@@ -67,7 +67,7 @@ exports.userLogin = async (req, res) => {
     var user_id = req.body._id
     var password = req.body.password
 
-    var user = (await getUserById(user_id));
+    var user = (await User.findById(user_id));
     if (user == null) {
         res.status(200).json({
             status: "false",
@@ -87,18 +87,6 @@ exports.userLogin = async (req, res) => {
                 message: usermsg
             })
         }
-    }
-}
-
-async function getUserById(user_id) {
-    try {
-        let user = await User.findOne({
-            _id: user_id
-        })
-        console.log("user是", user)
-        return user;
-    } catch (err) {
-        console.log(err)
     }
 }
 
