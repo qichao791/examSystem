@@ -37,7 +37,7 @@ const questionbankSchema = new mongoose.Schema({
     attachment:{
             image: [
                 String
-               //"https://wiki.wannax.cn/stastic/000000.jpg",
+                //"https://wiki.wannax.cn/stastic/000000.jpg",
             ],
             voice: [
                 String

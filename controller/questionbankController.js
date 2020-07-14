@@ -111,9 +111,23 @@ exports.updatePublicQues = async (req, res) => {
 exports.addPublicQues = async (req,res) =>{
   var ques = req.body
   console.log("ques:",ques)
-  var optionsCount=ques.statement.options.length
-  console.log("选项数目：",optionsCount)
-  var options=[]
+  try{
+    await PublicQues.create(ques,function(err){
+      if(err){
+        console.log(err)
+        res.status(200).json({
+          status:"false"
+        })
+      }else{
+        res.status(200).json({
+          status:"true"
+        })
+      }
+    })
+  }catch(err){
+    console.log(err)
+  }
+ 
   // for(var i=0;i<optionsCount;i++){
   //   options[i].option_name=ques.statement.options[i],
 
