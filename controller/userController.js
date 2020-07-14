@@ -1,13 +1,37 @@
 const User = require("../model/userModel");
+const Userpaper = require("../model/userpaperModel")
 
 const mongoose = require("mongoose");
 
+/**
+ * addUser
+ * 插入一个或多个员工
+ */
+exports.addUser = async (req, res) => {
+    var users = req.body
+    try {
+        await User.insertMany(users, function (err) {
+            if (err) {
+                console.log(err)
+                res.json({
+                    status: "false",
+                });
+            } else {
+                res.json({
+                    status: "true",
+                });
+            }
+        })
+    } catch (e) {
+        console.log(e)
+        res.json({
+            status: "false",
+        });
+    }
+};
+
 exports.getAllUsers = async (req, res) => {
     console.log("getALL ")
-    //let filter = {};
-    //if (req.params.courseId)
-    //  filter = { buyCourses: { $elemMatch: { course: req.params.courseId } } };
-    //console.log(filter);
     const users = await User.find();
 
     res.status(200).json({
@@ -33,36 +57,74 @@ exports.getUser = async (req, res) => {
         res.status(404).json({ status: "fail", message: err });
     }
 };
-exports.createUser = async (req, res) => {
-    const newUser = await User.create(req.body);
-    res.status(201).json({
-        status: "success",
-        data: {
-            selected,
-        },
-    });
-};
+
+/**
+ * updateUser
+ * 更新员工的信息
+ */
 exports.updateUser = async (req, res) => {
+    console.log("req.body:", req.body)
     try {
-        const user = await User.findOneAndUpdate({ _id: req.params.id }, req.body, {
-            new: true,
-        });
-        res.status(200).json({
-            status: "success",
-            data: {
-                user,
-            },
-        });
+        const result = await User.replaceOne({ _id: req.body._id }, req.body);
+        console.log("result", result)
+        if (result.nModified == 1) {
+            res.status(200).json({
+                status: "true",
+            })
+        } else {
+            res.status(200).json({
+                status: "false",
+            })
+        }
     } catch (err) {
-        res.status(404).json({ status: "fail", message: err });
+        console.log(err)
+        res.status(200).json({
+            status: "false",
+        })
+    }
+
+};
+
+/**
+ * deleteUser
+ *删除某个用户的同时删除他的paper
+ */
+exports.deleteUser = async (req, res) => {
+    var user_id = req.body.user_id
+    var isDel = 0;
+    try {
+        await User.deleteOne({ _id: user_id }, function (err) {
+            if (err) {
+                console.log(err)
+                res.status(200).json({
+                    status: "false"
+                })
+            } else {
+                isDel = 1
+            }
+        })
+        if (isDel == 1) {
+            await Userpaper.deleteOne({ user_id: user_id }, function (err) {
+                if (err) {
+                    console.log(err)
+                    res.status(200).json({
+                        status: "false"
+                    })
+                } else {
+                    res.status(200).json({
+                        status: "true"
+                    })
+                }
+            })
+        }
+    } catch (err) {
+        console.log(err)
+        res.status(200).json({
+            status: "false"
+        })
     }
 };
-exports.deleteUser = (req, res) => {
-    res.status(500).json({
-        status: "error",
-        message: "This route is not defined!",
-    });
-};
+
 exports.userLogin = async (req, res) => {
     var user_id = req.body._id
     var password = req.body.password
@@ -80,14 +142,59 @@ exports.userLogin = async (req, res) => {
                 message: "密码错误"
             })
         } else {
-            var userinfo = await getUserInfo(user)
-            var usermsg = { photo: userinfo[0].photo, user_name: userinfo[0].user_name, depart_name: userinfo[0].user_department[0].depart_name, branch_name: userinfo[0].user_branch[0].branch_name }
-            res.status(200).json({
-                status: "true",
-                message: usermsg
-            })
+            if (user.active == false) {
+                res.status(200).json({
+                    status: "false",
+                    message: "该用户未激活"
+                })
+            } else {
+                var userinfo = await getUserInfo(user)
+                var usermsg = {
+                    avatar: userinfo[0].avatar,
+                    username: userinfo[0].username,
+                    branch_name: (userinfo[0].user_branch.length == 0) ? '' : userinfo[0].user_branch[0].branch_name,
+                    depart_name: (userinfo[0].user_department.length == 0) ? '' : userinfo[0].user_department[0].depart_name
+                }
+                res.status(200).json({
+                    status: "true",
+                    message: usermsg
+                })
+            }
+
         }
     }
+};
+
+/**
+ * getDepartUser
+ * 获取某一部门所有员工
+ */
+exports.getDepartUser = async (req, res) => {
+    var depart_id = req.query.depart_id
+    var users = []
+    try {
+        var departUsers = await getOneDepartUsers(depart_id)
+        console.log("部门员工：", departUsers)
+
+        for (var i = 0; i < departUsers.length; i++) {
+            var user = {
+                user_id: departUsers[i]._id,
+                username: departUsers[i].username,
+                depart_name: departUsers[i].user_department[0].depart_name,
+                branch_name: (departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_name
+            }
+            users.push(user)
+        }
+        console.log("users:", users)
+        res.status(200).json(
+            users
+        )
+    } catch (err) {
+        console.log(err)
+    }
+
+
+
 }
 
 async function getUserInfo(user) {  //获取用户及其部门、branch名称
@@ -117,8 +224,48 @@ async function getUserInfo(user) {  //获取用户及其部门、branch名称
             {
                 $project: {
                     _id: 0,
-                    user_name: 1,
-                    photo: 1,
+                    username: 1,
+                    avatar: 1,
+                    'user_department.depart_name': 1,
+                    'user_branch.branch_name': 1,
+                }
+            }
+        ]);
+        console.log("userinfo:", userinfo)
+        return userinfo
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
+    try {
+        let userinfo = await User.aggregate([
+            {
+                $lookup: {
+                    from: 'department',
+                    localField: 'depart_id',
+                    foreignField: '_id',
+                    as: 'user_department'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'branch',
+                    localField: 'branch_id',
+                    foreignField: '_id',
+                    as: 'user_branch'
+                }
+            },
+            {
+                $match: {
+                    depart_id: depart_id
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    username: 1,
                     'user_department.depart_name': 1,
                     'user_branch.branch_name': 1,
                 }

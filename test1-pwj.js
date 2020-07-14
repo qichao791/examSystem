@@ -16,17 +16,17 @@ mongoose
 
 const User = require("./model/userModel");
 
-// var user = new User({
-//   _id: "410725199705202810",
-//   user_name: "彭卫杰",
-//   depart_id: "b0934750-c419-11ea-914a-1db0dc6b92e0",
-//   branch_id: "60471550-c415-11ea-a0b5-d380a00b1ea3",
-//   photo: "/avatar/default.png",
-//   password: "111111"
-// })
+var user = new User({
+  _id: "410725199705202811",
+  username: "王六",
+  depart_id: "b0934750-c419-11ea-914a-1db0dc6b92e0",
+  branch_id: "60471550-c415-11ea-a0b5-d380a00b1ea3",
+  photo: "/avatar/default.png",
+  password: "111111"
+})
 
-// user.save()
-
+user.save()
+/*
 async function getUserById(user_id) {
   try {
     //console.log("req.body",req.body)
@@ -81,13 +81,63 @@ async function getUserInfo(user) {
     console.log(err)
   }
 }
-async function test() {
-  var user1 = await getUserById("410725199705202810");
-
-  console.log("得到的User是：", user1)
-  var userinfos = await getUserInfo(user1)
-}
-test();
+*/
+// async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
+//   try {
+//     let userinfo = await User.aggregate([
+//       {
+//         $lookup: {
+//           from: 'department',
+//           localField: 'depart_id',
+//           foreignField: '_id',
+//           as: 'user_department'
+//         }
+//       },
+//       {
+//         $lookup: {
+//           from: 'branch',
+//           localField: 'branch_id',
+//           foreignField: '_id',
+//           as: 'user_branch'
+//         }
+//       },
+//       {
+//         $match: {
+//           depart_id: depart_id
+//         }
+//       },
+//       {
+//         $project: {
+//           _id: 1,
+//           username: 1,
+//           user_department: 1,
+//           user_branch: 1,
+//         }
+//       }
+//     ]);
+//     console.log("userinfo:", userinfo)
+//     return userinfo
+//   } catch (err) {
+//     console.log(err)
+//   }
+// }
+// async function test() {
+//   //var user1 = await getUserById("410725199705202810");
+//   var departUsers = await getOneDepartUsers('b0934750-c419-11ea-914a-1db0dc6b92e0')
+//   console.log("部门员工：", departUsers)
+//   var users = []
+//   for (var i = 0; i < departUsers.length; i++) {
+//     var user ={
+//       user_id:departUsers[i]._id,
+//       username:departUsers[i].username,
+//       depart_name:departUsers[i].user_department[0].depart_name,
+//       branch_name:(departUsers[i].user_branch.length==0)?'':departUsers[i].user_branch[0].branch_name
+//     }
+//     users.push(user)
+//   }
+//   console.log("users:",users)
+// }
+// test();
 
 
 

@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     length: 18,
 
   },
-  user_name: {
+  username: {
     type: String,
     required: [true, "Please tell us user's name"],
   },
@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.String,
     ref: 'Branch',
   },
-  photo: { 
+  avatar: { 
       type: String, 
       default: '/avatar/default.png'
   },
@@ -30,6 +30,9 @@ const userSchema = new mongoose.Schema({
     default:'111111',
     length: 6
   },
+  active:{
+    type:Boolean
+  }
 },{_id:false});
 
 /*
