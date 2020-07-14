@@ -24,5 +24,11 @@ router
 router
   .route("/calculateByUidPid")
   .post(upController.calculateByUidPid)  
-  
+router
+  .route("/deleteByUidPid")
+  .get(upController.deleteOneByUidPid)
+router
+  .route("/submitPaper")
+  .post(upController.submitPaper)  
+
 module.exports = router;

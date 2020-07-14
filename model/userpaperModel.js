@@ -70,6 +70,6 @@ const userpaperSchema = new mongoose.Schema({
         type: String,
   },
 });
-
+//userpaperSchema.index({ user_id: 1, paper_id: 1}, { unique: true });// I'd like setting composite primary key 
 const Userpaper = mongoose.model("Userpaper", userpaperSchema,'userpaper');
 module.exports = Userpaper;
