@@ -62,7 +62,7 @@ const userpaperSchema = new mongoose.Schema({
           type:Number,
           default:0,
   },
-  start_time: {
+  begin_time: {
         type: String,
      
   },

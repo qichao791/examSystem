@@ -61,6 +61,7 @@ dog
     })
   )
   .then(() =>
+  //var Animal = mongoose.model("Animal", animalSchema);
     Animal.find({ type: "dog" }, "name type").exec(function (err, result) {
       console.log(result);
     })
