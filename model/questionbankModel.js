@@ -13,10 +13,10 @@ const questionbankSchema = new mongoose.Schema({
             type: String,
             required: [true, "Please tell us the question's statement."],
         },
-        options: [  
-            {
-               type: String,
-            },
+        options: [  String
+            //{
+               //type:String,
+            //},
         ],
         right_answer:{
             type:String,
@@ -35,8 +35,19 @@ const questionbankSchema = new mongoose.Schema({
         default:2,
     },
     attachment:{
-        type:String,
-        default:"/attachment/*.file"
+            image: [
+                String
+               //"https://wiki.wannax.cn/stastic/000000.jpg",
+            ],
+            voice: [
+                String
+                //"https://wiki.wannax.cn/weixin/music/liang.mp3"
+            ],
+            video: [
+                String
+                //"https://wiki.wannax.cn/weixin/videos/trailer.mp4"
+            ]
+        
     },
 },{_id:false});
 

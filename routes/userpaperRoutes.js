@@ -18,4 +18,11 @@ router
 router
   .route("/getPaperByUidPid")
   .get(upController.getPaperByUidPid)
+router
+  .route("/updateByUidPid")
+  .post(upController.updateOneByUidPid)  
+router
+  .route("/calculateByUidPid")
+  .post(upController.calculateByUidPid)  
+  
 module.exports = router;

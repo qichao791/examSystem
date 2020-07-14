@@ -17,13 +17,15 @@ const subpublicbankSchema = new mongoose.Schema({
             type: String,
             required: [true, "Please tell us the question's statement."],
         },
-        options: [    
+        options: [  
             {
-                option_name:String,
-                option_value:String,
-                is_answer:{type:Boolean,default:false,},
-            },        
+               type:String,
+            },
         ],
+        right_answer:{
+            type:String,
+            required: [true, "Please tell us the answer."],
+        }
     },
     
     analysis: {
@@ -37,7 +39,19 @@ const subpublicbankSchema = new mongoose.Schema({
         default:2,
     },
     attachment:{
-        type:String,
+        image: [
+            String
+           //"https://wiki.wannax.cn/stastic/000000.jpg",
+        ],
+        voice: [
+            String
+            //"https://wiki.wannax.cn/weixin/music/liang.mp3"
+        ],
+        video: [
+            String
+            //"https://wiki.wannax.cn/weixin/videos/trailer.mp4"
+        ]
+    
     },
 },{_id:false});
 
