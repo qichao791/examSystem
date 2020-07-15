@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     length: 18,
 
   },
-  username: {
+  user_name: {
     type: String,
     required: [true, "Please tell us user's name"],
   },

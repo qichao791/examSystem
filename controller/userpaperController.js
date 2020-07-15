@@ -155,6 +155,7 @@ async function getProfessionalQues(req, res) {
  */
 exports.getPaperByUid = async (req, res) => {
   try {
+    console.log(req.query.user_id);
     let result = await Userpaper.aggregate([
       {
         $lookup: {
@@ -237,6 +238,7 @@ exports.getPaperByUid = async (req, res) => {
     return item
   });
   */
+
     res.status(200).json({
       status: "success",
       data: {

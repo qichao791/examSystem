@@ -40,7 +40,7 @@ async function getOneDepartUsers(depart_id) {  //获取用户及其部门、bran
             {
                 $project: {
                     _id: 1,
-                    username: 1,
+                    user_name: 1,
                     'user_department.depart_name': 1,
                     'user_branch.branch_name': 1,
                 }
@@ -52,4 +52,30 @@ async function getOneDepartUsers(depart_id) {  //获取用户及其部门、bran
         console.log(err)
     }
 }
-getOneDepartUsers("b0934750-c419-11ea-914a-1db0dc6b92e1")   ;
+//getOneDepartUsers("b0934750-c419-11ea-914a-1db0dc6b92e1")   ;
+async function abc() {  //获取用户及其部门、branch名称
+  try{
+    let user = await User.aggregate( [
+      {
+        $group: {
+                  _id: {depart:'$depart_id',branch:'$branch_id'},
+                  //count: { $sum: 1 }
+                  userName: {$push: '$user_name'}
+                }
+                
+      },
+    //   {
+    //     $project: {
+    //         _id: 1,
+    //         user_name: 1,
+    //         depart_id:1,
+    //         //'user_department.depart_name': 1,
+    //         //'user_branch.branch_name': 1,
+    //     }
+    // }
+   ] );
+   console.log("userinfo:", JSON.stringify(user));
+  }catch(err) {
+    console.log(err)}
+}
+abc();
