@@ -16,16 +16,16 @@ mongoose
 
 const User = require("./model/userModel");
 
-var user = new User({
-  _id: "410725199705202811",
-  username: "王六",
-  depart_id: "b0934750-c419-11ea-914a-1db0dc6b92e0",
-  branch_id: "60471550-c415-11ea-a0b5-d380a00b1ea3",
-  photo: "/avatar/default.png",
-  password: "111111"
-})
+// var user = new User({
+//   _id: "41072519970520281x",
+//   user_name: "王六",
+//   depart_id: "b0934750-c419-11ea-914a-1db0dc6b92e0",
+//   branch_id: "60471550-c415-11ea-a0b5-d380a00b1ea3",
+//   photo: "/avatar/default.png",
+//   password: "111111"
+// })
 
-user.save()
+// user.save()
 /*
 async function getUserById(user_id) {
   try {
@@ -109,7 +109,7 @@ async function getUserInfo(user) {
 //       {
 //         $project: {
 //           _id: 1,
-//           username: 1,
+//           user_name: 1,
 //           user_department: 1,
 //           user_branch: 1,
 //         }
@@ -129,7 +129,7 @@ async function getUserInfo(user) {
 //   for (var i = 0; i < departUsers.length; i++) {
 //     var user ={
 //       user_id:departUsers[i]._id,
-//       username:departUsers[i].username,
+//       username:departUsers[i].user_name,
 //       depart_name:departUsers[i].user_department[0].depart_name,
 //       branch_name:(departUsers[i].user_branch.length==0)?'':departUsers[i].user_branch[0].branch_name
 //     }
@@ -143,3 +143,12 @@ async function getUserInfo(user) {
 
 
 
+var query = User.deleteOne({ _id: '41072519970520281x' }, function (err) {
+  if (err) {
+    console.log(err)
+
+  } else {
+    console.log("OK")
+  }
+})
+console.log(query)
