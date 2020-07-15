@@ -4,7 +4,10 @@ const PublicQues = require("../model/questionbankModel");
 const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 const Paper = require("../model/paperModel");
-
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.generateOneUserPaper = async (req, res) => {
   try {
     const onedata = await Userpaper.findOne({
@@ -78,6 +81,10 @@ exports.generateOneUserPaper = async (req, res) => {
     console.log(err);
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 // generate the questions based on public_amount from public question bank randomly
 async function getPublicQues(req, res) {
   try {
@@ -91,6 +98,10 @@ async function getPublicQues(req, res) {
     console.log(err);
   }
 }
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 // generate the questions based on subpublic_amount from sub public question bank randomly
 async function getSubPublicQues(req, res) {
   try {
@@ -105,6 +116,10 @@ async function getSubPublicQues(req, res) {
     res.status(404).json({ status: "fail", message: err });
   }
 }
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 // generate the questions based on professional_amount from professional question bank randomly
 async function getProfessionalQues(req, res) {
   try {
@@ -134,6 +149,10 @@ async function getProfessionalQues(req, res) {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }*/
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.getPaperByUid = async (req, res) => {
   try {
     let result = await Userpaper.aggregate([
@@ -228,9 +247,13 @@ exports.getPaperByUid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.getPaperByPid = async (req, res) => {
   try {
-    const data = await Userpaper.findOne({
+    const data = await Userpaper.find({
       paper_id: req.params.paper_id,
     });
     res.status(200).json({
@@ -243,6 +266,10 @@ exports.getPaperByPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.getPaperByUidPid = async (req, res) => {
   try {
     const data = await Userpaper.findOne({
@@ -273,13 +300,17 @@ exports.getPaperByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.getPublicSectionByUidPid = async (req, res) => {
   try {
     const data = await Userpaper.findOne({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
     });
-    //--call function getQuesByQid to get the questions from 3 question bank seperatelly
+    //--call function getQuesByQid to get the questions from public question bank.
     let qs = data.public_questions; //the array qs contains all the question ids from the public question bank.
     qs = await getQuesByQid(qs, PublicQues);
     //--
@@ -293,12 +324,17 @@ exports.getPublicSectionByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.getSubPublicSectionByUidPid = async (req, res) => {
   try {
     const data = await Userpaper.findOne({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
     });
+    //--call function getQuesByQid to get the questions from sub public question bank.
     let qs = data.subpublic_questions; //the array qs contains all the question ids from the sub public question bank.
     qs = await getQuesByQid(qs, SubPublicQues);
 
@@ -312,13 +348,17 @@ exports.getSubPublicSectionByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.getProfessionSectionByUidPid = async (req, res) => {
   try {
     const data = await Userpaper.findOne({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
     });
-
+    //--call function getQuesByQid to get the questions from professional question bank.
     let qs = data.professional_questions; //the array proqs contains all the question ids from the professional question bank.
     proqs = await getQuesByQid(qs, ProfessionalQues);
 
@@ -332,6 +372,10 @@ exports.getProfessionSectionByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 async function getQuesByQid(qs, whichquestionBank) {
   try {
     let result = [];
@@ -353,17 +397,10 @@ async function getQuesByQid(qs, whichquestionBank) {
     console.log(err);
   }
 }
-exports.getAllPapers = async (req, res) => {
-  const data = await Userpaper.find();
-
-  res.status(200).json({
-    status: "success",
-    results: branches.length,
-    data: {
-      data,
-    },
-  });
-};
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.deleteOneByUidPid = async (req, res) => {
   try {
     const data = await Userpaper.findOneAndDelete({
@@ -383,7 +420,11 @@ exports.deleteOneByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-
+/**
+ * author: qichao
+ * date: 2020-7
+ */
+//calculate the achivevement of the paper for one user
 exports.calculateByUidPid = async (req, res) => {
   try {
     let data = await Userpaper.findOne({
@@ -434,6 +475,11 @@ exports.calculateByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
+//the aim of this function is to update the answer of the user gives   
 exports.updateOneByUidPid = async (req, res) => {
   try {
     let data = await Userpaper.findOne({
@@ -466,6 +512,10 @@ exports.updateOneByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/**
+ * author: qichao
+ * date: 2020-7
+ */
 exports.submitPaper = async (req, res) => {
   try {
     const data = await Userpaper.findOneAndUpdate(
@@ -486,4 +536,19 @@ exports.submitPaper = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
+};
+/**
+ * author: qichao
+ * date: 2020-7
+ */
+exports.getAllPapers = async (req, res) => {
+  const data = await Userpaper.find();
+
+  res.status(200).json({
+    status: "success",
+    results: branches.length,
+    data: {
+      data,
+    },
+  });
 };
