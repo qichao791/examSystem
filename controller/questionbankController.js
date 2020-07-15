@@ -108,6 +108,10 @@ exports.updatePublicQues = async (req, res) => {
     }
 }; 
 
+/**
+ * addPublicQues
+ * 单个添加题目
+ */
 exports.addPublicQues = async (req,res) =>{
   var ques = req.body
   console.log("ques:",ques)
@@ -127,40 +131,4 @@ exports.addPublicQues = async (req,res) =>{
   }catch(err){
     console.log(err)
   }
- 
-  // for(var i=0;i<optionsCount;i++){
-  //   options[i].option_name=ques.statement.options[i],
-
-  // }
-  // switch(ch){
-
-  // }
-  // var question = {
-  //   statement:{
-  //     stem:ques.statement.stem,
-  //     options:[]
-
-  //   }
-  //   options:ques.options,
-
-  // }
-  // try {
-  //     await User.insertMany(users, function (err) {
-  //         if (err) {
-  //             console.log(err)
-  //             res.json({
-  //                 status: "false",
-  //             });
-  //         } else {
-  //             res.json({
-  //                 status: "true",
-  //             });
-  //         }
-  //     })
-  // } catch (e) {
-  //     console.log(e)
-  //     res.json({
-  //         status: "false",
-  //     });
-  // }
 }

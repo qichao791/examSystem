@@ -87,15 +87,15 @@ exports.updateUser = async (req, res) => {
 
 /**
  * deleteUser
- *删除某个用户的同时删除他的paper
+ *删除某个用户,先删userpaper中的数据，再删user中的数据
  */
 exports.deleteUser = async (req, res) => {
     var user_id = req.body.user_id
     var isDel = 0;
     try {
-        await User.deleteOne({ _id: user_id }, function (err) {
+        await Userpaper.deleteOne({ user_id: user_id }, function (err) {
             if (err) {
-                console.log(err)
+                console.log("deleteUserpaperErr:",err)
                 res.status(200).json({
                     status: "false"
                 })
@@ -104,7 +104,7 @@ exports.deleteUser = async (req, res) => {
             }
         })
         if (isDel == 1) {
-            await Userpaper.deleteOne({ user_id: user_id }, function (err) {
+            await User.deleteOne({_id: user_id }, function (err) {
                 if (err) {
                     console.log(err)
                     res.status(200).json({
@@ -151,7 +151,7 @@ exports.userLogin = async (req, res) => {
                 var userinfo = await getUserInfo(user)
                 var usermsg = {
                     avatar: userinfo[0].avatar,
-                    username: userinfo[0].username,
+                    user_name: userinfo[0].user_name,
                     branch_name: (userinfo[0].user_branch.length == 0) ? '' : userinfo[0].user_branch[0].branch_name,
                     depart_name: (userinfo[0].user_department.length == 0) ? '' : userinfo[0].user_department[0].depart_name
                 }
@@ -166,20 +166,20 @@ exports.userLogin = async (req, res) => {
 };
 
 /**
- * getDepartUser
- * 获取某一部门所有员工
+ * getUsersByDepartId
+ * 根据部门Id获取某该部门所有员工
  */
-exports.getDepartUser = async (req, res) => {
+exports.getUsersByDepartId = async (req, res) => {
     var depart_id = req.query.depart_id
     var users = []
     try {
-        var departUsers = await getOneDepartUsers(depart_id)
+        var departUsers = await getUsersOfDepart(depart_id)
         console.log("部门员工：", departUsers)
 
         for (var i = 0; i < departUsers.length; i++) {
             var user = {
                 user_id: departUsers[i]._id,
-                username: departUsers[i].username,
+                user_name: departUsers[i].user_name,
                 depart_name: departUsers[i].user_department[0].depart_name,
                 branch_name: (departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_name
             }
@@ -224,7 +224,7 @@ async function getUserInfo(user) {  //获取用户及其部门、branch名称
             {
                 $project: {
                     _id: 0,
-                    username: 1,
+                    user_name: 1,
                     avatar: 1,
                     'user_department.depart_name': 1,
                     'user_branch.branch_name': 1,
@@ -238,7 +238,7 @@ async function getUserInfo(user) {  //获取用户及其部门、branch名称
     }
 }
 
-async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
+async function getUsersOfDepart(depart_id) {
     try {
         let userinfo = await User.aggregate([
             {
@@ -265,7 +265,7 @@ async function getOneDepartUsers(depart_id) {  //获取用户及其部门、bran
             {
                 $project: {
                     _id: 1,
-                    username: 1,
+                    user_name: 1,
                     'user_department.depart_name': 1,
                     'user_branch.branch_name': 1,
                 }

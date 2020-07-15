@@ -9,10 +9,11 @@ router
     .route("/user")
     .post(userController.addUser)
     .put(userController.updateUser)
-    .get(userController.getDepartUser)
+    .get(userController.getUsersByDepartId)
     .delete(userController.deleteUser)
 
 router
     .route("/question/questionbank")
     .post(professionalbankController.addPublicQues)
+    .put(professionalbankController.updatePublicQues)
 module.exports = router;
