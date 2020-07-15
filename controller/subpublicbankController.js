@@ -1,6 +1,6 @@
 const SubQues= require("../model/subpublicbankModel");
 const mongoose = require("mongoose");
-
+//** author:qichao
 exports.getSubQuesByID = async (req, res) => {
     try {
       const ques = await SubQues.findOne({_id:req.params.ques_id});
@@ -75,3 +75,4 @@ exports.updateSubQues = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 }; 
+//**author:qichao 

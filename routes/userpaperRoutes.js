@@ -8,10 +8,10 @@ router
   //.get(upController.getAllUserPapers)
   .post(upController.generateOneUserPaper);
 router
-  .route("/:user_id")
-  //.get(upController.getPaperByUid)
+  .route("/:paper_id")
+  .get(upController.getPaperByPid)
   //.patch(upController.updateUserpaper)
- // .delete(upController.deleteUserpaper)
+  //.delete(upController.deleteUserpaper)
 router
   .route("/getPaperByUid")
   .get(upController.getPaperByUid)
