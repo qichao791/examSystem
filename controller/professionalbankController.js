@@ -76,23 +76,4 @@ exports.updateProfQues = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 }; 
-exports.addProfQues = async(req,res)=>{
-  var ques = req.body
-  console.log("ques:", ques)
-  try {
-    await PublicQues.create(ques, function (err) {
-      if (err) {
-        console.log(err)
-        res.status(200).json({
-          status: "false"
-        })
-      } else {
-        res.status(200).json({
-          status: "true"
-        })
-      }
-    })
-  } catch (err) {
-    console.log(err)
-  }
-}
+

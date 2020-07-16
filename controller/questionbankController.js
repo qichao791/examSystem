@@ -109,29 +109,3 @@ exports.updatePublicQues = async (req, res) => {
 };
 
 
-exports.modifyPublicQues = async (req, res) => {
-  var ques_id = req.query.ques_id
-  var newques = req.body  
-  //console.log("newques:", newques)
-  //var update ={{ $set: { name: 'jason bourne' }}}
-  try {
-    await PublicQues.findByIdAndUpdate({_id: ques_id }, newques,function(err){
-      if(err){
-        console.log(err)
-        res.status(200).json({
-          status:false
-        })
-      }else{
-        console.log("modify success")
-        res.status(200).json({
-          status:true
-        })
-      }
-    });
-  }catch (err) {
-    console.log(err)
-    res.status(200).json({
-      status: "false",
-    })
-  }
-}

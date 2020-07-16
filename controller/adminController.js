@@ -30,6 +30,10 @@ exports.addQuestion = async (req, res) => {
     }
 }
 
+/**
+ * 修改题目
+ * 根据参数bank_type，ques_id 到对应题库中修改
+ */
 exports.modifyQuestion = async (req, res) => {
     var ques_id = req.query.ques_id
     var bank_type = req.query.bank_type
@@ -58,6 +62,9 @@ exports.modifyQuestion = async (req, res) => {
     }
 }
 
+/**
+ * 上传文件（用户头像/题目附件）
+ */
 exports.upLoadFile = async (req, res) => {
     var type = req.body.type
     if (type == "avatar") {//上传用户头像
