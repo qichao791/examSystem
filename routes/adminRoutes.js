@@ -1,9 +1,13 @@
 const express = require("express");
 const userController = require("../controller/userController");
-const professionalbankController = require("../controller/questionbankController");
+const questionbankController = require("../controller/questionbankController");
+const professionalbankController = require("../controller/professionalbankController");
+const subpublicbankController = require("../controller/subpublicbankController")
+const adminController = require("../controller/adminController");
 
 const router = express.Router();
-const tools = require("../utils/tools")
+const tools = require("../utils/tools");
+// const { multer } = require("../utils/tools");
 
 router
     .route("/user")
@@ -13,7 +17,26 @@ router
     .delete(userController.deleteUser)
 
 router
-    .route("/question/questionbank")
+    .route("/question")
+    .put(adminController.modifyQuestion)
+
+router
+    .route("/question/:bank_type")
+    .post(adminController.addQuestion)
+
+/*暂存
+router
+    .route("/question/professionalbank")
     .post(professionalbankController.addPublicQues)
-    .put(professionalbankController.updatePublicQues)
+    .put(professionalbankController.modifyPublicQues)
+
+router
+    .route("/question/subpublicbank")
+    .post(professionalbankController.addPublicQues)
+    .put(professionalbankController.modifyPublicQues)
+*/
+
+router
+    .route("/file")
+    .post(tools.multer().single("file"), adminController.upLoadFile)
 module.exports = router;
