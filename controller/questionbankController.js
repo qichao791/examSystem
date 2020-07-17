@@ -1,18 +1,18 @@
-const PublicQues= require("../model/questionbankModel");
+const PublicQues = require("../model/questionbankModel");
 const mongoose = require("mongoose");
 
 exports.getPublicQuesByID = async (req, res) => {
-    try {
-      const ques = await PublicQues.findOne({_id:req.params.ques_id});
-      res.status(200).json({
-        status: "success",
-        data: {
-          ques,
-        },
-      });
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
+  try {
+    const ques = await PublicQues.findOne({ _id: req.params.ques_id });
+    res.status(200).json({
+      status: "success",
+      data: {
+        ques,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
 /*
 exports.getQuesByGrade = async (req, res) => {
@@ -31,23 +31,23 @@ exports.getQuesByGrade = async (req, res) => {
 };
 */
 exports.getPublicQuesByGrade = async (req, res) => {
-  try{
-        const questions= await PublicQues.aggregate([ 
-            //{$match: {depart_id:req.params.depart_id}},
-            //{$match: {branch_id:req.params.branch_id}},
-            {$match: {grade:req.params.grade}},
-            {$sample: { size: req.params.amount}}, 
-            //{$project:{ _id:0,statement:1 }}
-          
-        ]);
-        res.status(200).json({
-            status: "success",
-            data: {
-                questions,
-            },
-        });
+  try {
+    const questions = await PublicQues.aggregate([
+      //{$match: {depart_id:req.params.depart_id}},
+      //{$match: {branch_id:req.params.branch_id}},
+      { $match: { grade: req.params.grade } },
+      { $sample: { size: req.params.amount } },
+      //{$project:{ _id:0,statement:1 }}
+
+    ]);
+    res.status(200).json({
+      status: "success",
+      data: {
+        questions,
+      },
+    });
   } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: "fail", message: err });
   }
 };
 /*
@@ -66,69 +66,46 @@ exports.getQuesByDepart = async (req, res) => {
 };
 */
 exports.createPublicQues = async (req, res) => {
-    try{
-        const newQues = await PublicQues.create(req.body);
-        res.send(newQues);
-      
-    }catch (err) {
-        console.log(err);
-    }
+  try {
+    const newQues = await PublicQues.create(req.body);
+    res.send(newQues);
+
+  } catch (err) {
+    console.log(err);
+  }
 };
 exports.deletePublicQues = async (req, res) => {
-    try {
-      const readyToDeleteQues = await PublicQues.findOneAndDelete({ _id:req.params.ques_id});
-      
-      if (readyToDeleteQues!= null) {
-        res.status(204).json({
-          status: "success",
-          data: null,
-        });
-      } else {
-        res.status(404).json({ status: "fail", message: "not found" });
-      }
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+  try {
+    const readyToDeleteQues = await PublicQues.findOneAndDelete({ _id: req.params.ques_id });
+
+    if (readyToDeleteQues != null) {
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    } else {
+      res.status(404).json({ status: "fail", message: "not found" });
     }
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
 exports.updatePublicQues = async (req, res) => {
-    try {
-      const readyToUpdateQues = await PublicQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
-        new: true,
-        runValidators: true,
-      });
+  try {
+    const readyToUpdateQues = await PublicQues.findOneAndUpdate({ _id: req.params.ques_id }, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-      res.status(200).json({
-        status: "success",
-        data: {
-            readyToUpdateQues,
-        },
-      });
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
-}; 
-
-/**
- * addPublicQues
- * 单个添加题目
- */
-exports.addPublicQues = async (req,res) =>{
-  var ques = req.body
-  console.log("ques:",ques)
-  try{
-    await PublicQues.create(ques,function(err){
-      if(err){
-        console.log(err)
-        res.status(200).json({
-          status:"false"
-        })
-      }else{
-        res.status(200).json({
-          status:"true"
-        })
-      }
-    })
-  }catch(err){
-    console.log(err)
+    res.status(200).json({
+      status: "success",
+      data: {
+        readyToUpdateQues,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
   }
-}
+};
+
+
