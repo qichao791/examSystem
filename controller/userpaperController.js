@@ -241,9 +241,7 @@ exports.getPaperByUid = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      data: {
-        papers,
-      },
+      papers
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -521,7 +519,7 @@ exports.updateOneByUidPid = async (req, res) => {
 exports.submitPaper = async (req, res) => {
   try {
     const data = await Userpaper.findOneAndUpdate(
-      { user_id: req.body.user_id, paper_id: req.body.paper_id,},
+      { user_id: req.body.user_id, paper_id: req.body.paper_id, },
       req.body,
       {
         new: true,
