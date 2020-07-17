@@ -19,24 +19,15 @@ router
 router
     .route("/question")
     .put(adminController.modifyQuestion)
+    .delete(adminController.deleteQuestion)
 
 router
     .route("/question/:bank_type")
     .post(adminController.addQuestion)
 
-/*暂存
-router
-    .route("/question/professionalbank")
-    .post(professionalbankController.addPublicQues)
-    .put(professionalbankController.modifyPublicQues)
-
-router
-    .route("/question/subpublicbank")
-    .post(professionalbankController.addPublicQues)
-    .put(professionalbankController.modifyPublicQues)
-*/
-
 router
     .route("/file")
     .post(tools.multer().single("file"), adminController.upLoadFile)
+    .delete(adminController.deleteFile)
+
 module.exports = router;
