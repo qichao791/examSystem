@@ -23,7 +23,6 @@ const questionbankSchema = new mongoose.Schema({
             required: [true, "Please tell us the answer."],
         }
     },
-      
     analysis: {
         type: String,
     },
