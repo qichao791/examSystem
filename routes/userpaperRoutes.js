@@ -1,37 +1,12 @@
 const express = require("express");
 const upController = require("../controller/userpaperController");
 const router = express.Router();
-//--
-const SET_HEADER = (res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
-  res.header("Access-Control-Allow-Methods", "*");
-  res.header("Content-Type", "application/json");
-  next();
-};
 
-router.all("*", (req, res, next) => {
-  SET_HEADER(res, next);
-});
-
-//------
-router
-  .route("/")
-  //.get(upController.getAllUserPapers)
-  .post(upController.generateOneUserPaper);
-router
-  .route("/:paper_id")
-  .get(upController.getPaperByPid);
-
-router
-  .route("/getPaperByUid")
-  .get(upController.getPaperByUid);
-router
-  .route("/getPaperByUidPid")
-  .get(upController.getPaperByUidPid);
-router
-  .route("/updateByUidPid")
-.post(upController.updateOneByUidPid);
+router.route("/").post(upController.generateOneUserPaper);
+//router.route("/:paper_id").get(upController.getPaperByPid);
+router.route("/getPaperByUid").get(upController.getPaperByUid);
+router.route("/getPaperByUidPid").get(upController.getPaperByUidPid);
+router.route("/updateByUidPid").post(upController.updateOneByUidPid);
 router.route("/calculateByUidPid").post(upController.calculateByUidPid);
 router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
 router.route("/submitPaper").post(upController.submitPaper);

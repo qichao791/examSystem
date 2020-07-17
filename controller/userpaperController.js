@@ -273,7 +273,7 @@ exports.getPaperByPid = async (req, res) => {
  * date: 2020-7
  */
 exports.getPaperByUidPid = async (req, res) => {
-  try {
+  try {console.log("--pqs")
     const data = await Userpaper.findOne({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
@@ -286,6 +286,7 @@ exports.getPaperByUidPid = async (req, res) => {
     let proqs = data.professional_questions; //the array proqs contains all the question ids from the professional question bank.
     proqs = await getQuesByQid(proqs, ProfessionalQues);
     //--
+    
     res.status(200).json({
       status: "success",
       public_questions: {
@@ -508,6 +509,8 @@ exports.updateOneByUidPid = async (req, res) => {
     else if (section === 3) data.professional_questions = qs;
     else data.public_questions = qs;
 
+    data.begin_time = req.body.begin_time;
+    data.submit_time = req.body.submit_time;
     data.save();
     res.status(200).json({ status: "update success" });
   } catch (err) {
