@@ -4,93 +4,98 @@ const PublicQues = require("../model/questionbankModel");
 const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 const Paper = require("../model/paperModel");
+const User = require("../model/userModel");
 /**
  * author: qichao
  * date: 2020-7
  */
-exports.generateUPforUsers= async (req, res) => {
+exports.generateUPforUsers = async (req, res) => {
   try {
     let users = req.body.userid_list;
-    for(let i = 0; i < users.length; i++ ){
-        await Userpaper.findOneAndDelete({
+    // if there is no doc based the user_id and paper_id in the userpaper collection,
+    // the new doc based on the current user_id and paper_id canbe created.
+    // because the userpaper collection has the composite primery key which is user_id and paper_id.
+
+    for (let i = 0; i < users.length; i++) {
+      await Userpaper.findOneAndDelete({
         user_id: users[i],
         paper_id: req.body.paper_id,
       });
-      // if there is no doc based the user_id and paper_id in the userpaper collection,
-      // the new doc based on the current user_id and paper_id canbe created.
-      // because the userpaper collection has the composite primery key which is user_id and paper_id.
-    } 
-    for(let j = 0; j < users.length; j++ ){
-      req.body.user_id = users[j]
+    }
+    for (let j = 0; j < users.length-1; j++) {
+      req.body.user_id = users[j];
+      let depart_branch = await User.findOne({_id:req.body.user_id},'depart_id branch_id');
+      req.body.depart_id = depart_branch.depart_id;
+      req.body.branch_id = depart_branch.branch_id;
       await generateUPforOneUser(req, res);
     }
-    res.status(200).json({status: "success"});
- 
+    res.status(200).json({ status: "success" });
   } catch (err) {
-     res.status(404).json({ status: "failed", message: err });
+    res.status(404).json({ status: "failed", message: err });
   }
 };
-async function generateUPforOneUser(req, res){
+async function generateUPforOneUser(req, res) {
   try {
-      //obtain the grade,bank_scale and amount from paper collection
-      const onepaper = await Paper.findOne(
-        {
-          _id: req.body.paper_id,
-        },
-        "bank_scale amount grade"
-      );
-      //based on the bank_scale, to set up the question's amount for each question bank
-      let scale = onepaper.bank_scale;
-      let publicScale = parseInt(scale.substring(0, scale.indexOf(","))) / 100;
-      let subpublicScale =
-        parseInt(
-          scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))
-        ) / 100;
-      let professionalScale =
-        parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
+    //obtain the grade,bank_scale and amount from paper collection
+    const onepaper = await Paper.findOne(
+      {
+        _id: req.body.paper_id,
+      },
+      "bank_scale amount grade"
+    );
+    //based on the bank_scale, to set up the question's amount for each question bank
+    let scale = onepaper.bank_scale;
+    let publicScale = parseInt(scale.substring(0, scale.indexOf(","))) / 100;
+    let subpublicScale =
+      parseInt(
+        scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))
+      ) / 100;
+    let professionalScale =
+      parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
 
-      req.body.public_amount = Math.floor(onepaper.amount * publicScale);
-      req.body.subpublic_amount = Math.floor(onepaper.amount * subpublicScale);
-      req.body.professional_amount =
-        onepaper.amount - req.body.public_amount - req.body.subpublic_amount;
-      req.body.grade = onepaper.grade;
-      // create each field of the userpaper collection
-      let up = new Userpaper();
-      up.user_id = req.body.user_id;
-      up.paper_id = req.body.paper_id;
-      // get the questions from public question bank and construct the public_questions field of userpaper
-      let publicQuestions = (await getPublicQues(req, res)) || [];
-      up.public_questions = publicQuestions.map((item) => {
-        return {
-          ques_id: item,
-          user_answer: "Z",
-        };
-      });
-      // get the questions from sub public question bank and construct the subpublic_questions field of userpaper
-      let subPublicQuestions = (await getSubPublicQues(req, res)) || [];
-      up.subpublic_questions = subPublicQuestions.map((item) => {
-        return {
-          ques_id: item,
-          user_answer: "Z",
-        };
-      });
-      // get the questions from professional question bank and construct the professional_questions field of userpaper
-      let professionalQuestions = (await getProfessionalQues(req, res)) || [];
-      up.professional_questions = professionalQuestions.map((item) => {
-        return {
-          ques_id: item,
-          user_answer: "Z",
-        };
-      });
-      up.begin_time = "0000000000000";
-      up.submit_time = "0000000000000";
-      up.save(); //complete a new doc of userpaper collection
-      return true;
+    req.body.public_amount = Math.floor(onepaper.amount * publicScale);
+    req.body.subpublic_amount = Math.floor(onepaper.amount * subpublicScale);
+    req.body.professional_amount =
+      onepaper.amount - req.body.public_amount - req.body.subpublic_amount;
+    req.body.grade = onepaper.grade;
+    //console.log("++++++"+req.body.public_amount+","+req.body.subpublic_amount)
+    // create each field of the userpaper collection
+    let up = new Userpaper();
+    up.user_id = req.body.user_id;
+    up.paper_id = req.body.paper_id;
+    // get the questions from public question bank and construct the public_questions field of userpaper
+    let publicQuestions = (await getPublicQues(req, res)) || [];
+    up.public_questions = publicQuestions.map((item) => {
+      return {
+        ques_id: item,
+        user_answer: "Z",
+      };
+    });
+    // get the questions from sub public question bank and construct the subpublic_questions field of userpaper
+    let subPublicQuestions = (await getSubPublicQues(req, res)) || [];
+    up.subpublic_questions = subPublicQuestions.map((item) => {
+      return {
+        ques_id: item,
+        user_answer: "Z",
+      };
+    });
+    // get the questions from professional question bank and construct the professional_questions field of userpaper
+    let professionalQuestions = (await getProfessionalQues(req, res)) || [];
+    up.professional_questions = professionalQuestions.map((item) => {
+      return {
+        ques_id: item,
+        user_answer: "Z",
+      };
+    });
+    up.begin_time = "";
+    up.submit_time = "";
+    up.save(); //complete a new doc of userpaper collection
+    return true;
   } catch (err) {
     console.log(err);
     return false;
   }
-};
+}
 /**
  * author: qichao
  * date: 2020-7
@@ -114,9 +119,10 @@ async function getPublicQues(req, res) {
  */
 // generate the questions based on subpublic_amount from sub public question bank randomly
 async function getSubPublicQues(req, res) {
-  try {
+  try {console.log("++req.body.subpublic_amount++++"+req.body.subpublic_amount)
+    //let departId = await User.findOne({_id:req.body.user_id},'depart_id');
     let result = await SubPublicQues.aggregate([
-      { $match: { depart_id: req.body.depart_id } },
+      { $match: { depart_id: req.body.user_id} },
       { $match: { grade: req.body.grade } },
       { $sample: { size: req.body.subpublic_amount } },
       { $project: { _id: 1 } },
@@ -132,7 +138,8 @@ async function getSubPublicQues(req, res) {
  */
 // generate the questions based on professional_amount from professional question bank randomly
 async function getProfessionalQues(req, res) {
-  try {
+  try {console.log("++req.body.professional_amount++++"+req.body.professional_amount)
+
     let result = await ProfessionalQues.aggregate([
       { $match: { depart_id: req.body.depart_id } },
       { $match: { branch_id: req.body.branch_id } },
@@ -251,7 +258,7 @@ exports.getPaperByUid = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      papers
+      papers,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -281,7 +288,8 @@ exports.getPaperByPid = async (req, res) => {
  * date: 2020-7
  */
 exports.getPaperByUidPid = async (req, res) => {
-  try {console.log("--pqs")
+  try {
+    console.log("--pqs");
     const data = await Userpaper.findOne({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
@@ -294,7 +302,7 @@ exports.getPaperByUidPid = async (req, res) => {
     let proqs = data.professional_questions; //the array proqs contains all the question ids from the professional question bank.
     proqs = await getQuesByQid(proqs, ProfessionalQues);
     //--
-    
+
     res.status(200).json({
       status: "success",
       public_questions: {
@@ -490,7 +498,7 @@ exports.calculateByUidPid = async (req, res) => {
  * author: qichao
  * date: 2020-7
  */
-//the aim of this function is to update the answer of the user gives   
+//the aim of this function is to update the answer of the user gives
 exports.updateOneByUidPid = async (req, res) => {
   try {
     let data = await Userpaper.findOne({
@@ -532,7 +540,7 @@ exports.updateOneByUidPid = async (req, res) => {
 exports.submitPaper = async (req, res) => {
   try {
     const data = await Userpaper.findOneAndUpdate(
-      { user_id: req.body.user_id, paper_id: req.body.paper_id, },
+      { user_id: req.body.user_id, paper_id: req.body.paper_id },
       req.body,
       {
         new: true,
