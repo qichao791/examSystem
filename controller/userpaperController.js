@@ -8,16 +8,30 @@ const Paper = require("../model/paperModel");
  * author: qichao
  * date: 2020-7
  */
-exports.generateOneUserPaper = async (req, res) => {
+exports.generateUPforUsers= async (req, res) => {
   try {
-    const onedata = await Userpaper.findOne({
-      user_id: req.body.user_id,
-      paper_id: req.body.paper_id,
-    });
-    // if there is no doc based the user_id and paper_id in the userpaper collection,
-    // the new doc based on the current user_id and paper_id canbe created.
-    // because the userpaper collection has the composite primery key which is user_id and paper_id.
-    if (onedata == null) {
+    let users = req.body.userid_list;
+    for(let i = 0; i < users.length; i++ ){
+        await Userpaper.findOneAndDelete({
+        user_id: users[i],
+        paper_id: req.body.paper_id,
+      });
+      // if there is no doc based the user_id and paper_id in the userpaper collection,
+      // the new doc based on the current user_id and paper_id canbe created.
+      // because the userpaper collection has the composite primery key which is user_id and paper_id.
+    } 
+    for(let j = 0; j < users.length; j++ ){
+      req.body.user_id = users[j]
+      await generateUPforOneUser(req, res);
+    }
+    res.status(200).json({status: "success"});
+ 
+  } catch (err) {
+     res.status(404).json({ status: "failed", message: err });
+  }
+};
+async function generateUPforOneUser(req, res){
+  try {
       //obtain the grade,bank_scale and amount from paper collection
       const onepaper = await Paper.findOne(
         {
@@ -68,17 +82,13 @@ exports.generateOneUserPaper = async (req, res) => {
           user_answer: "Z",
         };
       });
-      up.begin_time = req.body.begin_time;
-      up.submit_time = req.body.submit_time;
+      up.begin_time = "0000000000000";
+      up.submit_time = "0000000000000";
       up.save(); //complete a new doc of userpaper collection
-      res.send("generate userpaper successfully");
-    } else {
-      res.send(
-        "Sorry!generate userpaper failed because there is already a document for the same user and paper"
-      );
-    }
+      return true;
   } catch (err) {
     console.log(err);
+    return false;
   }
 };
 /**
