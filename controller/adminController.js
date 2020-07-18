@@ -2,13 +2,14 @@ const User = require("../model/userModel")
 const PublicQues = require("../model/questionbankModel");
 const SubQues = require("../model/subpublicbankModel");
 const ProfQues = require("../model/professionalbankModel");
+var fs = require('fs');
 
 /**
  * 单个添加题目
  * 根据参数bank_type，向对应题库添加
  */
 exports.addQuestion = async (req, res) => {
-    console.log("req:", req)
+    //console.log("req:", req)
     var ques = req.body
     var bank_type = req.params.bank_type
     var ques_model = await getQuesModel(bank_type)
@@ -43,6 +44,7 @@ exports.modifyQuestion = async (req, res) => {
     try {
         await ques_model.findByIdAndUpdate({ _id: ques_id }, newques, function (err) {
             if (err) {
+
                 console.log(err)
                 res.status(200).json({
                     status: false
@@ -62,6 +64,31 @@ exports.modifyQuestion = async (req, res) => {
     }
 }
 
+exports.deleteQuestion = async (req, res) => {
+    //console.log("deleteReq:", req)
+    var ques_list = req.body.ques_list
+    var bank_type = req.body.bank_type
+    var ques_model = await getQuesModel(bank_type)
+    try {
+        for (var i = 0; i < ques_list.length; i++) {
+            var ques_id = ques_list[i]
+            var question = await ques_model.findById({ _id: ques_id })
+            var attachment = question.attachment
+            await deleteAttachmentFile(attachment)
+            await ques_model.findByIdAndDelete({ _id: ques_id })
+           
+        }
+        res.status(200).json({
+            status: true
+        })
+    } catch (err) {
+        console.log(err)
+        res.status(200).json({
+            status: false
+        })
+    }
+}
+
 /**
  * 上传文件（用户头像/题目附件）
  */
@@ -69,7 +96,7 @@ exports.upLoadFile = async (req, res) => {
     var type = req.body.type
     if (type == "avatar") {//上传用户头像
         var user_id = req.body.user_id
-        var avatarPath = "/avatar/" + req.file.filename
+        var avatarPath = "avatar/" + req.file.filename
         try {
             await User.findByIdAndUpdate({ _id: user_id }, { $set: { avatar: avatarPath } }, (err) => {
                 if (err) {
@@ -97,11 +124,11 @@ exports.upLoadFile = async (req, res) => {
         var attachmentPath
 
         if (req.file.mimetype.startsWith("image")) {//图像
-            attachmentPath = "/attachment/image/" + req.file.filename   //拼接图像存储路径
+            attachmentPath = "attachment/image/" + req.file.filename   //拼接图像存储路径
         } else if (req.file.mimetype.startsWith("video")) {//视频
-            attachmentPath = "/attachment/video/" + req.file.filename
+            attachmentPath = "attachment/video/" + req.file.filename
         } else if (req.file.mimetype.startsWith("audio")) {//音频
-            attachmentPath = "/attachment/voice/" + req.file.filename
+            attachmentPath = "attachment/voice/" + req.file.filename
         }
 
         var ques_model = await getQuesModel(ques_bank);
@@ -119,6 +146,105 @@ exports.upLoadFile = async (req, res) => {
     }
 }
 
+exports.deleteFile = async (req, res) => {
+    //console.log("deleteFileReq:", req)
+    var type = req.body.type
+    if (type == "avatar") {//删除用户的头像
+        var user_id = req.body.user_id
+        var avatarPath = req.body.path
+        var re = await User.findByIdAndUpdate({ _id: user_id }, { $set: { avatar: null } })
+        if (re.avatar == null) {
+            fs.unlinkSync(avatarPath)
+            res.status(200).json({
+                status: true
+            })
+        } else {
+            res.status(200).json({
+                status: false
+            })
+        }
+    } else {
+        var ques_bank = req.body.bank_type
+        var ques_model = await getQuesModel(ques_bank);
+        var ques_id = req.body.ques_id
+        var file_type = req.body.file_type
+        var file_path = req.body.path
+        try {
+            var ques = await ques_model.findById({ _id: ques_id })
+            var image = []
+            var voice = []
+            var video = []
+            switch (file_type) {
+                case 'image': {
+                    image = await deleteElementOfArray(ques.attachment.image, file_path);
+                    ques.attachment.image = image
+                    ques.save()
+                    fs.unlinkSync(file_path)
+                    res.status(200).json({
+                        status: true
+                    })
+                } break
+                case 'video': {
+                    video = await deleteElementOfArray(ques.attachment.video, file_path);
+                    ques.attachment.video = video
+                    ques.save()
+                    fs.unlinkSync(file_path)
+                    res.status(200).json({
+                        status: true
+                    })
+                } break
+                case 'voice': {
+                    voice = await deleteElementOfArray(ques.attachment.voice, file_path);
+                    ques.attachment.voice = voice
+                    ques.save()
+                    fs.unlinkSync(file_path)
+                    res.status(200).json({
+                        status: true
+                    })
+                } break
+            }
+
+
+        } catch (err) {
+            console.log(err)
+        }
+    }
+}
+
+/**
+ * 删除题目附件中的文件
+ * @param {题目附件} attachment 
+ */
+async function deleteAttachmentFile(attachment){
+    if(attachment.image.length!=0){
+        for(var i=0;i<attachment.image.length;i++){
+            fs.unlinkSync(attachment.image[i])
+        }
+    }
+    if(attachment.video.length!=0){
+        for(var i=0;i<attachment.video.length;i++){
+            fs.unlinkSync(attachment.video[i])
+        }
+    }
+    if(attachment.voice.length!=0){
+        for(var i=0;i<attachment.voice.length;i++){
+            fs.unlinkSync(attachment.voice[i])
+        }
+    }
+}
+/**
+ * 删除数组array中的element
+ * @param {要操作的数组} array 
+ * @param {要删除的数据} element 
+ */
+async function deleteElementOfArray(array, element) {
+    var newArray = []
+    for (var i = 0; i < array.length; i++)
+        if (array[i] != element) {
+            newArray.push(array[i])
+        }
+    return newArray
+}
 /**
  * 上传题目附件
  * @param {题库的model} ques_model 
@@ -126,49 +252,26 @@ exports.upLoadFile = async (req, res) => {
  * @param {附件类型} fileType 
  */
 async function upLoadAttachment(ques_model, ques_id, fileType, attachmentPath) {
-    var image = []
-    var video = []
-    var voice = []
+    var ques = await ques_model.findById(ques_id)
     switch (fileType) {
         case 'image': {
-            image.push(attachmentPath)
-        } break;
-        case 'video': {
-            video.push(attachmentPath)
-        } break;
-        case 'audio': {
-            voice.push(attachmentPath)
-        } break;
-    }
-    try {
-        var question
-        switch (fileType) {
-            case 'image': {
-                question = await ques_model.findById({ _id: ques_id })
-                question.attachment.image = image
-                question.save()
-                return true
-            };
-            case 'video': {
-                question = await ques_model.findById({ _id: ques_id })
-                question.attachment.video = video
-                question.save()
-                return true
+            ques.attachment.image.push(attachmentPath)
+            ques.save()
+            return true
 
-            };
-            case 'audio': {
-                question = await ques_model.findById({ _id: ques_id })
-                question.attachment.voice = voice
-                question.save()
-                return true
-            };
-            default:
-                return false
         }
-
-    } catch (err) {
-        console.log(err)
-        return false
+        case 'video': {
+            ques.attachment.video.push(attachmentPath)
+            ques.save()
+            return true
+        }
+        case 'voice': {
+            ques.attachment.voice.push(attachmentPath)
+            ques.save()
+            return true
+        }
+        default:
+            return false
     }
 }
 
@@ -192,3 +295,4 @@ async function getQuesModel(ques_bank) {
     return ques_model;
 
 }
+

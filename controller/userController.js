@@ -31,7 +31,7 @@ exports.addUser = async (req, res) => {
 };
 
 exports.getAllUsers = async (req, res) => {
-    console.log("getALL ")
+    //console.log("getALL ")
     const users = await User.find();
 
     res.status(200).json({
@@ -63,7 +63,7 @@ exports.getUser = async (req, res) => {
  * 更新员工的信息
  */
 exports.updateUser = async (req, res) => {
-    console.log("req.body:", req.body)
+    //console.log("req.body:", req.body)
     try {
         const result = await User.replaceOne({ _id: req.body._id }, req.body);
         console.log("result", result)
