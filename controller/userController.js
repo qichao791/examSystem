@@ -10,21 +10,19 @@ const mongoose = require("mongoose");
 exports.addUser = async (req, res) => {
     var users = req.body
     try {
-        await User.insertMany(users, function (err) {
-            if (err) {
-                console.log(err)
-                res.json({
-                    status: "false",
-                });
-            } else {
-                res.json({
-                    status: "true",
-                });
-            }
-        })
+        var result = await User.insertMany(users)
+        if (result.length == 0) {
+            res.status(200).json({
+                status: "false",
+            });
+        } else {
+            res.status(200).json({
+                status: "true",
+            });
+        }
     } catch (e) {
         console.log(e)
-        res.json({
+        res.status(200).json({
             status: "false",
         });
     }
@@ -91,32 +89,13 @@ exports.updateUser = async (req, res) => {
  */
 exports.deleteUser = async (req, res) => {
     var user_id = req.body.user_id
-    var isDel = 0;
+
     try {
-        await Userpaper.deleteOne({ user_id: user_id }, function (err) {
-            if (err) {
-                console.log("deleteUserpaperErr:",err)
-                res.status(200).json({
-                    status: "false"
-                })
-            } else {
-                isDel = 1
-            }
+        await Userpaper.deleteOne({ user_id: user_id })
+        await User.deleteOne({ _id: user_id })
+        res.status(200).json({
+            status: "true"
         })
-        if (isDel == 1) {
-            await User.deleteOne({_id: user_id }, function (err) {
-                if (err) {
-                    console.log(err)
-                    res.status(200).json({
-                        status: "false"
-                    })
-                } else {
-                    res.status(200).json({
-                        status: "true"
-                    })
-                }
-            })
-        }
     } catch (err) {
         console.log(err)
         res.status(200).json({

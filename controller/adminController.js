@@ -2,7 +2,25 @@ const User = require("../model/userModel")
 const PublicQues = require("../model/questionbankModel");
 const SubQues = require("../model/subpublicbankModel");
 const ProfQues = require("../model/professionalbankModel");
+const Admin = require("../model/adminModel")
 var fs = require('fs');
+
+
+exports.adminLogin = async (req, res) => {
+    console.log("req.body:", req.body)
+    var password = req.body.password
+    var admin = await Admin.find({ password: password })
+    console.log("admin:", admin)
+    if (admin.length != 0) {
+        res.status(200).json({
+            status: true
+        })
+    } else {
+        res.status(200).json({
+            status: false
+        })
+    }
+}
 
 /**
  * 单个添加题目
@@ -14,18 +32,17 @@ exports.addQuestion = async (req, res) => {
     var bank_type = req.params.bank_type
     var ques_model = await getQuesModel(bank_type)
     try {
-        await ques_model.create(ques, function (err) {
-            if (err) {
-                console.log(err)
-                res.status(200).json({
-                    status: "false"
-                })
-            } else {
-                res.status(200).json({
-                    status: "true"
-                })
-            }
-        })
+        var result = await ques_model.create(ques)
+        if (result != null) {
+            res.status(200).json({
+                status: true
+            })
+        } else {
+            res.status(200).json({
+                status: false
+            })
+        }
+        console.log("result:", result)
     } catch (err) {
         console.log(err)
     }
@@ -42,20 +59,16 @@ exports.modifyQuestion = async (req, res) => {
 
     var ques_model = await getQuesModel(bank_type)
     try {
-        await ques_model.findByIdAndUpdate({ _id: ques_id }, newques, function (err) {
-            if (err) {
-
-                console.log(err)
-                res.status(200).json({
-                    status: false
-                })
-            } else {
-                console.log("modify success")
-                res.status(200).json({
-                    status: true
-                })
-            }
-        });
+        var result = await ques_model.findByIdAndUpdate({ _id: ques_id }, newques);
+        if (result != null) {
+            res.status(200).json({
+                status: true
+            })
+        } else {
+            res.status(200).json({
+                status: false
+            })
+        }
     } catch (err) {
         console.log(err)
         res.status(200).json({
@@ -76,7 +89,7 @@ exports.deleteQuestion = async (req, res) => {
             var attachment = question.attachment
             await deleteAttachmentFile(attachment)
             await ques_model.findByIdAndDelete({ _id: ques_id })
-           
+
         }
         res.status(200).json({
             status: true
@@ -98,19 +111,18 @@ exports.upLoadFile = async (req, res) => {
         var user_id = req.body.user_id
         var avatarPath = "avatar/" + req.file.filename
         try {
-            await User.findByIdAndUpdate({ _id: user_id }, { $set: { avatar: avatarPath } }, (err) => {
-                if (err) {
-                    console.log(err)
-                    res.status(200).json({
-                        status: false
-                    })
-                } else {
-                    console.log("upLoad Avatar Success")
-                    res.status(200).json({
-                        status: true
-                    })
-                }
-            })
+            var result = await User.findByIdAndUpdate({ _id: user_id }, { $set: { avatar: avatarPath } })
+            if (result = null) {
+                console.log(err)
+                res.status(200).json({
+                    status: false
+                })
+            } else {
+                console.log("upLoad Avatar Success")
+                res.status(200).json({
+                    status: true
+                })
+            }
         } catch (err) {
             console.log(err)
             res.status(200).json({
@@ -215,19 +227,19 @@ exports.deleteFile = async (req, res) => {
  * 删除题目附件中的文件
  * @param {题目附件} attachment 
  */
-async function deleteAttachmentFile(attachment){
-    if(attachment.image.length!=0){
-        for(var i=0;i<attachment.image.length;i++){
+async function deleteAttachmentFile(attachment) {
+    if (attachment.image.length != 0) {
+        for (var i = 0; i < attachment.image.length; i++) {
             fs.unlinkSync(attachment.image[i])
         }
     }
-    if(attachment.video.length!=0){
-        for(var i=0;i<attachment.video.length;i++){
+    if (attachment.video.length != 0) {
+        for (var i = 0; i < attachment.video.length; i++) {
             fs.unlinkSync(attachment.video[i])
         }
     }
-    if(attachment.voice.length!=0){
-        for(var i=0;i<attachment.voice.length;i++){
+    if (attachment.voice.length != 0) {
+        for (var i = 0; i < attachment.voice.length; i++) {
             fs.unlinkSync(attachment.voice[i])
         }
     }

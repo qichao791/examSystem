@@ -15,6 +15,14 @@ mongoose
 //PASSWORD=SNNU_pro_3418!
 
 const User = require("./model/userModel");
+const Admin = require("./model/adminModel");
+
+var admin=new Admin({
+  _id:"123456",
+  password:"111111"
+  
+})
+admin.save()
 
 // var user = new User({
 //   _id: "41072519970520281x",
@@ -143,12 +151,12 @@ async function getUserInfo(user) {
 
 
 
-var query = User.deleteOne({ _id: '41072519970520281x' }, function (err) {
-  if (err) {
-    console.log(err)
+// var query = User.deleteOne({ _id: '41072519970520281x' }, function (err) {
+//   if (err) {
+//     console.log(err)
 
-  } else {
-    console.log("OK")
-  }
-})
-console.log(query)
+//   } else {
+//     console.log("OK")
+//   }
+// })
+// console.log(query)
