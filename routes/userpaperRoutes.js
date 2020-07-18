@@ -13,7 +13,7 @@ router.all("*", (req, res, next) => {
 router
   .route("/")
   //.get(upController.getAllUserPapers)
-  .post(upController.generateOneUserPaper);
+  .post(upController.generateUPforUsers);
 router
 // .route("/:paper_id")
 // .get(upController.getPaperByPid);

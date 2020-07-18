@@ -2,17 +2,20 @@ const Branch = require("../model/branchModel");
 const mongoose = require("mongoose");
 
 exports.getBranch = async (req, res) => {
-  try {
-    const branch = await Branch.findOne({ _id: req.params.branch_id });
-    //.findById(req.params.branch_id);
+ try {
+    const branch = await Branch.findOne(
+      { _id: req.params.branch_id}
+    );
+   
     res.status(200).json({
-      status: "success",
-      data: {
+     status: "success",
+     data: {
         branch,
       },
     });
+
   } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: "failed", message: err });
   }
 };
 
