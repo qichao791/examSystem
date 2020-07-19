@@ -3,36 +3,19 @@ const mongoose = require("mongoose");
 
 exports.getPublicQuesByID = async (req, res) => {
   try {
-    const ques = await PublicQues.findOne({ _id: req.params.ques_id });
+    const data = await PublicQues.findOne({ _id: req.params.ques_id });
     res.status(200).json({
       status: "success",
-      data: {
-        ques,
-      },
+      data
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-/*
-exports.getQuesByGrade = async (req, res) => {
-    try {
-        //MyModel.find({ name: 'john', age: { $gte: 18 }});
-      const ques2 = await Ques.find({depart_id:req.params.depart_id},{branch_id:req.params.branch_id},{grade:req.params.grade});
-      res.status(200).json({
-        status: "success",
-        data: {
-          ques2,
-        },
-      });
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
-};
-*/
+
 exports.getPublicQuesByGrade = async (req, res) => {
   try {
-    const questions = await PublicQues.aggregate([
+    const data = await PublicQues.aggregate([
       //{$match: {depart_id:req.params.depart_id}},
       //{$match: {branch_id:req.params.branch_id}},
       { $match: { grade: req.params.grade } },
@@ -42,9 +25,7 @@ exports.getPublicQuesByGrade = async (req, res) => {
     ]);
     res.status(200).json({
       status: "success",
-      data: {
-        questions,
-      },
+      data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -71,7 +52,7 @@ exports.createPublicQues = async (req, res) => {
     res.send(newQues);
 
   } catch (err) {
-    console.log(err);
+    res.status(404).json({ status: "fail", message: err });
   }
 };
 exports.deletePublicQues = async (req, res) => {
@@ -92,16 +73,14 @@ exports.deletePublicQues = async (req, res) => {
 };
 exports.updatePublicQues = async (req, res) => {
   try {
-    const readyToUpdateQues = await PublicQues.findOneAndUpdate({ _id: req.params.ques_id }, req.body, {
+    const data = await PublicQues.findOneAndUpdate({ _id: req.params.ques_id }, req.body, {
       new: true,
       runValidators: true,
     });
 
     res.status(200).json({
       status: "success",
-      data: {
-        readyToUpdateQues,
-      },
+      data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });

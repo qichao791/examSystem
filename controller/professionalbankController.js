@@ -3,12 +3,10 @@ const mongoose = require("mongoose");
 
 exports.getProfQuesByID = async (req, res) => {
     try {
-      const ques = await ProfQues.findOne({_id:req.params.ques_id});
+      const data = await ProfQues.findOne({_id:req.params.ques_id});
       res.status(200).json({
         status: "success",
-        data: {
-          ques,
-        },
+        data,
       });
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });
@@ -16,7 +14,7 @@ exports.getProfQuesByID = async (req, res) => {
 };
 exports.getProfQuesByGrade = async (req, res) => {
   try{
-        const questions= await ProfQues.aggregate([ 
+        const data = await ProfQues.aggregate([ 
             {$match: {depart_id:req.params.depart_id}},
             {$match: {branch_id:req.params.branch_id}},
             {$match: {grade:req.params.grade}},
@@ -26,9 +24,7 @@ exports.getProfQuesByGrade = async (req, res) => {
         ]);
         res.status(200).json({
             status: "success",
-            data: {
-                questions,
-            },
+            data,
         });
   } catch (err) {
       res.status(404).json({ status: "fail", message: err });
@@ -36,11 +32,11 @@ exports.getProfQuesByGrade = async (req, res) => {
 };
 exports.createProfQues = async (req, res) => {
     try{
-        const newQues = await ProfQues.create(req.body);
-        res.send(newQues);
+        const data = await ProfQues.create(req.body);
+        res.send(data);
       
     }catch (err) {
-        console.log(err);
+      res.status(404).json({ status: "fail", message: err });
     }
 };
 exports.deleteProfQues = async (req, res) => {
@@ -61,16 +57,14 @@ exports.deleteProfQues = async (req, res) => {
 };
 exports.updateProfQues = async (req, res) => {
     try {
-      const readyToUpdateQues = await ProfQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
+      const data = await ProfQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
         new: true,
         runValidators: true,
       });
 
       res.status(200).json({
         status: "success",
-        data: {
-            readyToUpdateQues,
-        },
+        data
       });
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });

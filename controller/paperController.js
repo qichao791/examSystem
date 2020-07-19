@@ -16,15 +16,17 @@ exports.getPaper = async (req, res) => {
 
 
 exports.getAllPapers = async (req, res) => {
-  const paperes = await Paper.find();
+  try{
+    const paperes = await Paper.find();
 
-  res.status(200).json({
-    status: "success",
-    results: paperes.length,
-    data: {
+    res.status(200).json({
+      status: "success",
+      results: paperes.length,
       paperes,
-    },
-  });
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
 exports.createPaper = async (req, res) => {
   try {
@@ -32,7 +34,7 @@ exports.createPaper = async (req, res) => {
     res.send(newPaper);
 
   } catch (err) {
-    console.log(err);
+      res.status(404).json({ status: "fail", message: err });
   }
 };
 
@@ -45,13 +47,13 @@ exports.addPaper = async (req, res) => {
         status: true
       })
     } else {
-      res.status(200).json({
+      res.status(404).json({
         status: false
       })
     }
 
   } catch (err) {
-    console.log(err);
+    res.status(404).json({ status: "fail", message: err });
   }
 };
 
@@ -69,31 +71,30 @@ exports.modifyPaper = async (req, res) => {
       })
     }
   } catch (err) {
-    console.log(err)
-    res.status(200).json({
-      status: "false",
-    })
+    res.status(404).json({ status: "fail", message: err });
   }
 }
-
+/*
 exports.removePaper = async (req, res) => {
-  var paper_id = req.query.paper_id
-  var userpaper = await UserPaper.find({ paper_id: req.query.paper_id })
-  console.log("userpaper:", userpaper)
-  if (userpaper.length == 0) {
-    await Paper.findByIdAndDelete({ _id:paper_id })
-    res.status(200).json({
-      status:true
-    })
-  }else{
-    res.status(200).json({
-      status:false
-    })
+  try{
+    var paper_id = req.query.paper_id
+    var userpaper = await UserPaper.find({ paper_id: req.query.paper_id })
+
+    if (userpaper.length == 0) {
+      await Paper.findByIdAndDelete({ _id:paper_id })
+      res.status(200).json({
+        status:true
+      })
+    }else{
+      res.status(200).json({
+        status:false
+      })
+    }
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
   }
 }
-
-
-
+*/
 exports.deletePaper = async (req, res) => {
   try {
     const readyToDeletePaper = await Paper.findOneAndDelete({ _id: req.params.paper_id });
@@ -119,9 +120,7 @@ exports.updatePaper = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      data: {
-        readyToUpdatePaper,
-      },
+      readyToUpdatePaper,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });

@@ -3,12 +3,10 @@ const mongoose = require("mongoose");
 //** author:qichao
 exports.getSubQuesByID = async (req, res) => {
     try {
-      const ques = await SubQues.findOne({_id:req.params.ques_id});
+      const data = await SubQues.findOne({_id:req.params.ques_id});
       res.status(200).json({
         status: "success",
-        data: {
-          ques,
-        },
+        data,
       });
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });
@@ -39,7 +37,7 @@ exports.createSubQues = async (req, res) => {
         res.send(newQues);
       
     }catch (err) {
-        console.log(err);
+      res.status(404).json({ status: "fail", message: err });
     }
 };
 exports.deleteSubQues = async (req, res) => {
@@ -60,16 +58,14 @@ exports.deleteSubQues = async (req, res) => {
 };
 exports.updateSubQues = async (req, res) => {
     try {
-      const readyToUpdateQues = await SubQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
+      const data = await SubQues.findOneAndUpdate({_id:req.params.ques_id},req.body,{
         new: true,
         runValidators: true,
       });
 
       res.status(200).json({
         status: "success",
-        data: {
-            readyToUpdateQues,
-        },
+        data,
       });
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });

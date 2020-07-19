@@ -6,9 +6,7 @@ exports.getDepart = async (req, res) => {
       const depart = await Depart.findOne({ _id:req.params.depart_id});
       res.status(200).json({
         status: "success",
-        data: {
-          depart,
-        },
+        depart,
       });
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });
@@ -16,15 +14,16 @@ exports.getDepart = async (req, res) => {
 };
 
 exports.getAllDeparts = async (req, res) => {
-    const departs = await Depart.find();
-  
+  try {
+     const departs = await Depart.find();
     res.status(200).json({
       status: "success",
       results: departs.length,
-      data: {
-        departs,
-      },
+      departs,
     });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
 exports.createDepart = async (req, res) => {
     try{
@@ -60,43 +59,37 @@ exports.updateDepart = async (req, res) => {
 
       res.status(200).json({
         status: "success",
-        data: {
-            readyToUpdateDepart,
-        },
+        readyToUpdateDepart,
       });
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });
     }
 }; 
 exports.getBranchByDepart = async (req, res) => {
-    Depart.aggregate([
-    {
-      $lookup: {
-        from: 'branch', //the colletion named branch in the database qc of mongodb
-        localField: 'branches',  //the field of the collection department which also is the model Depart in mongoose
-        foreignField: '_id', //the field of the collection branch
-        as: 'Branches',
+  try{
+      const data = await Depart.aggregate([
+      {
+        $lookup: {
+          from: 'branch', //the colletion named branch in the database qc of mongodb
+          localField: 'branches',  //the field of the collection department which also is the model Depart in mongoose
+          foreignField: '_id', //the field of the collection branch
+          as: 'Branches',
+        }
+      },
+      {
+        $project: {
+          _id:0,
+          depart_name: 1,
+          'Branches._id': 1,
+          'Branches.branch_name': 1
+        }
       }
-    },
-    {
-      $project: {
-        _id:0,
-        depart_name: 1,
-        'Branches._id': 1,
-        'Branches.branch_name': 1
-      }
-    }
-  ], (err, docs) => {
-    if (err) {
-      //console.log('查询错误', err);
-      res.status(404).json({ status: "fail", message: err });
-    }
-    //console.log(JSON.stringify(docs));
+    ]);
     res.status(200).json({
       status: "success",
-      data: {
-          docs,
-      },
+      data,
     });
-  })
+  }catch(err){
+    res.status(404).json({ status: "fail", message: err });
+  }
 }
