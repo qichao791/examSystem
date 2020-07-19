@@ -15,14 +15,15 @@ exports.generateUPforUsers = async (req, res) => {
     // if there is no doc based the user_id and paper_id in the userpaper collection,
     // the new doc based on the current user_id and paper_id canbe created.
     // because the userpaper collection has the composite primery key which is user_id and paper_id.
-
+    //So,first of all,we will delete all the old docs linked to the user_id and paper_id
     for (let i = 0; i < users.length; i++) {
       await Userpaper.findOneAndDelete({
         user_id: users[i],
         paper_id: req.body.paper_id,
       });
     }
-    for (let j = 0; j < users.length-1; j++) {
+    //get the user_id from the user_list one by one. then call generateUPforOneUser function
+    for (let j = 0; j < users.length; j++) {
       req.body.user_id = users[j];
       let depart_branch = await User.findOne({_id:req.body.user_id},'depart_id branch_id');
       req.body.depart_id = depart_branch.depart_id;
@@ -58,7 +59,7 @@ async function generateUPforOneUser(req, res) {
     req.body.professional_amount =
       onepaper.amount - req.body.public_amount - req.body.subpublic_amount;
     req.body.grade = onepaper.grade;
-    //console.log("++++++"+req.body.public_amount+","+req.body.subpublic_amount)
+
     // create each field of the userpaper collection
     let up = new Userpaper();
     up.user_id = req.body.user_id;
@@ -119,8 +120,7 @@ async function getPublicQues(req, res) {
  */
 // generate the questions based on subpublic_amount from sub public question bank randomly
 async function getSubPublicQues(req, res) {
-  try {console.log("++req.body.subpublic_amount++++"+req.body.subpublic_amount)
-    //let departId = await User.findOne({_id:req.body.user_id},'depart_id');
+  try {
     let result = await SubPublicQues.aggregate([
       { $match: { depart_id: req.body.user_id} },
       { $match: { grade: req.body.grade } },
@@ -138,8 +138,7 @@ async function getSubPublicQues(req, res) {
  */
 // generate the questions based on professional_amount from professional question bank randomly
 async function getProfessionalQues(req, res) {
-  try {console.log("++req.body.professional_amount++++"+req.body.professional_amount)
-
+  try { 
     let result = await ProfessionalQues.aggregate([
       { $match: { depart_id: req.body.depart_id } },
       { $match: { branch_id: req.body.branch_id } },
