@@ -27,7 +27,7 @@ router
 router
   .route("/updateByUidPid")
   .post(upController.updateOneByUidPid);
-router.route("/calculateByUidPid").post(upController.calculateByUidPid);
+//router.route("/calculateByUidPid").post(upController.calculateByUidPid);
 router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
 router.route("/submitPaper").post(upController.submitPaper);
 
