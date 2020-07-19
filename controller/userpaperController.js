@@ -112,6 +112,8 @@ async function getPublicQues(req, res) {
     return result;
   } catch (err) {
     console.log(err);
+    return false;
+    //res.status(404).json({ status: "fail", message: err });
   }
 }
 /**
@@ -129,7 +131,9 @@ async function getSubPublicQues(req, res) {
     ]);
     return result;
   } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+    console.log(err);
+    return false;
+    //res.status(404).json({ status: "fail", message: err });
   }
 }
 /**
@@ -151,20 +155,6 @@ async function getProfessionalQues(req, res) {
     res.status(404).json({ status: "fail", message: err });
   }
 }
-//exports.getPaperByUid = async (req, res) => {
-/*try {
-    const data = await Userpaper.findOne({
-      user_id: req.params.user_id,
-    });
-    res.status(200).json({
-      status: "success",
-      data: {
-        data,
-      },
-    });
-  } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
-  }*/
 /**
  * author: qichao
  * date: 2020-7
@@ -274,9 +264,7 @@ exports.getPaperByPid = async (req, res) => {
     });
     res.status(200).json({
       status: "success",
-      data: {
-        data,
-      },
+      data: data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -288,7 +276,6 @@ exports.getPaperByPid = async (req, res) => {
  */
 exports.getPaperByUidPid = async (req, res) => {
   try {
-    console.log("--pqs");
     const data = await Userpaper.findOne({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
@@ -304,7 +291,7 @@ exports.getPaperByUidPid = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      public_questions: {
+      /*public_questions: {
         pqs,
       },
       sub_public_questions: {
@@ -312,7 +299,8 @@ exports.getPaperByUidPid = async (req, res) => {
       },
       professional_questions: {
         proqs,
-      },
+      },*/
+      pqs,spqs,proqs,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -334,9 +322,7 @@ exports.getPublicSectionByUidPid = async (req, res) => {
     //--
     res.status(200).json({
       status: "success",
-      questions: {
-        qs,
-      },
+      qs,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -358,9 +344,7 @@ exports.getSubPublicSectionByUidPid = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      questions: {
-        qs,
-      },
+      qs,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -382,9 +366,7 @@ exports.getProfessionSectionByUidPid = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      questions: {
-        qs,
-      },
+      qs,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -443,7 +425,7 @@ exports.deleteOneByUidPid = async (req, res) => {
  * date: 2020-7
  */
 //calculate the achivevement of the paper for one user
-async function calculateOneBankByUidPid(req, res){
+async function calculateOneSectionByUidPid(req, res){
   try {
     let data = await Userpaper.findOne({
       user_id: req.body.user_id,
@@ -498,17 +480,18 @@ async function calculateOneBankByUidPid(req, res){
  * author: qichao
  * date: 2020-7
  */
-//the aim of this function is to update the answer of the user gives
+//the aim of this function is to update the answer which the user did
 exports.updateOneByUidPid = async (req, res) => {
   try {
     let data = await Userpaper.findOne({
       user_id: req.body.user_id,
       paper_id: req.body.paper_id,
     });
-    let section = req.body.section; //the value of section is 1 or 2 or 3.
+    //the value of section is 1 or 2 or 3.
     //1 means the question which will update is from public_questions field
     //2 means the question which will update is from subpublic_questions field
     //3 means the question which will update is from professional_questions field
+    let section = req.body.section; 
     let qs = data.public_questions;
     if (section === 2) qs = data.subpublic_questions;
     else if (section === 3) qs = data.professional_questions;
@@ -542,15 +525,15 @@ exports.submitPaper = async (req, res) => {
     const data = await Userpaper.findOneAndUpdate(
       { user_id: req.body.user_id, paper_id: req.body.paper_id },
       req.body,
-    );console.log("--222222---")
+    );
+    //call calculateAllBanksByUidPid to calculate the value of 3 question sections for one user's one paper
     await calculateAllBanksByUidPid(req, res);
+    /////////////////////////////////
     res.status(200).json({
       status: "success",
-      data: {
-        data,
-      },
+      data: data,
     });
-  } catch (err) {console.log("---err---"+err)
+  } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 };
@@ -564,70 +547,19 @@ exports.getAllPapers = async (req, res) => {
   res.status(200).json({
     status: "success",
     results: branches.length,
-    data: {
-      data,
-    },
+    data: data,
   });
 };
 async function calculateAllBanksByUidPid (req, res){
-  try {console.log("---******-")
+  try {
+    //loop 3 times. because there are 3 question sections which are public, subpublic, profession
     for(let i = 1; i <= 3 ; i++ ){
       req.body.section = i;
-      await calculateOneBankByUidPid(req, res);
+      await calculateOneSectionByUidPid(req, res);
     } 
     return true;
   } catch (err) {
     console.log(err);
     return false;
   }
-  /*
-  try {
-    let data = await Userpaper.findOne({
-      user_id: req.body.user_id,
-      paper_id: req.body.paper_id,
-    });
-    let score = 0; //the score of one question bank
-    let section = req.body.section; //the value of section is 1 or 2 or 3.
-    //1 means the question which will update is from public_questions field
-    //2 means the question which will update is from subpublic_questions field
-    //3 means the question which will update is from professional_questions field
-    console.log("------"+section)
-    let totalnum =
-      data.public_questions.length +
-      data.subpublic_questions.length +
-      data.professional_questions.length;
-    // totalnum means the amount of all the questions from 3 banks
-    let qs = data.public_questions;
-    let whichquestionBank = PublicQues;
-    if (section === 2) {
-      qs = data.subpublic_questions;
-      whichquestionBank = SubPublicQues;
-    } else if (section === 3) {
-      qs = data.professional_questions;
-      whichquestionBank = ProfessionalQues;
-    }
-    for (let i = 0; i < qs.length; i++) {
-      let info = await whichquestionBank.findOne(
-        { _id: qs[i].ques_id },
-        "statement"
-      );
-      let right_answer = info.statement.right_answer;
-      if (qs[i].user_answer === right_answer) {
-        score = score + 100 / totalnum; //to set the value of each question.
-        score = Math.round(score); //score.toFixed(1);
-      }
-    }
-
-    //-----update the user_answer--------
-
-    if (section === 2) data.subpublic_score = score;
-    else if (section === 3) data.professional_score = score;
-    else data.public_score = score;
-
-    data.save();
-    res.status(200).json({ status: "calculate success" });
-  } catch (err) {
-    console.log(err);
-    res.status(404).json({ status: "fail", message: err });
-  }*/
 };
