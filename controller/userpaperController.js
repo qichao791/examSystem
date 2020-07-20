@@ -54,8 +54,8 @@ async function generateUPforOneUser(req, res) {
     let professionalScale =
       parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
 
-    req.body.public_amount = Math.floor(onepaper.amount * publicScale);
-    req.body.subpublic_amount = Math.floor(onepaper.amount * subpublicScale);
+    req.body.public_amount = Math.round(onepaper.amount * publicScale);
+    req.body.subpublic_amount = Math.round(onepaper.amount * subpublicScale);
     req.body.professional_amount =
       onepaper.amount - req.body.public_amount - req.body.subpublic_amount;
     req.body.grade = onepaper.grade;
@@ -68,7 +68,8 @@ async function generateUPforOneUser(req, res) {
     let publicQuestions = (await getPublicQues(req, res)) || [];
     up.public_questions = publicQuestions.map((item) => {
       return {
-        ques_id: item,
+        //ques_id: item,
+        ques_id: item._id,
         user_answer: "Z",
       };
     });
@@ -76,7 +77,8 @@ async function generateUPforOneUser(req, res) {
     let subPublicQuestions = (await getSubPublicQues(req, res)) || [];
     up.subpublic_questions = subPublicQuestions.map((item) => {
       return {
-        ques_id: item,
+        //ques_id: item,
+        ques_id: item._id,
         user_answer: "Z",
       };
     });
@@ -84,7 +86,8 @@ async function generateUPforOneUser(req, res) {
     let professionalQuestions = (await getProfessionalQues(req, res)) || [];
     up.professional_questions = professionalQuestions.map((item) => {
       return {
-        ques_id: item,
+        //ques_id: item,
+        ques_id: item._id,
         user_answer: "Z",
       };
     });
@@ -107,7 +110,7 @@ async function getPublicQues(req, res) {
     let result = await PublicQues.aggregate([
       { $match: { grade: req.body.grade } },
       { $sample: { size: req.body.public_amount } },
-      { $project: { _id: 1 } },
+      //{ $project: { _id: 1 } },
     ]);
     return result;
   } catch (err) {
@@ -124,10 +127,10 @@ async function getPublicQues(req, res) {
 async function getSubPublicQues(req, res) {
   try {
     let result = await SubPublicQues.aggregate([
-      { $match: { depart_id: req.body.user_id} },
+      { $match: { depart_id: req.body.depart_id} },
       { $match: { grade: req.body.grade } },
       { $sample: { size: req.body.subpublic_amount } },
-      { $project: { _id: 1 } },
+      //{ $project: { _id: 1 } },
     ]);
     return result;
   } catch (err) {
@@ -148,10 +151,38 @@ async function getProfessionalQues(req, res) {
       { $match: { branch_id: req.body.branch_id } },
       { $match: { grade: req.body.grade } },
       { $sample: { size: req.body.professional_amount } },
-      { $project: { _id: 1 } },
+      //{ $project: { _id: 1 } },
     ]);
     return result;
   } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}
+//fetch one question from 3 banks randomly. the parameter 'grade','quesBank' and 'user_id' must be included in the req.
+exports.getOneQuesRandomly = async (req,res)=> {
+  try {
+    let depart_branch = await User.findOne({_id:req.body.user_id},'depart_id branch_id');//get the 'depart_id branch_id' based on user_id
+    req.body.depart_id = depart_branch.depart_id;
+    req.body.branch_id = depart_branch.branch_id;
+    let quesBank = req.body.quesBank;
+    let ques;
+    if( quesBank === 1){//1 means public question bank
+      req.body.public_amount =1;//
+      ques = await getPublicQues(req, res);
+    }else if( quesBank === 2){//2 means sub public question bank
+      req.body.subpublic_amount =1;
+      ques = await getSubPublicQues(req, res);
+    }else if( quesBank === 3){//3 means professional question bank
+      req.body.professional_amount = 1;
+      ques = await getProfessionalQues(req, res);
+    }
+    let result = ques[0];
+    res.status(200).json({
+      status: "success",
+      result,
+    });
+  } catch (err) {
+    console.log(err);
     res.status(404).json({ status: "fail", message: err });
   }
 }
@@ -436,7 +467,7 @@ async function calculateOneSectionByUidPid(req, res){
     //1 means the question which will update is from public_questions field
     //2 means the question which will update is from subpublic_questions field
     //3 means the question which will update is from professional_questions field
-    console.log("------"+section)
+    
     let totalnum =
       data.public_questions.length +
       data.subpublic_questions.length +
@@ -522,16 +553,16 @@ exports.updateOneByUidPid = async (req, res) => {
  */
 exports.submitPaper = async (req, res) => {
   try {
-    const data = await Userpaper.findOneAndUpdate(
+     await Userpaper.findOneAndUpdate(
       { user_id: req.body.user_id, paper_id: req.body.paper_id },
       req.body,
     );
     //call calculateAllBanksByUidPid to calculate the value of 3 question sections for one user's one paper
-    await calculateAllBanksByUidPid(req, res);
+    const data= await calculateAllBanksByUidPid(req, res);
     /////////////////////////////////
     res.status(200).json({
       status: "success",
-      data: data,
+      data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
