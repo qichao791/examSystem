@@ -8,7 +8,6 @@ const paperController = require("../controller/paperController")
 
 const router = express.Router();
 const tools = require("../utils/tools");
-// const { multer } = require("../utils/tools");
 router.all("*", (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "*");
