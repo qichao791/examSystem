@@ -158,21 +158,21 @@ async function getProfessionalQues(req, res) {
     res.status(404).json({ status: "fail", message: err });
   }
 }
-//fetch one question from 3 banks randomly. the parameter 'grade','quesBank' and 'user_id' must be included in the req.
+//fetch one question from any one of 3 banks randomly base on the value of quesBank. the parameter 'grade','quesBank' and 'user_id' must be included in the req.
 exports.getOneQuesRandomly = async (req,res)=> {
   try {
     let depart_branch = await User.findOne({_id:req.body.user_id},'depart_id branch_id');//get the 'depart_id branch_id' based on user_id
     req.body.depart_id = depart_branch.depart_id;
     req.body.branch_id = depart_branch.branch_id;
-    let quesBank = req.body.quesBank;
+    let quesBank = req.body.section;
     let ques;
-    if( quesBank === 1){//1 means public question bank
+    if( quesBank === 1){//if quesBank's value is 1 that means public question bank
       req.body.public_amount =1;//
       ques = await getPublicQues(req, res);
-    }else if( quesBank === 2){//2 means sub public question bank
+    }else if( quesBank === 2){//if quesBank's value is 1 that 2 means sub public question bank
       req.body.subpublic_amount =1;
       ques = await getSubPublicQues(req, res);
-    }else if( quesBank === 3){//3 means professional question bank
+    }else if( quesBank === 3){//if quesBank's value is 1 that 3 means professional question bank
       req.body.professional_amount = 1;
       ques = await getProfessionalQues(req, res);
     }

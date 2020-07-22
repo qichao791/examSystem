@@ -25,5 +25,7 @@ router
   .get(questionbankController.getPublicQuesByGrade)
   //.patch(questionbankController.updateQues)
   //.delete(questionbankController.deleteQues);
-
+router
+  .route("/importQuessToPublicBank")
+  .post(questionbankController.importQuessToPublicBank);
 module.exports = router;
