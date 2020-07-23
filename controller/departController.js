@@ -84,7 +84,7 @@ exports.getBranchByDepart = async (req, res) => {
           'Branches.branch_name': 1
         }
       }
-    ]);
+    ]);console.log("----data:"+data)
     res.status(200).json({
       status: "success",
       data,
