@@ -74,7 +74,7 @@ exports.modifyPaper = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 }
-/*
+
 exports.removePaper = async (req, res) => {
   try{
     var paper_id = req.query.paper_id
@@ -94,7 +94,7 @@ exports.removePaper = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 }
-*/
+
 exports.deletePaper = async (req, res) => {
   try {
     const readyToDeletePaper = await Paper.findOneAndDelete({ _id: req.params.paper_id });

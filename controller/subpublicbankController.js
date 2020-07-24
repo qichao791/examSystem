@@ -1,4 +1,5 @@
 const SubQues= require("../model/subpublicbankModel");
+const Depart= require("../model/departModel");
 const mongoose = require("mongoose");
 //** author:qichao
 exports.getSubQuesByID = async (req, res) => {
@@ -71,4 +72,35 @@ exports.updateSubQues = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 }; 
+exports.importQuessToSubPublicBank = async(req,res) =>{ 
+  try {
+    let data = req.body.data;
+    for(let i=0;i<data.length;i++){
+      let ques = new SubQues();
+      let departId = await Depart.findOne({ depart_name:data[i].depart_name},'_id');
+      ques.depart_id = departId._id;
+      //getDepartIDbyName(data[i].depart_name);
+      ques.statement = {
+           stem: data[i].stem,
+           options: data[i].options.split('$'),
+           right_answer:data[i].right_answer,
+      }
+      ques.analysis = data[i].analysis;
+      ques.knowlege = data[i].knowlege;
+      ques.grade = data[i].grade;
+      ques.attachment = {
+           image:data[i].images.split('$'),
+           voice:data[i].voices.split('$'),
+           video:data[i].videos.split('$'),
+      }
+      await ques.save();
+      res.status(200).json({
+          status: "success",
+      });
+    }
+    } catch (err) {
+      res.status(404).json({ status: "fail", message: err });
+    }
+}
+
 //**author:qichao 

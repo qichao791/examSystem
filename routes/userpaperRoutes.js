@@ -14,21 +14,16 @@ router
   .route("/")
   //.get(upController.getAllUserPapers)
   .post(upController.generateUPforUsers);
-router
+router;
 // .route("/:paper_id")
 // .get(upController.getPaperByPid);
 
-router
-  .route("/getPaperByUid")
-  .get(upController.getPaperByUid);
-router
-  .route("/getPaperByUidPid")
-  .get(upController.getPaperByUidPid);
-router
-  .route("/updateByUidPid")
-  .post(upController.updateOneByUidPid);
+router.route("/getPaperByUid").get(upController.getPaperByUid);
+router.route("/getPaperByUidPid").get(upController.getPaperByUidPid);
+router.route("/updateByUidPid").post(upController.updateOneByUidPid);
 //router.route("/calculateByUidPid").post(upController.calculateByUidPid);
 router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
 router.route("/submitPaper").post(upController.submitPaper);
+router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);
 
 module.exports = router;
