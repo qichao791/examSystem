@@ -100,6 +100,39 @@ async function generateUPforOneUser(req, res) {
     return false;
   }
 }
+async function updateGradeOfEachQuestion() {
+  try {
+    updateGradeForBank(PublicQues);
+    updateGradeForBank(SubPublicQues);
+    updateGradeForBank(ProfessionalQues);
+      
+      return true;
+  } catch (err) {
+      return false;
+  }
+}
+async function updateGradeForBank(whichquestionBank) {
+  try {
+    let mycursor = await whichquestionBank.find();
+      for(let j=0;j<mycursor.length;j++){
+        let item = mycursor[j];
+        let rt = item.right_times;
+        let wt = item.wrong_times;
+        if(rt/(rt+wt) > 0.75) 
+           item.grade = 1;
+        else if(rt/(rt+wt) < 0.25)
+           item.grade = 3;
+        else 
+           item.grade = 2;
+        await item.save();
+      }
+      
+      return true;
+  } catch (err) {
+      return false;
+  }
+}
+
 /**
  * author: qichao
  * date: 2020-7
@@ -483,19 +516,22 @@ async function calculateOneSectionByUidPid(req, res){
       whichquestionBank = ProfessionalQues;
     }
     for (let i = 0; i < qs.length; i++) {
-      let info = await whichquestionBank.findOne(
+      let originalQuestion = await whichquestionBank.findOne(
         { _id: qs[i].ques_id },
         "statement"
       );
-      let right_answer = info.statement.right_answer;
+      let right_answer = originalQuestion.statement.right_answer;
       if (qs[i].user_answer === right_answer) {
-        score = score + 100 / totalnum; //to set the value of each question.
-        score = Math.round(score); //score.toFixed(1);
+        score = score + 100 / totalnum; //to add the value of the question to score because the user did it right.
+        //score = Math.round(score); //score.toFixed(1);
+        originalQuestion.right_times++;//the current question is did right by the user, so the right times increases. 
+      }else{
+        originalQuestion.wrong_times++;//the current question is did wrong by the user, so the wrong times increases. 
       }
     }
 
     //-----update the user_answer--------
-
+    score = Math.round(score); //score.toFixed(1);
     if (section === 2) data.subpublic_score = score;
     else if (section === 3) data.professional_score = score;
     else data.public_score = score;
@@ -572,15 +608,7 @@ exports.submitPaper = async (req, res) => {
  * author: qichao
  * date: 2020-7
  */
-exports.getAllPapers = async (req, res) => {
-  const data = await Userpaper.find();
 
-  res.status(200).json({
-    status: "success",
-    results: branches.length,
-    data: data,
-  });
-};
 async function calculateAllBanksByUidPid (req, res){
   try {
     //loop 3 times. because there are 3 question sections which are public, subpublic, profession
@@ -593,4 +621,13 @@ async function calculateAllBanksByUidPid (req, res){
     console.log(err);
     return false;
   }
+};
+exports.getAllPapers = async (req, res) => {
+  const data = await Userpaper.find();
+
+  res.status(200).json({
+    status: "success",
+    results: branches.length,
+    data: data,
+  });
 };

@@ -1,9 +1,11 @@
 const mongoose = require("mongoose");
 const User = require("./model/userModel");
+const PublicQues = require("./model/questionbankModel");
 const SubQues= require("./model/subpublicbankModel");
 const ProfQues= require("./model/professionalbankModel");
 const Depart= require("./model/departModel");
 const Branch = require("./model/branchModel");
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
 
 mongoose
@@ -146,4 +148,39 @@ async function ddd(){
           console.log(err)
         }
 }
-ddd()
+///////
+
+  async function updateGradeOfEachQuestion() {
+    try {
+      updateGradeForBank(PublicQues);
+      updateGradeForBank(SubQues);
+      updateGradeForBank( ProfQues);
+        
+        return true;
+    } catch (err) {
+        return false;
+    }
+  }
+  async function updateGradeForBank(whichquestionBank) {
+    try {
+      let mycursor = await whichquestionBank.find();
+        for(let j=0;j<mycursor.length;j++){
+          let item = mycursor[j];
+          let rt = item.right_times;
+          let wt = item.wrong_times;
+          if(rt/(rt+wt) > 0.75) 
+             item.grade = 1;
+          else if(rt/(rt+wt) < 0.25)
+             item.grade = 3;
+          else 
+             item.grade = 2;
+          await item.save();
+        }
+        
+        return true;
+    } catch (err) {
+        return false;
+    }
+  }
+  
+  updateGradeOfEachQuestion()

@@ -48,6 +48,14 @@ const questionbankSchema = new mongoose.Schema({
             ]
         
     },
+    right_times:{
+        type: Number,
+        default:1,
+    },
+    wrong_times:{
+        type: Number,
+        default:1,
+    }
 },{_id:false});
 
 const Quesitonbank = mongoose.model("Quesitonbank", questionbankSchema,'questionbank');
