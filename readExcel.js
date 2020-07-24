@@ -7,6 +7,7 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true,
     useFindAndModify: false,
+    useUnifiedTopology:true
   })
   .then(() => {
     console.log("DB connection successful!");
@@ -14,8 +15,8 @@ mongoose
   const mySchema = new mongoose.Schema({
     _id:{
         type:String,
-        //required: [true, "Please tell us ID"],
-        //default:uuid.v1,
+        // required: [true, "Please tell us ID"],
+        // default:uuid.v1,
     },  
     //编号:String,
     //专业:String,
@@ -52,19 +53,17 @@ async function abc(){
     let quess=[]
     try {
       for(let i=0;i<dataa.length;i++){
-          ques._id = i;
+        let ques = new mytest();
+          //ques._id = i;
           ques.statement = {
           stem: dataa[i].题目,
           options: [dataa[i].编号,  dataa[i].专业 ],}
+          console.log("题目",i,":",ques)
           await ques.save()
          
           //quess.push(ques)
       }
-      for(i=0;i<quess.length;i++){
- 
-        //await quess[i].save()
-
-    }
+      
       //await mytest.create(quess)
       console.log(quess)
       } catch (err) {
