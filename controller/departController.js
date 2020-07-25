@@ -37,10 +37,11 @@ exports.createDepart = async (req, res) => {
 exports.addBranchToDepart = async (req, res) => {
   try{
     const originalDepart = await Depart.findOne({_id:req.body.depart_id});
-    if(originalDepart.branches==null)
-        originalDepart.branches[0]= req.body.branch_id;
-    else
-        originalDepart.branches.push(req.body.branch_id);
+    //if(originalDepart.branches==null)
+        //originalDepart.branches[0]= req.body.branch_id;
+    //else
+    for(let i = 0;i < req.body.branch_id.length;i++ )
+        originalDepart.branches.push(req.body.branch_id[i]);
     await originalDepart.save();
     res.status(200).json({
       status: "success",
