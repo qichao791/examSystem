@@ -110,7 +110,7 @@ exports.getBranchByDepart = async (req, res) => {
       },
       {
         $project: {
-          _id:0,
+          _id:1,
           depart_name: 1,
           'Branches._id': 1,
           'Branches.branch_name': 1
