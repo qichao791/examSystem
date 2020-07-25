@@ -11,6 +11,11 @@ const User = require("../model/userModel");
  */
 exports.generateUPforUsers = async (req, res) => {
   try {
+    //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
+    await updateGradeForBank(PublicQues);
+    await updateGradeForBank(SubPublicQues);
+    await updateGradeForBank(ProfessionalQues);
+    //////////////////////////////////////////////////////////////////////
     let users = req.body.userid_list;
     // if there is no doc based the user_id and paper_id in the userpaper collection,
     // the new doc based on the current user_id and paper_id canbe created.
@@ -100,30 +105,30 @@ async function generateUPforOneUser(req, res) {
     return false;
   }
 }
-async function updateGradeOfEachQuestion() {
-  try {
-    updateGradeForBank(PublicQues);
-    updateGradeForBank(SubPublicQues);
-    updateGradeForBank(ProfessionalQues);
-      
-      return true;
-  } catch (err) {
-      return false;
-  }
-}
+/**
+ * 
+ * @author:qichao
+ * update the questions' grade of whichquestionBank
+ */
 async function updateGradeForBank(whichquestionBank) {
   try {
     let mycursor = await whichquestionBank.find();
       for(let j=0;j<mycursor.length;j++){
         let item = mycursor[j];
-        let rt = item.right_times;
-        let wt = item.wrong_times;
-        if(rt/(rt+wt) > 0.75) 
+        let rt = item.right_times;//right times
+        let wt = item.wrong_times;//wrong times
+        if(rt/(rt+wt) > 0.75)     //right ratio is greater than 0.75,the grade will be 1
            item.grade = 1;
-        else if(rt/(rt+wt) < 0.25)
-           item.grade = 3;
-        else 
+        else if(rt/(rt+wt) < 0.25)//right ratio is lower than 0.25,the grade will be 3
+           item.grade = 3;    
+        else                     //right ratio is between [0.25,0.75], the grade will be 2
            item.grade = 2;
+        
+        if(rt+wt>=100000){ //if the current question has been did more than 100 thousand times, the right times and wrong times will be divided by 100
+                           //the aim is to make the value not bigger than 100 thousand in the circurmstance that the grade will not change 
+            rt = Math.round( rt / 100 );
+            wt = Math.round( wt / 100 );
+        }
         await item.save();
       }
       
@@ -145,11 +150,72 @@ async function getPublicQues(req, res) {
       { $sample: { size: req.body.public_amount } },
       //{ $project: { _id: 1 } },
     ]);
+    //--*7-25 add*--
+    if(result.length < req.body.public_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**--
     return result;
   } catch (err) {
     console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
+  }
+}
+async function replenishQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+    //if(result.length < req.body.public_amount){
+      let amount1 = req.body.public_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 1 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 1 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
 /**

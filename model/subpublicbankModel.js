@@ -55,11 +55,11 @@ const subpublicbankSchema = new mongoose.Schema({
     },
     right_times:{
         type: Number,
-        default:1,
+        default:10,
     },
     wrong_times:{
         type: Number,
-        default:1,
+        default:10,
     }
 },{_id:false});
 

@@ -7,7 +7,7 @@ const Depart= require("./model/departModel");
 const Branch = require("./model/branchModel");
 const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
-
+ /*
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -17,7 +17,7 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
-  /*
+ */
 mongoose
     .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
         user: "root",
@@ -29,7 +29,7 @@ mongoose
         useFindAndModify: false,
     })
     .then(() => console.log("DB connection successful!"));
-
+/*
 async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
     try {
        
@@ -150,37 +150,19 @@ async function ddd(){
 }
 ///////
 
-  async function updateGradeOfEachQuestion() {
-    try {
-      updateGradeForBank(PublicQues);
-      updateGradeForBank(SubQues);
-      updateGradeForBank( ProfQues);
-        
-        return true;
-    } catch (err) {
-        return false;
-    }
-  }
-  async function updateGradeForBank(whichquestionBank) {
-    try {
-      let mycursor = await whichquestionBank.find();
-        for(let j=0;j<mycursor.length;j++){
-          let item = mycursor[j];
-          let rt = item.right_times;
-          let wt = item.wrong_times;
-          if(rt/(rt+wt) > 0.75) 
-             item.grade = 1;
-          else if(rt/(rt+wt) < 0.25)
-             item.grade = 3;
-          else 
-             item.grade = 2;
-          await item.save();
-        }
-        
-        return true;
-    } catch (err) {
-        return false;
-    }
-  }
-  
-  updateGradeOfEachQuestion()
+var p = new Object();
+p.name='u000';p.sex='f';
+var p1 = new Object();
+p1.name='u001';p1.sex='f';
+var p2 = new Object();
+p2.name='u002';p2.sex='f';
+var pl = [];
+pl.push(p);
+pl.push(p1);
+var a=[];
+a.push(p2);
+for(let i=0;i<pl.length;i++){
+  a.push(pl[i])
+}
+
+console.log(JSON.stringify(a))
