@@ -37,6 +37,7 @@ exports.createBranch = async (req, res) => {
     res.status(404).json({ status: "failed", message: err });
   }
 };
+
 exports.deleteBranch = async (req, res) => {
   try {
     const readyToDeleteBranch = await Branch.findOneAndDelete({
