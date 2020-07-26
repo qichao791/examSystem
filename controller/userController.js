@@ -161,6 +161,8 @@ exports.getUsersByDepartId = async (req, res) => {
                 user_name: departUsers[i].user_name,
                 depart_name: departUsers[i].user_department[0].depart_name,
                 branch_name: (departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_name,
+                branch_id:(departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_id,
+                password:departUsers[i].password,
                 active: departUsers[i].active
             }
             users.push(user)
