@@ -13,17 +13,17 @@ exports.addUser = async (req, res) => {
         var result = await User.insertMany(users)
         if (result.length == 0) {
             res.status(200).json({
-                status: "false",
+                status:false,
             });
         } else {
             res.status(200).json({
-                status: "true",
+                status: true,
             });
         }
     } catch (e) {
         console.log(e)
         res.status(200).json({
-            status: "false",
+            status: false,
         });
     }
 };
@@ -67,17 +67,17 @@ exports.updateUser = async (req, res) => {
         console.log("result", result)
         if (result.nModified == 1) {
             res.status(200).json({
-                status: "true",
+                status: true,
             })
         } else {
             res.status(200).json({
-                status: "false",
+                status: false,
             })
         }
     } catch (err) {
         console.log(err)
         res.status(200).json({
-            status: "false",
+            status: false,
         })
     }
 
@@ -94,12 +94,12 @@ exports.deleteUser = async (req, res) => {
         await Userpaper.deleteOne({ user_id: user_id })
         await User.deleteOne({ _id: user_id })
         res.status(200).json({
-            status: "true"
+            status: true
         })
     } catch (err) {
         console.log(err)
         res.status(200).json({
-            status: "false"
+            status: false
         })
     }
 };
@@ -111,19 +111,19 @@ exports.userLogin = async (req, res) => {
     var user = (await User.findById(user_id));
     if (user == null) {
         res.status(200).json({
-            status: "false",
+            status: false,
             message: "用户不存在"
         })
     } else {
         if (user.password != password) {
             res.status(200).json({
-                status: "false",
+                status: false,
                 message: "密码错误"
             })
         } else {
             if (user.active == false) {
                 res.status(200).json({
-                    status: "false",
+                    status: false,
                     message: "该用户未激活"
                 })
             } else {
@@ -135,7 +135,7 @@ exports.userLogin = async (req, res) => {
                     depart_name: (userinfo[0].user_department.length == 0) ? '' : userinfo[0].user_department[0].depart_name
                 }
                 res.status(200).json({
-                    status: "true",
+                    status: true,
                     message: usermsg
                 })
             }
@@ -161,6 +161,8 @@ exports.getUsersByDepartId = async (req, res) => {
                 user_name: departUsers[i].user_name,
                 depart_name: departUsers[i].user_department[0].depart_name,
                 branch_name: (departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_name,
+                branch_id:(departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_id,
+                password:departUsers[i].password,
                 active: departUsers[i].active
             }
             users.push(user)
