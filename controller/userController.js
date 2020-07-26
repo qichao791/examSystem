@@ -13,17 +13,17 @@ exports.addUser = async (req, res) => {
         var result = await User.insertMany(users)
         if (result.length == 0) {
             res.status(200).json({
-                status: "false",
+                status:false,
             });
         } else {
             res.status(200).json({
-                status: "true",
+                status: true,
             });
         }
     } catch (e) {
         console.log(e)
         res.status(200).json({
-            status: "false",
+            status: false,
         });
     }
 };
