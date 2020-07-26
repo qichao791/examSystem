@@ -11,6 +11,11 @@ const User = require("../model/userModel");
  */
 exports.generateUPforUsers = async (req, res) => {
   try {
+    //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
+    await updateGradeForBank(PublicQues);
+    await updateGradeForBank(SubPublicQues);
+    await updateGradeForBank(ProfessionalQues);
+    //////////////////////////////////////////////////////////////////////
     let users = req.body.userid_list;
     // if there is no doc based the user_id and paper_id in the userpaper collection,
     // the new doc based on the current user_id and paper_id canbe created.
@@ -101,6 +106,39 @@ async function generateUPforOneUser(req, res) {
   }
 }
 /**
+ * 
+ * @author:qichao
+ * update the questions' grade of whichquestionBank
+ */
+async function updateGradeForBank(whichquestionBank) {
+  try {
+    let mycursor = await whichquestionBank.find();
+      for(let j=0;j<mycursor.length;j++){
+        let item = mycursor[j];
+        let rt = item.right_times;//right times
+        let wt = item.wrong_times;//wrong times
+        if(rt/(rt+wt) > 0.75)     //right ratio is greater than 0.75,the grade will be 1
+           item.grade = 1;
+        else if(rt/(rt+wt) < 0.25)//right ratio is lower than 0.25,the grade will be 3
+           item.grade = 3;    
+        else                     //right ratio is between [0.25,0.75], the grade will be 2
+           item.grade = 2;
+        
+        if(rt+wt>=100000){ //if the current question has been did more than 100 thousand times, the right times and wrong times will be divided by 100
+                           //the aim is to make the value not bigger than 100 thousand in the circurmstance that the grade will not change 
+            rt = Math.round( rt / 100 );
+            wt = Math.round( wt / 100 );
+        }
+        await item.save();
+      }
+      
+      return true;
+  } catch (err) {
+      return false;
+  }
+}
+
+/**
  * author: qichao
  * date: 2020-7
  */
@@ -112,11 +150,72 @@ async function getPublicQues(req, res) {
       { $sample: { size: req.body.public_amount } },
       //{ $project: { _id: 1 } },
     ]);
+    //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
+    if(result.length < req.body.public_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishPublicQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**-----------------------------
     return result;
   } catch (err) {
     console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
+  }
+}
+async function replenishPublicQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+    //if(result.length < req.body.public_amount){
+      let amount1 = req.body.public_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 1 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 1 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
 /**
@@ -132,11 +231,77 @@ async function getSubPublicQues(req, res) {
       { $sample: { size: req.body.subpublic_amount } },
       //{ $project: { _id: 1 } },
     ]);
+     //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
+     if(result.length < req.body.subpublic_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishSubPublicQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**-----------------------------
     return result;
   } catch (err) {
     console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
+  }
+}
+async function replenishSubPublicQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+      let amount1 = req.body.subpublic_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await SubPublicQues.aggregate([
+          { $match: { grade: 1 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.subpublic_amount){
+          let amount2 = req.body.subpublic_amount - req.body.result_length - result1.length;
+          result2 = await SubPublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await SubPublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.subpublic_amount){
+          let amount2 = req.body.subpublic_amount - req.body.result_length - result1.length;
+          result2 = await SubPublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await SubPublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.subpublic_amount){
+          let amount2 = req.body.subpublic_amount - req.body.result_length - result1.length;
+          result2 = await SubPublicQues.aggregate([
+              { $match: { grade: 1 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
 /**
@@ -153,9 +318,81 @@ async function getProfessionalQues(req, res) {
       { $sample: { size: req.body.professional_amount } },
       //{ $project: { _id: 1 } },
     ]);
+    //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
+    if(result.length < req.body.professional_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishProfessionalQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**-----------------------------
     return result;
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
+  }
+}
+async function replenishProfessionalQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+      let amount1 = req.body.professional_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await ProfessionalQues.aggregate([
+          { $match: { grade: 1 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $match: { branch_id: req.body.branch_id } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.professional_amount){
+          let amount2 = req.body.professional_amount - req.body.result_length - result1.length;
+          result2 = await ProfessionalQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $match: { branch_id: req.body.branch_id } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await ProfessionalQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $match: { branch_id: req.body.branch_id } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.professional_amount){
+          let amount2 = req.body.professional_amount - req.body.result_length - result1.length;
+          result2 = await ProfessionalQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $match: { branch_id: req.body.branch_id } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await ProfessionalQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $match: { branch_id: req.body.branch_id } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.professional_amount){
+          let amount2 = req.body.professional_amount - req.body.result_length - result1.length;
+          result2 = await ProfessionalQues.aggregate([
+              { $match: { grade: 1 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $match: { branch_id: req.body.branch_id } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    console.log(err);
+    return false;
   }
 }
 //fetch one question from any one of 3 banks randomly base on the value of quesBank. the parameter 'grade','quesBank' and 'user_id' must be included in the req.
@@ -483,19 +720,22 @@ async function calculateOneSectionByUidPid(req, res){
       whichquestionBank = ProfessionalQues;
     }
     for (let i = 0; i < qs.length; i++) {
-      let info = await whichquestionBank.findOne(
+      let originalQuestion = await whichquestionBank.findOne(
         { _id: qs[i].ques_id },
         "statement"
       );
-      let right_answer = info.statement.right_answer;
+      let right_answer = originalQuestion.statement.right_answer;
       if (qs[i].user_answer === right_answer) {
-        score = score + 100 / totalnum; //to set the value of each question.
-        score = Math.round(score); //score.toFixed(1);
+        score = score + 100 / totalnum; //to add the value of the question to score because the user did it right.
+        //score = Math.round(score); //score.toFixed(1);
+        originalQuestion.right_times++;//the current question is did right by the user, so the right times increases. 
+      }else{
+        originalQuestion.wrong_times++;//the current question is did wrong by the user, so the wrong times increases. 
       }
     }
 
     //-----update the user_answer--------
-
+    score = Math.round(score); //score.toFixed(1);
     if (section === 2) data.subpublic_score = score;
     else if (section === 3) data.professional_score = score;
     else data.public_score = score;
@@ -572,15 +812,7 @@ exports.submitPaper = async (req, res) => {
  * author: qichao
  * date: 2020-7
  */
-exports.getAllPapers = async (req, res) => {
-  const data = await Userpaper.find();
 
-  res.status(200).json({
-    status: "success",
-    results: branches.length,
-    data: data,
-  });
-};
 async function calculateAllBanksByUidPid (req, res){
   try {
     //loop 3 times. because there are 3 question sections which are public, subpublic, profession
@@ -593,4 +825,13 @@ async function calculateAllBanksByUidPid (req, res){
     console.log(err);
     return false;
   }
+};
+exports.getAllPapers = async (req, res) => {
+  const data = await Userpaper.find();
+
+  res.status(200).json({
+    status: "success",
+    results: branches.length,
+    data: data,
+  });
 };

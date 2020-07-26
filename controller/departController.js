@@ -34,6 +34,39 @@ exports.createDepart = async (req, res) => {
         console.log(err);
     }
 };
+exports.addBranchToDepart = async (req, res) => {
+  try{
+    const originalDepart = await Depart.findOne({_id:req.body.depart_id});
+    //if(originalDepart.branches==null)
+        //originalDepart.branches[0]= req.body.branch_id;
+    //else
+    for(let i = 0;i < req.body.branch_id.length;i++ )
+        originalDepart.branches.push(req.body.branch_id[i]);
+    await originalDepart.save();
+    res.status(200).json({
+      status: "success",
+    });
+  }catch (err) {
+    console.log(err)
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
+exports.delBranchFromDepart = async (req, res) => {
+  try{
+    const originalDepart = await Depart.findOne({_id:req.body.depart_id});
+    for(let i=0;i<originalDepart.branches.length;i++){
+      let branch = originalDepart.branches.pop();
+      if(branch!=req.body.branch_id)
+         originalDepart.branches.push(branch);
+    }
+    await originalDepart.save();
+    res.status(200).json({
+      status: "success",
+    });
+  }catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 exports.deleteDepart = async (req, res) => {
     try {
       const readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
@@ -78,7 +111,7 @@ exports.getBranchByDepart = async (req, res) => {
       },
       {
         $project: {
-          _id:0,
+          _id:1,
           depart_name: 1,
           'Branches._id': 1,
           'Branches.branch_name': 1

@@ -1,11 +1,13 @@
 const mongoose = require("mongoose");
 const User = require("./model/userModel");
+const PublicQues = require("./model/questionbankModel");
 const SubQues= require("./model/subpublicbankModel");
 const ProfQues= require("./model/professionalbankModel");
 const Depart= require("./model/departModel");
 const Branch = require("./model/branchModel");
+const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
-
+ /*
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -15,7 +17,7 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
-  /*
+ */
 mongoose
     .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
         user: "root",
@@ -27,7 +29,7 @@ mongoose
         useFindAndModify: false,
     })
     .then(() => console.log("DB connection successful!"));
-
+/*
 async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
     try {
        
@@ -146,4 +148,21 @@ async function ddd(){
           console.log(err)
         }
 }
-ddd()
+///////
+
+var p = new Object();
+p.name='u000';p.sex='f';
+var p1 = new Object();
+p1.name='u001';p1.sex='f';
+var p2 = new Object();
+p2.name='u002';p2.sex='f';
+var pl = [];
+pl.push(p);
+pl.push(p1);
+var a=[];
+a.push(p2);
+for(let i=0;i<pl.length;i++){
+  a.push(pl[i])
+}
+
+console.log(JSON.stringify(a))

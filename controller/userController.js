@@ -160,7 +160,8 @@ exports.getUsersByDepartId = async (req, res) => {
                 user_id: departUsers[i]._id,
                 user_name: departUsers[i].user_name,
                 depart_name: departUsers[i].user_department[0].depart_name,
-                branch_name: (departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_name
+                branch_name: (departUsers[i].user_branch.length == 0) ? '' : departUsers[i].user_branch[0].branch_name,
+                active: departUsers[i].active
             }
             users.push(user)
         }
@@ -245,6 +246,7 @@ async function getUsersOfDepart(depart_id) {
                 $project: {
                     _id: 1,
                     user_name: 1,
+                    active: 1,
                     'user_department.depart_name': 1,
                     'user_branch.branch_name': 1,
                 }
