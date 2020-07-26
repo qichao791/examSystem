@@ -11,19 +11,18 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(questionbankController.getAllBranches)
+  .get(professionalbankController.getProfQuesByDepartAndBranch)
   .post(professionalbankController.createProfQues);
-
+// router
+//   .route("/getProfQuesByDepartAndBranch")
+//   .get(questionbankController.getProfQuesByDepartAndBranch)
+router
+  .route("/getProfQuesByGrade")
+  .post(professionalbankController.getProfQuesByGrade)
 router
   .route("/:ques_id")
   .get(professionalbankController.getProfQuesByID)
   .patch(professionalbankController.updateProfQues)
   .delete(professionalbankController.deleteProfQues);
-
-router
-  .route("/:grade")
-  .get(professionalbankController.getProfQuesByGrade)
-  //.patch(questionbankController.updateQues)
-  //.delete(questionbankController.deleteQues);
 
 module.exports = router;

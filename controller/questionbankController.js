@@ -12,17 +12,9 @@ exports.getPublicQuesByID = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-
-exports.getPublicQuesByGrade = async (req, res) => {
+exports.getAllPublicQues = async (req, res) => {
   try {
-    const data = await PublicQues.aggregate([
-      //{$match: {depart_id:req.params.depart_id}},
-      //{$match: {branch_id:req.params.branch_id}},
-      { $match: { grade: req.params.grade } },
-      { $sample: { size: req.params.amount } },
-      //{$project:{ _id:0,statement:1 }}
-
-    ]);
+     const data = await PublicQues.find();
     res.status(200).json({
       status: "success",
       data,
@@ -31,21 +23,28 @@ exports.getPublicQuesByGrade = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-/*
-exports.getQuesByDepart = async (req, res) => {
-    try {
-      const ques3 = await Ques.find({ques_id:req.params.ques_id});
-      res.status(200).json({
-        status: "success",
-        data: {
-          ques3,
-        },
-      });
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
+exports.getPublicQuesByGrade = async (req, res) => {
+  try {
+    var data;
+    if(req.body.amount==null){
+      data = await PublicQues.find({grade:req.body.grade});
+    }else{
+      data = await PublicQues.aggregate([
+           { $match: { grade: req.body.grade } },
+           { $sample: { size: req.body.amount } },
+           //{$project:{ _id:0,statement:1 }}
+      ]);
+    }  
+    res.status(200).json({
+      status: "success",
+      data,
+    });
+  } catch (err) {
+    console.log(err)
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
-*/
+
 exports.createPublicQues = async (req, res) => {
   try {
     const newQues = await PublicQues.create(req.body);

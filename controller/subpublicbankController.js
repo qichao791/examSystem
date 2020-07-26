@@ -13,22 +13,56 @@ exports.getSubQuesByID = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 };
-exports.getSubQuesByGrade = async (req, res) => {
+exports.getSubPublicQuesByDepart = async (req, res) => {
+  try {
+     const data = await SubQues.find({depart_id:req.query.depart_id});
+     res.status(200).json({
+     status: "success",
+      data,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
+exports.getSubQuesByDepartAndGrade = async (req, res) => {
   try{
-        const questions= await SubQues.aggregate([ 
+        const data = await SubQues.aggregate([ 
             {$match: {depart_id:req.params.depart_id}},
             {$match: {grade:req.params.grade}},
-            {$sample: { size: req.params.amount}}, 
+            //{$sample: { size: req.params.amount}}, 
             //{$project:{ _id:0,ques_id:1 }}
           
         ]);
         res.status(200).json({
             status: "success",
-            data: {
-                questions,
-            },
+            data
         });
   } catch (err) {
+      res.status(404).json({ status: "fail", message: err });
+  }
+};
+exports.getSubQuesByGrade = async (req, res) => {
+  try{
+    var data;
+    if(req.body.amount==null){
+        data = await SubQues.find({
+              grade:req.body.grade,
+              depart_id:req.body.depart_id,
+        });
+    }else{
+        data = await SubQues.aggregate([ 
+            {$match: {depart_id:req.body.depart_id}},
+            {$match: {grade:req.body.grade}},
+            {$sample: { size: req.body.amount}}, 
+            //{$project:{ _id:0,ques_id:1 }}
+          
+        ]);
+    }
+    res.status(200).json({
+        status: "success",
+        data
+    });
+  } catch (err) {console.log(err)
       res.status(404).json({ status: "fail", message: err });
   }
 };

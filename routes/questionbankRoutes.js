@@ -11,7 +11,7 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(questionbankController.getAllBranches)
+  .get(questionbankController.getAllPublicQues)
   .post(questionbankController.createPublicQues);
 
 router
@@ -21,10 +21,9 @@ router
   .delete(questionbankController.deletePublicQues);
 
 router
-  .route("/:grade")
-  .get(questionbankController.getPublicQuesByGrade)
-  //.patch(questionbankController.updateQues)
-  //.delete(questionbankController.deleteQues);
+  .route("/getPublicQuesByGrade")
+  .post(questionbankController.getPublicQuesByGrade)
+
 router
   .route("/importQuessToPublicBank")
   .post(questionbankController.importQuessToPublicBank);

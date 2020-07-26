@@ -13,11 +13,7 @@ const questionbankSchema = new mongoose.Schema({
             type: String,
             required: [true, "Please tell us the question's statement."],
         },
-        options: [  String
-            //{
-               //type:String,
-            //},
-        ],
+        options: [  String  ],
         right_answer:{
             type:String,
             required: [true, "Please tell us the answer."],

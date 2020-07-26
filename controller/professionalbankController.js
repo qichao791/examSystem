@@ -14,13 +14,13 @@ exports.getProfQuesByID = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 };
-exports.getProfQuesByGrade = async (req, res) => {
+exports.getProfQuesByDepartAndBranch = async (req, res) => {
   try{
         const data = await ProfQues.aggregate([ 
-            {$match: {depart_id:req.params.depart_id}},
-            {$match: {branch_id:req.params.branch_id}},
-            {$match: {grade:req.params.grade}},
-            {$sample: { size: req.params.amount}}, 
+            {$match: {depart_id:req.query.depart_id}},
+            {$match: {branch_id:req.query.branch_id}},
+            //{$match: {grade:req.query.grade}},
+            //{$sample: { size: req.query.amount}}, 
             //{$project:{ _id:0,ques_id:1 }}
           
         ]);
@@ -28,6 +28,33 @@ exports.getProfQuesByGrade = async (req, res) => {
             status: "success",
             data,
         });
+  } catch (err) {
+      res.status(404).json({ status: "fail", message: err });
+  }
+};
+exports.getProfQuesByGrade = async (req, res) => {
+  try{
+    var data;
+    if(req.body.amount==null){
+        data = await ProfQues.find({
+              grade:req.body.grade,
+              depart_id:req.body.depart_id,
+              branch_id:req.body.branch_id
+        });
+    }else{
+        data = await ProfQues.aggregate([ 
+            {$match: {depart_id:req.body.depart_id}},
+            {$match: {branch_id:req.body.branch_id}},
+            {$match: {grade:req.body.grade}},
+            {$sample: { size: req.body.amount}}, 
+            //{$project:{ _id:0,ques_id:1 }}
+          
+        ]);
+    }
+    res.status(200).json({
+      status: "success",
+      data,
+    });
   } catch (err) {
       res.status(404).json({ status: "fail", message: err });
   }
@@ -103,7 +130,7 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
             },
           ]);
         
-          if(br[0].belongedToDepart[0]._id==ques.depart_id){console.log("+++++++++")
+          if(br[0].belongedToDepart[0]._id==ques.depart_id){
               break;
           }
               

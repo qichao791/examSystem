@@ -439,10 +439,16 @@ exports.getPaperByUid = async (req, res) => {
           as: "data",
         },
       },
-      { $match: { user_id: req.query.user_id } },
-      { $match: { is_finished: req.query.is_finished === "true" } },
-      { $match: { "data.is_resit": req.query.is_resit === "true" } },
-
+      //{ $match: { user_id: req.query.user_id } },
+      //{ $match: { is_finished: req.query.is_finished === "true" } },
+      //{ $match: { "data.is_resit": req.query.is_resit === "true" } },
+      { $match: {$and:[
+                       { user_id: req.query.user_id } ,
+                       { is_finished: req.query.is_finished === "true"},
+                       { "data.is_resit": req.query.is_resit === "true"}
+                      ]
+                }
+      },
       {
         $addFields: {
           score: {
