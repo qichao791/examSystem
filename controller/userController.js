@@ -248,9 +248,11 @@ async function getUsersOfDepart(depart_id) {
                 $project: {
                     _id: 1,
                     user_name: 1,
+                    password:1,
                     active: 1,
                     'user_department.depart_name': 1,
                     'user_branch.branch_name': 1,
+                    'user_branch.branch_id': 1,
                 }
             }
         ]);
