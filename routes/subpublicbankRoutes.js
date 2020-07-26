@@ -11,7 +11,7 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(questionbankController.getAllBranches)
+  .get(subpublicbankController.getSubPublicQuesByDepart)
   .post(subpublicbankController.createSubQues);
 
 router
@@ -22,7 +22,7 @@ router
 
 router
   .route("/:grade")
-  .get(subpublicbankController.getSubQuesByGrade)
+  .post(subpublicbankController.getSubQuesByGrade)
   //.patch(questionbankController.updateQues)
   //.delete(questionbankController.deleteQues);
 

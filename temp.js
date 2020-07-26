@@ -5,7 +5,7 @@ const SubQues= require("./model/subpublicbankModel");
 const ProfQues= require("./model/professionalbankModel");
 const Depart= require("./model/departModel");
 const Branch = require("./model/branchModel");
-const { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } = require("constants");
+const Userpaper = require("./model/userpaperModel");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
  /*
 mongoose
@@ -150,19 +150,32 @@ async function ddd(){
 }
 ///////
 
-var p = new Object();
-p.name='u000';p.sex='f';
-var p1 = new Object();
-p1.name='u001';p1.sex='f';
-var p2 = new Object();
-p2.name='u002';p2.sex='f';
-var pl = [];
-pl.push(p);
-pl.push(p1);
-var a=[];
-a.push(p2);
-for(let i=0;i<pl.length;i++){
-  a.push(pl[i])
-}
+async function xxx(req, res) {
+  
+    //var paper_id = req.query.paper_id
+    //var branch_id = req.query.branch_id
 
-console.log(JSON.stringify(a))
+    //var branch_users = await User.find({ branch_id: branch_id }, '_id')//getAllUserOfOneBranch
+   
+
+    let branch_users_paperscore = await Userpaper.aggregate([
+        {
+            $lookup: {
+                from: 'user',
+                localField: 'user_id',
+                foreignField: '_id',
+                as: 'user_userpaper'
+            }
+        },
+        {$match:{'user_userpaper.branch_id':"06c82430-c95e-11ea-aa1d-572970e14b87"}},
+        {$match: { paper_id: "fb12a300-c33f-11ea-bc6f-e1ad3a6cdc52" }},
+        {
+            $project:{user_id:1,'user_userpaper.branch_id':1}
+        }
+
+    ])
+    console.log("结果数量：",branch_users_paperscore.length)
+    console.log(branch_users_paperscore)
+
+}
+xxx()
