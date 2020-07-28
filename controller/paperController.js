@@ -39,9 +39,10 @@ exports.createPaper = async (req, res) => {
 };
 
 exports.addPaper = async (req, res) => {
+  console.log(req)
   try {
     const newPaper = await Paper.create(req.body);
-    //console.log("newPaper",newPaper)
+    console.log("newPaper",newPaper)
     if (newPaper != null) {
       res.status(200).json({
         status: true

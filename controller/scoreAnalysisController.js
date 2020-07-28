@@ -1,84 +1,273 @@
 const Userpaper = require("../model/userpaperModel")
 const User = require("../model/userModel")
-
+const Paper = require("../model/paperModel")
 
 /**
- * 某branch在某次考试成绩分析
+ * 一个人某段时间的考试成绩分析
  */
-exports.oneExamAnalysis = async (req, res) => {
-    //console.log("req:",req)
+exports.examsAnalysisOfUser = async (req, res) => {
+    var begin_time = req.body.begin_time  //查询起止时间
+    var end_time = req.body.end_time      //查询起止时间
+    var user_id = req.body.user_id
+
+    var userExamsInfo = await Userpaper.aggregate([
+        {
+            $match: { user_id: user_id }
+        },
+        {
+            $lookup: {
+                from: 'paper',
+                localField: 'paper_id',
+                foreignField: '_id',
+                as: 'userpaper_paper'
+            }
+        },
+        {
+            $match: { $and: [{ 'userpaper_paper.start_time': { $gte: begin_time } }, { 'userpaper_paper.end_time': { $lte: end_time } }] }
+        },
+        {
+            $project: {
+                _id: 1,
+                paper_id: 1,
+                'userpaper_paper.paper_name': 1,
+                user_id: 1,
+                score: { $sum: ['$public_score', '$subpublic_score', '$professional_score'] },
+                'userpaper_paper.start_time': 1,
+                //'userpaper_paper.end_time':1
+            }
+        },
+        {
+            $sort: {
+                'userpaper_paper.start_time': 1
+            }
+        }
+    ])
+
+    var papers_id = []
+    for (var i = 0; i < userExamsInfo.length; i++) {
+        papers_id.push(userExamsInfo[i].paper_id)
+    }
+    //console.log("papers_id",papers_id)
+    var papersAvgScore = await getAverageScoreByPapersid(papers_id)
+
+    var examsName = []
+    var examsAvgScore = []
+    var userScores = []
+    var numsOfExams = papers_id.length
+    for (var i = 0; i < numsOfExams; i++) {
+        examsName.push(papersAvgScore[i].paper_name[0])
+        examsAvgScore.push(papersAvgScore[i].average_score)
+        userScores.push(userExamsInfo[i].score)
+    }
+    // console.log("userExamsInfo", userExamsInfo)
+    // console.log("userExamsInfo数目", userExamsInfo.length)
+
+    res.status(200).json({
+        examsName: examsName,
+        examsAvgScore: examsAvgScore,
+        userScores: userScores
+    }
+    )
+
+}
+
+/***
+ * 一个人某次考试成绩分析
+ */
+exports.oneExamAnalysisOfUser = async (req, res) => {
+    var paper_id = []
+    paper_id.push(req.body.paper_id)
+    var user_id = req.body.user_id
+    var paper_score = await getAverageScoreByPapersid(paper_id)
+    var user_score = await Userpaper.findOne({ paper_id: paper_id, user_id: user_id }, 'public_score subpublic_score professional_score')
+    //user_score.totalScore =user_score.public_score+user_score.subpublic_score+user_score.professional_score
+    console.log(paper_score)
+    res.status(200).json({
+        user_score: user_score,
+        paper_score: paper_score
+    })
+
+}
+
+/***
+ * 分析某次考试各个分数段的人数
+ */
+exports.examAnalysisByScoreSegment = async (req, res) => {
     var paper_id = req.query.paper_id
-    var branch_id = req.query.branch_id
+    var report = await getExamReportByPaperId(paper_id)
+    var numPeople = report.length
+    var examScoreSegInfo = []//成绩分段信息
+    for (var i = 0; i < 10; i++) {//初始化10个分数段0~9,10~19，....99~100
+        examScoreSegInfo[i] = []
+    }
+    for (var i = 0; i < numPeople; i++) {
+        var user = { "name": report[i].userpaper_user[0].user_name, "score": report[i].total_score }
+        var scoreLevel = parseInt(report[i].total_score / 10)
+        switch (scoreLevel) {
+            case 0: examScoreSegInfo[0].push(user); break
+            case 1: examScoreSegInfo[1].push(user); break
+            case 2: examScoreSegInfo[2].push(user); break
+            case 3: examScoreSegInfo[3].push(user); break
+            case 4: examScoreSegInfo[4].push(user); break
+            case 5: examScoreSegInfo[5].push(user); break
+            case 6: examScoreSegInfo[6].push(user); break
+            case 7: examScoreSegInfo[7].push(user); break
+            case 8: examScoreSegInfo[8].push(user); break
+            case 9, 10: examScoreSegInfo[9].push(user); break
+        }
+    }
+    res.status(200).json({
+        "examScoreSegInfo": examScoreSegInfo,
+        //"report":report
+    })
 
-    var branch_users = await User.find({ branch_id: branch_id }, '_id')//getAllUserOfOneBranch
-    // console.log("branch_users:", branch_users)
-    // let branch_users_paperscore = await Userpaper.find({paper_id:paper_id,user_id:{$in:branch_users}})//根据paper_id 获取本次考试中上述branch中人员的成绩
-    // var totalUserNum = branch_users_paperscore.length
-    // var tatalScore = 0
-    // var avage
-    // for(var i=0;i<totalUserNum;i++){
-    //     tatalScore+=branch_users_paperscore[i].public_score;
-    //     tatalScore+=branch_users_paperscore[i].subpublic_score;
-    //     tatalScore+=branch_users_paperscore[i].professional_score;
-    // }
-    // console.log("branch_users_paperscore",branch_users_paperscore)
+}
 
-    let branch_users_paperscore = await Userpaper.aggregate([
+/***
+ * 一套考卷三种题的正确率
+ */
+exports.examThreeQuesAccuracy = async (req, res) => {
+    var paper_id = req.query.paper_id
+    var user_paper = await Userpaper.aggregate([
+        {
+            $match: { paper_id: paper_id }
+        },
+        {
+            $group: {
+                _id: paper_id,
+                'public_score': {
+                    $sum: "$public_score"
+                },
+                'subpublic_score': {
+                    $sum: "$subpublic_score"
+                },
+                'professional_score': {
+                    $sum: "$professional_score"
+                }
+            }
+        },
+        {
+            $project: {
+                paper_id: 1,
+                public_score: 1,
+                subpublic_score: 1,
+                professional_score: 1,
+            }
+        }
+    ])
+    console.log("user_paper",user_paper)
+
+    var paper = await Paper.findOne({ _id: paper_id })
+    console.log(paper)
+    var user_paper_amount = (await Userpaper.find({paper_id:paper_id})).length
+    console.log("amount:",user_paper_amount)
+    // user_paper[0].length   //考卷数量
+    let scale = paper.bank_scale;
+    console.log("1:",parseFloat (scale.substring(0, scale.indexOf(",")))/ 100)
+    console.log("2:",parseFloat (scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(",")))/ 100)
+    console.log("3:",parseFloat (scale.substring(scale.lastIndexOf(",") + 1))/ 100)
+
+    let publicScale = parseFloat (scale.substring(0, scale.indexOf(",")))/ 100;
+    let subpublicScale =parseFloat( scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))) / 100;
+    let professionalScale =parseFloat (scale.substring(scale.lastIndexOf(",") + 1)) / 100;
+
+    // var public_ques_percentage = paper.bank_scale[0]/(paper.bank_scale[0]+paper.bank_scale[1]+paper.bank_scale[2])
+    // var subpublic_ques_percentage = paper.bank_scale[1]/(paper.bank_scale[0]+paper.bank_scale[1]+paper.bank_scale[2])
+    // var professional_ques_percentage = paper.bank_scale[2]/(paper.bank_scale[0]+paper.bank_scale[1]+paper.bank_scale[2])
+
+    var public_accuracy = user_paper[0].public_score / (user_paper_amount * (100 * publicScale))  //public正确率
+    var subpublic_accuracy = user_paper[0].subpublic_score / (user_paper_amount * (100 * subpublicScale))
+    var professional_accuracy = user_paper[0].professional_score / (user_paper_amount * (100 * professionalScale))
+
+
+    res.status(200).json({
+        public_accuracy: public_accuracy,
+        subpublic_accuracy: subpublic_accuracy,
+        professional_accuracy: professional_accuracy
+    })
+}
+/***
+ *获取若干次考试各自的平均分
+ */
+async function getAverageScoreByPapersid(papers_id) {
+    var papersAvgScore = await Userpaper.aggregate([
+        {
+            $match: { paper_id: { $in: papers_id } }
+        },
+        {
+            $lookup: {
+                from: 'paper',
+                localField: 'paper_id',
+                foreignField: '_id',
+                as: 'userpaper_paper'
+            }
+        },
+        {
+            $group: {
+                _id: "$paper_id",
+                paper_name: { $first: "$userpaper_paper.paper_name" },
+                "start_time": { $first: "$userpaper_paper.start_time" },
+                "paper_id": { $first: "$paper_id" },
+                "avg_public_score": {
+                    $avg: "$public_score"
+                },
+                "avg_subpublic_score": {
+                    $avg: "$subpublic_score"
+                },
+                "avg_professional_score": {
+                    $avg: "$professional_score"
+                }
+            }
+        }, {
+            $project: {
+                _id: 0,
+                paper_id: 1,
+                paper_name: 1,
+                start_time: 1,
+                avg_public_score: 1,
+                avg_subpublic_score: 1,
+                avg_professional_score: 1,
+                average_score: { $sum: ['$avg_public_score', '$avg_subpublic_score', '$avg_professional_score'] }
+            }
+        }, {
+            $sort: {
+                start_time: 1
+            }
+        }
+    ])
+    return papersAvgScore
+
+}
+
+/**
+ * 获取某次考试成绩单
+ */
+async function getExamReportByPaperId(paper_id) {
+    var report = await Userpaper.aggregate([
+        {
+            $match: { paper_id: paper_id }
+        },
         {
             $lookup: {
                 from: 'user',
                 localField: 'user_id',
                 foreignField: '_id',
-                as: 'user_userpaper'
+                as: 'userpaper_user'
             }
         },
         {
-            $match: { $and: [{ paper_id: paper_id }, { 'user_userpaper.branch_id': branch_id }] }
+            $project: {
+                _id: 0,
+                user_id: 1,
+                paper_id: 1,
+                'userpaper_user.user_name': 1,
+                public_score: 1,
+                subpublic_score: 1,
+                professional_score: 1,
+                total_score: { $sum: ['$public_score', '$subpublic_score', '$professional_score'] }
+            }
         }
     ])
-    console.log("结果数量：", branch_users_paperscore.length)
-    var totalPeopleNum = branch_users_paperscore.length //该branch考试总人数
-    var totalScore = 0  //该branch本次考试总成绩
-    var averageScore = 0    //该branch本次考试平均分
-    var numInScoreSegment = [0, 0, 0, 0, 0]   //<60,60~69,70~79,80~89,90~100 四个分数段
-    var passRate = 0    //该branch本次考试及格率
-    var peoplesName = []    //该branch的员工名称
-    var peoplesScore = []   //每个员工的分数，根据数组下标对应peoplesName中的姓名
-    for (var i = 0; i < branch_users_paperscore.length; i++) {
-        var score = branch_users_paperscore[i].public_score + branch_users_paperscore[i].subpublic_score + branch_users_paperscore[i].professional_score
-        totalScore+=score
-        peoplesName.push(branch_users_paperscore[i].user_userpaper[0].user_name)
-        peoplesScore.push(score)
-        score=parseInt(score/10)
-        // switch (score) {
-        //     default: console.log("score:",score);
-        //     case score < 60: {numInScoreSegment[0]++; console.log("分数在小于60") ;break}
-        //     case score >= 60 && score < 70: numInScoreSegment[1]++; break
-        //     case score >= 70 && score < 80: numInScoreSegment[2]++; break
-        //     case score >= 80 && score < 90: numInScoreSegment[3]++; console.log("分数在80-89") ; break
-        //     case score >= 90 && score <= 100: numInScoreSegment[4]++; break
-        // }
-
-        switch (score) {
-            default: console.log("score:",score);
-            case 0,1,2,3,4,5: numInScoreSegment[0]++;break
-            case 6: numInScoreSegment[1]++; break
-            case 7: numInScoreSegment[2]++; break
-            case 8: numInScoreSegment[3]++; console.log("分数在80-89") ; break
-            case 9,10: numInScoreSegment[4]++; break
-        }
-        
-    }
-    averageScore = totalScore/totalPeopleNum;
-    passRate = 1-numInScoreSegment[1]/totalPeopleNum;
-    // console.log("numInScoreSegment",numInScoreSegment)
-    res.send({
-        averageScore:averageScore,
-        passRate:passRate,
-        numInScoreSegment:numInScoreSegment,
-        peoplesName:peoplesName,
-        peoplesScore:peoplesScore
-    })
-
+    return report
 }
 

@@ -14,15 +14,15 @@ mongoose
   });
 //PASSWORD=SNNU_pro_3418!
 
-const User = require("./model/userModel");
-const Admin = require("./model/adminModel");
+// const User = require("./model/userModel");
+const Userpaper = require("./model/userpaperModel");
 
-var admin=new Admin({
-  _id:"123456",
-  password:"111111"
-  
-})
-admin.save()
+// var admin=new Admin({
+//   _id:"123456",
+//   password:"111111"
+
+// })
+// admin.save()
 
 // var user = new User({
 //   _id: "41072519970520281x",
@@ -160,3 +160,49 @@ async function getUserInfo(user) {
 //   }
 // })
 // console.log(query)
+
+
+async function getAverageScoreByPapersid(papers_id) {
+  var papersAvgScore = await Userpaper.aggregate([
+    {
+      $match: { paper_id: papers_id }
+    },
+    {
+      $lookup: {
+        from: 'paper',
+        localField: 'paper_id',
+        foreignField: '_id',
+        as: 'userpaper_paper'
+      }
+    },
+    {
+      $group: {
+        _id: "$paper_id",
+        name: { $first: "$userpaper_paper.paper_name" },
+        "avg_public_score": {
+          $avg: "$public_score"
+        },
+        "avg_subpublic_score": {
+          $avg: "$subpublic_score"
+        },
+        "avg_professional_score": {
+          $avg: "$professional_score"
+        }
+      }
+    },
+    {
+      $project: {
+        paper_id: 1,
+        name: 1,
+        avg_public_score: 1,
+        avg_subpublic_score: 1,
+        avg_professional_score: 1,
+        average_score: { $sum: ['$avg_public_score', '$avg_subpublic_score', '$avg_professional_score'] }
+      }
+    }
+  ])
+  console.log("papersAvgScore:", JSON.stringify(papersAvgScore))
+}
+
+var p = 'fb12a300-c33f-11ea-bc6f-e1ad3a6cdc52'
+getAverageScoreByPapersid(p)

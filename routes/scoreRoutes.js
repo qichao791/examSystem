@@ -15,10 +15,16 @@ router.all("*", (req, res, next) => {
 
 
 router
-    .route("/branch/averageScore")  //某branch若干次考试平均分比较
-
+    .route("/user/oneExamAnalysisOfUser")
+    .post(scoreAnalysisController.oneExamAnalysisOfUser)
 router
-    .route("/branch/oneExamAnalysis")
-    .get(scoreAnalysisController.oneExamAnalysis)
+    .route("/user/examsAnalysis")
+    .post(scoreAnalysisController.examsAnalysisOfUser)
+router
+    .route("/exam/oneExamAnalysis")
+    .get(scoreAnalysisController.examAnalysisByScoreSegment)
+router
+    .route("/exam/examThreeQuesAccuracy")
+    .get(scoreAnalysisController.examThreeQuesAccuracy)
 
 module.exports = router;
