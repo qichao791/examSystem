@@ -696,15 +696,22 @@ exports.deleteOneByUidPid = async (req, res) => {
 };
 exports.deleteByPid = async (req, res) => {
   try {
-    const data = await Userpaper.remove({paper_id: req.query.paper_id});
+    let paperInfo = await Paper.findOne({_id: req.query.paper_id});
 
-    if (data != null) {
+    if( Date.now() - paperInfo.start_time < 0 ){ 
+      const data = await Userpaper.remove({paper_id: req.query.paper_id});
+
+      if (data != null) {
+        res.status(204).json({
+          status: "success"
+        });
+      } else {
+        res.status(404).json({ status: "fail", message: "not found" });
+      }
+    }else{
       res.status(204).json({
-        status: "success",
-        data: null,
+        status: "out of date"
       });
-    } else {
-      res.status(404).json({ status: "fail", message: "not found" });
     }
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });

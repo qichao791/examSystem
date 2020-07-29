@@ -12,6 +12,7 @@ function abc() {
   });
 }
 //abc().catch((err)=>{console.log("==========:"+err.message);});
-abc().then((re) => {
-    console.log("wwwwwwwwwwwwwww"+re);
-  });
+//abc().then((re) => {
+    //console.log("wwwwwwwwwwwwwww"+re);
+  //});
+console.log(Date.now())

@@ -12,7 +12,7 @@ exports.getPublicQuesByID = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-//fuzzy search based on the stem.
+/*//fuzzy search based on the stem.
 exports.getLikeQuestion = async (req, res) => {
   try {
      var reg = new RegExp(req.body.stem);
@@ -24,7 +24,24 @@ exports.getLikeQuestion = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
-};
+};*/
+exports.getLikeQuestion = async (req, res) => {
+  try{
+    //const stem = await PublicQues.find({'statement.stem': new RegExp(req.body.keywords)});
+    const reg = new RegExp(req.body.stem, 'g');
+    //RegExp对象表示正则表达式，它可以对字符串执行模式匹配，‘g’表示执行全局配置
+    const result = await PublicQues.find({
+        'statement.stem' : { $regex: reg } //$regex用于实现模糊查询
+    })
+    res.status(200).json({
+      status: "success",
+      result
+    });
+  } catch(err) {
+      res.status(404).json({ status: "fail", message: err });
+  }
+}
+
 exports.getAllPublicQues = async (req, res) => {
   try {
      const data = await PublicQues.find();
