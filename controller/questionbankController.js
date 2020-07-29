@@ -1,6 +1,6 @@
 const PublicQues = require("../model/questionbankModel");
 const mongoose = require("mongoose");
-
+//
 exports.getPublicQuesByID = async (req, res) => {
   try {
     const data = await PublicQues.findOne({ _id: req.params.ques_id });
@@ -12,10 +12,23 @@ exports.getPublicQuesByID = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+//fuzzy search based on the stem.
+exports.getLikeQuestion = async (req, res) => {
+  try {
+     var reg = new RegExp(req.body.stem);
+     const data = await PublicQues.find({'statement.stem':{$regex: reg}});
+     res.status(200).json({
+      status: "success",
+      data,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 exports.getAllPublicQues = async (req, res) => {
   try {
      const data = await PublicQues.find();
-    res.status(200).json({
+     res.status(200).json({
       status: "success",
       data,
     });

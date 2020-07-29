@@ -25,4 +25,7 @@ router
   .patch(professionalbankController.updateProfQues)
   .delete(professionalbankController.deleteProfQues);
 
+router
+  .route("/getLikeQuestion")
+  .post(professionalbankController.getLikeQuestion)
 module.exports = router;

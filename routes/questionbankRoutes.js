@@ -27,4 +27,8 @@ router
 router
   .route("/importQuessToPublicBank")
   .post(questionbankController.importQuessToPublicBank);
+
+router
+  .route("/getLikeQuestion")
+  .post(questionbankController.getLikeQuestion)
 module.exports = router;
