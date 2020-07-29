@@ -48,9 +48,11 @@ exports.getPublicQuesByGrade = async (req, res) => {
 exports.createPublicQues = async (req, res) => {
   try {
     const newQues = await PublicQues.create(req.body);
+    console.log("err-------"+newQues)
     res.send(newQues);
 
   } catch (err) {
+    console.log(err)
     res.status(404).json({ status: "fail", message: err });
   }
 };

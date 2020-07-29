@@ -61,7 +61,7 @@ exports.addPaper = async (req, res) => {
 exports.modifyPaper = async (req, res) => {
   try {
     const result = await Paper.replaceOne({ _id: req.body.paper_id }, req.body);
-    console.log("result", result)
+    //console.log("result", result)
     if (result.nModified == 1) {
       res.status(200).json({
         status: "true",

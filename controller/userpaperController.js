@@ -694,6 +694,22 @@ exports.deleteOneByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+exports.deleteByPid = async (req, res) => {
+  try {
+    const data = await Userpaper.remove({paper_id: req.query.paper_id});
+
+    if (data != null) {
+      res.status(204).json({
+        status: "success",
+        data: null,
+      });
+    } else {
+      res.status(404).json({ status: "fail", message: "not found" });
+    }
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 /**
  * author: qichao
  * date: 2020-7
