@@ -59,6 +59,19 @@ exports.getProfQuesByGrade = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
   }
 };
+//fuzzy search based on the stem.
+exports.getLikeQuestion = async (req, res) => {
+  try {
+     var reg = new RegExp(req.body.stem);
+     const data = await ProfQues.find({'statement.stem':{$regex: reg}});
+     res.status(200).json({
+      status: "success",
+      data,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 exports.createProfQues = async (req, res) => {
     try{
         const data = await ProfQues.create(req.body);

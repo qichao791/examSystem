@@ -23,6 +23,7 @@ router.route("/getPaperByUidPid").get(upController.getPaperByUidPid);
 router.route("/updateByUidPid").post(upController.updateOneByUidPid);
 //router.route("/calculateByUidPid").post(upController.calculateByUidPid);
 router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
+router.route("/deleteByPid").delete(upController.deleteByPid);
 router.route("/submitPaper").post(upController.submitPaper);
 router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);
 

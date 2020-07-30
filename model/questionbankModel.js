@@ -21,9 +21,11 @@ const questionbankSchema = new mongoose.Schema({
     },
     analysis: {
         type: String,
+        default:"",
     },
     knowlege: {
         type: String,
+        default:"",
     },
     grade: {
         type: Number,
