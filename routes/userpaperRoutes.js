@@ -10,14 +10,8 @@ router.all("*", (req, res, next) => {
   next();
 });
 
-router
-  .route("/")
-  //.get(upController.getAllUserPapers)
-  .post(upController.generateUPforUsers);
-router;
-// .route("/:paper_id")
-// .get(upController.getPaperByPid);
-
+router.route("/").post(upController.generateUPforUsers);
+router.route("/getPaperByPid").post(upController.getPaperByPid);
 router.route("/getPaperByUid").get(upController.getPaperByUid);
 router.route("/getPaperByUidPid").get(upController.getPaperByUidPid);
 router.route("/updateByUidPid").post(upController.updateOneByUidPid);
@@ -26,5 +20,6 @@ router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
 router.route("/deleteByPid").delete(upController.deleteByPid);
 router.route("/submitPaper").post(upController.submitPaper);
 router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);
-
+router.route("/reAssignPaperToNewUsers").post(upController.reAssignPaperToNewUsers);
+router.route("/getUPinfoByPid").post(upController.getUPinfoByPid);
 module.exports = router;

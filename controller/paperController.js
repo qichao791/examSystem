@@ -28,6 +28,7 @@ exports.getAllPapers = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+
 exports.createPaper = async (req, res) => {
   try {
     const newPaper = await Paper.create(req.body);
