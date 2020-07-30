@@ -155,17 +155,17 @@ exports.examThreeQuesAccuracy = async (req, res) => {
             }
         }
     ])
-    console.log("user_paper",user_paper)
+    //console.log("user_paper",user_paper)
 
     var paper = await Paper.findOne({ _id: paper_id })
-    console.log(paper)
+    //console.log(paper)
     var user_paper_amount = (await Userpaper.find({paper_id:paper_id})).length
-    console.log("amount:",user_paper_amount)
+    //console.log("amount:",user_paper_amount)
     // user_paper[0].length   //考卷数量
     let scale = paper.bank_scale;
-    console.log("1:",parseFloat (scale.substring(0, scale.indexOf(",")))/ 100)
-    console.log("2:",parseFloat (scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(",")))/ 100)
-    console.log("3:",parseFloat (scale.substring(scale.lastIndexOf(",") + 1))/ 100)
+    // console.log("1:",parseFloat (scale.substring(0, scale.indexOf(",")))/ 100)
+    // console.log("2:",parseFloat (scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(",")))/ 100)
+    // console.log("3:",parseFloat (scale.substring(scale.lastIndexOf(",") + 1))/ 100)
 
     let publicScale = parseFloat (scale.substring(0, scale.indexOf(",")))/ 100;
     let subpublicScale =parseFloat( scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))) / 100;
