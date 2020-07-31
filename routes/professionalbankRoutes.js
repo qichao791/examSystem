@@ -11,11 +11,10 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(professionalbankController.getProfQuesByDepartAndBranch)
   .post(professionalbankController.createProfQues);
 router
   .route("/getProfQuesByDepartAndBranch")
-  .post(professionalbankController.getProfQuesByDepartAndBranch)
+  .post(professionalbankController.getProfQuesByDepartAndBranch);
 router
   .route("/getProfQuesByGrade")
   .post(professionalbankController.getProfQuesByGrade)

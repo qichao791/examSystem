@@ -15,10 +15,10 @@ exports.getProfQuesByID = async (req, res) => {
     }
 };
 exports.getProfQuesByDepartAndBranch = async (req, res) => {
-  try{
+  try{console.log(req.body.depart_id)
         const data = await ProfQues.aggregate([ 
-            {$match: {depart_id:req.post.depart_id}},
-            {$match: {branch_id:req.post.branch_id}},
+            {$match: {depart_id:req.body.depart_id}},
+            {$match: {branch_id:req.body.branch_id}},
             //{$match: {grade:req.query.grade}},
             //{$sample: { size: req.query.amount}}, 
             //{$project:{ _id:0,ques_id:1 }}
@@ -28,7 +28,7 @@ exports.getProfQuesByDepartAndBranch = async (req, res) => {
             status: "success",
             data,
         });
-  } catch (err) {
+  } catch (err) {console.log(err)
       res.status(404).json({ status: "fail", message: err });
   }
 };
