@@ -14,8 +14,8 @@ exports.getSubQuesByID = async (req, res) => {
     }
 };
 exports.getSubPublicQuesByDepart = async (req, res) => {
-  try {
-     const data = await SubQues.find({depart_id:req.query.depart_id});
+  try {console.log(req.body.depart_id)
+     const data = await SubQues.find({depart_id:req.body.depart_id});
      res.status(200).json({
      status: "success",
       data,

@@ -17,8 +17,8 @@ exports.getProfQuesByID = async (req, res) => {
 exports.getProfQuesByDepartAndBranch = async (req, res) => {
   try{
         const data = await ProfQues.aggregate([ 
-            {$match: {depart_id:req.query.depart_id}},
-            {$match: {branch_id:req.query.branch_id}},
+            {$match: {depart_id:req.post.depart_id}},
+            {$match: {branch_id:req.post.branch_id}},
             //{$match: {grade:req.query.grade}},
             //{$sample: { size: req.query.amount}}, 
             //{$project:{ _id:0,ques_id:1 }}
