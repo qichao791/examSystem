@@ -15,7 +15,7 @@ router
   .post(professionalbankController.createProfQues);
 router
   .route("/getProfQuesByDepartAndBranch")
-  .get(professionalbankController.getProfQuesByDepartAndBranch)
+  .post(professionalbankController.getProfQuesByDepartAndBranch)
 router
   .route("/getProfQuesByGrade")
   .post(professionalbankController.getProfQuesByGrade)
