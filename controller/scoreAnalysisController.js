@@ -49,13 +49,20 @@ exports.examsAnalysisOfUser = async (req, res) => {
     }
     //console.log("papers_id",papers_id)
     var papersAvgScore = await getAverageScoreByPapersid(papers_id)
-
-    var examsName = []
+    console.log("paperAverScore",papersAvgScore)
+    var exams = []
+    exams[0]=[]
+    exams[1]=[]
     var examsAvgScore = []
     var userScores = []
     var numsOfExams = papers_id.length
     for (var i = 0; i < numsOfExams; i++) {
-        examsName.push(papersAvgScore[i].paper_name[0])
+        // var exam={
+        //     paper_id:papersAvgScore.paper_id,
+        //     paper_name:papersAvgScore[i].paper_name[0]
+        // }
+        exams[0].push(papersAvgScore[i].paper_id)
+        exams[1].push(papersAvgScore[i].paper_name[0])
         examsAvgScore.push(papersAvgScore[i].average_score)
         userScores.push(userExamsInfo[i].score)
     }
@@ -63,7 +70,7 @@ exports.examsAnalysisOfUser = async (req, res) => {
     // console.log("userExamsInfo数目", userExamsInfo.length)
 
     res.status(200).json({
-        examsName: examsName,
+        exams: exams,
         examsAvgScore: examsAvgScore,
         userScores: userScores
     }
