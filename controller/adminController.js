@@ -118,7 +118,7 @@ exports.upLoadFile = async (req, res) => {
                     status: false
                 })
             } else {
-                /console.log("upLoad Avatar Success")
+                //console.log("upLoad Avatar Success")
                 res.status(200).json({
                     status: true
                 })
