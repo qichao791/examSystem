@@ -21,7 +21,7 @@ exports.addUser = async (req, res) => {
             });
         }
     } catch (e) {
-        console.log(e)
+        //console.log(e)
         res.status(200).json({
             status: false,
         });
@@ -64,7 +64,7 @@ exports.updateUser = async (req, res) => {
     //console.log("req.body:", req.body)
     try {
         const result = await User.replaceOne({ _id: req.body._id }, req.body);
-        console.log("result", result)
+        //console.log("result", result)
         if (result.nModified == 1) {
             res.status(200).json({
                 status: true,
@@ -75,7 +75,7 @@ exports.updateUser = async (req, res) => {
             })
         }
     } catch (err) {
-        console.log(err)
+        //console.log(err)
         res.status(200).json({
             status: false,
         })
@@ -97,7 +97,7 @@ exports.deleteUser = async (req, res) => {
             status: true
         })
     } catch (err) {
-        console.log(err)
+        //console.log(err)
         res.status(200).json({
             status: false
         })
@@ -153,7 +153,7 @@ exports.getUsersByDepartId = async (req, res) => {
     var users = []
     try {
         var departUsers = await getUsersOfDepart(depart_id)
-        console.log("部门员工：", JSON.stringify(departUsers))
+        //console.log("部门员工：", JSON.stringify(departUsers))
 
         for (var i = 0; i < departUsers.length; i++) {
             var user = {
@@ -168,12 +168,12 @@ exports.getUsersByDepartId = async (req, res) => {
             }
             users.push(user)
         }
-        console.log("users:", users)
+        //console.log("users:", users)
         res.status(200).json(
             users
         )
     } catch (err) {
-        console.log(err)
+        res.status(404).json({ status: "fail", message: err });
     }
 
 
@@ -214,10 +214,10 @@ async function getUserInfo(user) {  //获取用户及其部门、branch名称
                 }
             }
         ]);
-        console.log("userinfo:", userinfo)
+        //console.log("userinfo:", userinfo)
         return userinfo
     } catch (err) {
-        console.log(err)
+        res.status(404).json({ status: "fail", message: err });
     }
 }
 
@@ -257,9 +257,9 @@ async function getUsersOfDepart(depart_id) {
                 }
             }
         ]);
-        console.log("userinfo:", userinfo)
+        //console.log("userinfo:", userinfo)
         return userinfo
     } catch (err) {
-        console.log(err)
+        res.status(404).json({ status: "fail", message: err });
     }
 }

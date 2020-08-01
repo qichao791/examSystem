@@ -1,10 +1,8 @@
 const express = require("express");
 const scoreAnalysisController = require("../controller/scoreAnalysisController");
-
-
 const router = express.Router();
-const tools = require("../utils/tools");
-const { get } = require("mongoose");
+//const tools = require("../utils/tools");
+//const { get } = require("mongoose");
 router.all("*", (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "*");

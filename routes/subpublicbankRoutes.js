@@ -13,7 +13,9 @@ router
   .route("/")
   .get(subpublicbankController.getSubPublicQuesByDepart)
   .post(subpublicbankController.createSubQues);
-
+router
+  .route("/getSubPublicQuesByDepart")
+  .post(subpublicbankController.getSubPublicQuesByDepart)
 router
   .route("/:ques_id")
   .get(subpublicbankController.getSubQuesByID)

@@ -5,11 +5,21 @@ const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 const Paper = require("../model/paperModel");
 const User = require("../model/userModel");
+const Depart= require("../model/departModel");
+const Branch = require("../model/branchModel");
 /**
  * author: qichao
  * date: 2020-7
  */
 exports.generateUPforUsers = async (req, res) => {
+  try {
+     const result = await createUPforUsers(req, res);
+     res.status(200).json({ status: "success" });
+  } catch (err) {
+    res.status(404).json({ status: "failed", message: err });
+  }
+};
+async function createUPforUsers(req, res){
   try {
     //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
     await updateGradeForBank(PublicQues);
@@ -35,9 +45,9 @@ exports.generateUPforUsers = async (req, res) => {
       req.body.branch_id = depart_branch.branch_id;
       await generateUPforOneUser(req, res);
     }
-    res.status(200).json({ status: "success" });
+    return true;
   } catch (err) {
-    res.status(404).json({ status: "failed", message: err });
+    return false;
   }
 };
 async function generateUPforOneUser(req, res) {
@@ -101,8 +111,27 @@ async function generateUPforOneUser(req, res) {
     up.save(); //complete a new doc of userpaper collection
     return true;
   } catch (err) {
-    console.log(err);
     return false;
+  }
+}
+exports.reAssignPaperToNewUsers = async (req, res) => {
+  try {
+    let paperInfo = await Paper.findOne({_id: req.body.paper_id});
+
+    if( Date.now() - paperInfo.start_time < 0 ){ //if the start time of the paper with the paper_id is behind current time
+      const data = await Userpaper.deleteMany({paper_id: req.body.paper_id});//delete all the userpaper based on paper_id
+      
+      await createUPforUsers(req, res);//re-assign new users to the paper_id
+      res.status(200).json({
+        status: "success"
+      });
+    }else{
+      res.status(204).json({
+        status: "out of date"
+      });
+    }
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
   }
 }
 /**
@@ -161,7 +190,6 @@ async function getPublicQues(req, res) {
     //--**-----------------------------
     return result;
   } catch (err) {
-    console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
   }
@@ -214,7 +242,6 @@ async function replenishPublicQues(req) {
           result1.push(result2[j]);
     return result1;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -242,7 +269,6 @@ async function getSubPublicQues(req, res) {
     //--**-----------------------------
     return result;
   } catch (err) {
-    console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
   }
@@ -300,7 +326,6 @@ async function replenishSubPublicQues(req) {
           result1.push(result2[j]);
     return result1;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -391,7 +416,6 @@ async function replenishProfessionalQues(req) {
           result1.push(result2[j]);
     return result1;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -419,7 +443,6 @@ exports.getOneQuesRandomly = async (req,res)=> {
       result,
     });
   } catch (err) {
-    console.log(err);
     res.status(404).json({ status: "fail", message: err });
   }
 }
@@ -534,16 +557,122 @@ exports.getPaperByUid = async (req, res) => {
 exports.getPaperByPid = async (req, res) => {
   try {
     const data = await Userpaper.find({
-      paper_id: req.params.paper_id,
+      paper_id: req.body.paper_id,
     });
     res.status(200).json({
       status: "success",
-      data: data,
+      data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+//based on paper_id, this function will return some infomation from userpaper and user collection
+exports.getUPinfoByPid = async (req, res) => {
+  try {
+    let result = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: "user",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $match: { paper_id: req.body.paper_id } },   
+      {
+        $addFields: { score: {$add: ["$public_score", "$subpublic_score", "$professional_score"],},}, 
+      },
+      {
+        $project: {
+          _id: 0,
+          user_id: 1,
+          score: 1,
+          begin_time: 1,
+          submit_time: 1,
+          is_finished:1,
+          "userInfo.user_name": 1,
+          "userInfo.depart_id": 1,
+          "userInfo.branch_id": 1,
+        },
+      },
+    ]);
+    for(let i = 0;i<result.length;i++){
+      result[i].user_name= result[i].userInfo[0].user_name;//fetch the username from userInfo[0] and save to result[i] directly
+      let depart_name = await Depart.findOne({_id:result[i].userInfo[0].depart_id},'depart_name');
+      result[i].depart_name=depart_name.depart_name;//save depart name of one user to result[i] directly
+      if(result[i].userInfo[0].branch_id != null ){
+        let branch_name = await Branch.findOne({_id:result[i].userInfo[0].branch_id},'branch_name');
+        result[i].branch_name=branch_name.branch_name;//save branch name of one user to result[i] directly
+      }
+      let status = 1;  //1 means the user hasn't logged in system yet; 
+      if(result[i].is_finished === true)
+          status = 3;  //3 means the user has submit the paper.
+      else if(result[i].begin_time.length != 0 )
+          status = 2;  //2 means the user is doing the paper; 
+      result[i].status=status;
+    }
+    res.status(200).json({
+        status: "success",
+        result,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}
+exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
+  try {
+    let result = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: "user",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $match: { paper_id: req.body.paper_id } },   
+      //{ $group:{_id:'$userInfo.depart_id',user_id:{$push:"$user_id"},user_name:{$push:"$userInfo.user_name"},
+                //user_active:{$push:"$userInfo.active"},branch_id:{$push:"$userInfo.branch_id"},}},
+        {
+        $project: {
+          _id: 0,
+          //user_id: 1,
+          "userInfo._id":1,
+          "userInfo.depart_id":1,
+          "userInfo.user_name": 1,
+          "userInfo.active": 1,
+          "userInfo.branch_id": 1,
+        },
+      },
+      { $group:{_id:'$userInfo.depart_id',user_list:{$push:"$userInfo"}}},
+
+    ]);
+    var data=[];
+    
+    for(let i =0;i < result.length; i++){
+      var item={
+        depart_id:'',
+        user_list:[]
+      };
+       item.depart_id = result[i]._id[0];
+       for(let j=0;j<result[i].user_list.length;j++){
+          item.user_list.push(result[i].user_list[j][0]);
+          let branchName = await Branch.findOne({_id:item.user_list[j].branch_id},'branch_name');
+          item.user_list[j].branch_name=branchName.branch_name;
+       }
+       data.push(item)
+    }
+   
+      
+    res.status(200).json({
+        status: "success",
+        data,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}
 /**
  * author: qichao
  * date: 2020-7
@@ -699,7 +828,7 @@ exports.deleteByPid = async (req, res) => {
     let paperInfo = await Paper.findOne({_id: req.query.paper_id});
 
     if( Date.now() - paperInfo.start_time < 0 ){ 
-      const data = await Userpaper.remove({paper_id: req.query.paper_id});
+      const data = await Userpaper.deleteMany({paper_id: req.query.paper_id});
 
       if (data != null) {
         res.status(204).json({
@@ -716,7 +845,8 @@ exports.deleteByPid = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
-};
+};    
+
 /**
  * author: qichao
  * date: 2020-7
@@ -772,7 +902,6 @@ async function calculateOneSectionByUidPid(req, res){
     data.save();
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };
@@ -851,7 +980,6 @@ async function calculateAllBanksByUidPid (req, res){
     } 
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };

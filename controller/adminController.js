@@ -7,10 +7,10 @@ var fs = require('fs');
 
 
 exports.adminLogin = async (req, res) => {
-    console.log("req.body:", req.body)
+    //console.log("req.body:", req.body)
     var password = req.body.password
     var admin = await Admin.find({ password: password })
-    console.log("admin:", admin)
+    //console.log("admin:", admin)
     if (admin.length != 0) {
         res.status(200).json({
             status: true
@@ -42,9 +42,9 @@ exports.addQuestion = async (req, res) => {
                 status: false
             })
         }
-        console.log("result:", result)
+        //console.log("result:", result)
     } catch (err) {
-        console.log(err)
+        res.status(404).json({ status: "fail", message: err });
     }
 }
 
@@ -70,7 +70,7 @@ exports.modifyQuestion = async (req, res) => {
             })
         }
     } catch (err) {
-        console.log(err)
+        //console.log(err)
         res.status(200).json({
             status: "false",
         })
@@ -95,7 +95,7 @@ exports.deleteQuestion = async (req, res) => {
             status: true
         })
     } catch (err) {
-        console.log(err)
+        //console.log(err)
         res.status(200).json({
             status: false
         })
@@ -113,18 +113,18 @@ exports.upLoadFile = async (req, res) => {
         try {
             var result = await User.findByIdAndUpdate({ _id: user_id }, { $set: { avatar: avatarPath } })
             if (result = null) {
-                console.log(err)
+                //console.log(err)
                 res.status(200).json({
                     status: false
                 })
             } else {
-                console.log("upLoad Avatar Success")
+                //console.log("upLoad Avatar Success")
                 res.status(200).json({
                     status: true
                 })
             }
         } catch (err) {
-            console.log(err)
+            
             res.status(200).json({
                 status: false
             })
@@ -218,7 +218,7 @@ exports.deleteFile = async (req, res) => {
 
 
         } catch (err) {
-            console.log(err)
+            res.status(404).json({ status: "fail", message: err });
         }
     }
 }

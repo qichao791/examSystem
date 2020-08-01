@@ -15,7 +15,7 @@ exports.getSubQuesByID = async (req, res) => {
 };
 exports.getSubPublicQuesByDepart = async (req, res) => {
   try {
-     const data = await SubQues.find({depart_id:req.query.depart_id});
+     const data = await SubQues.find({depart_id:req.body.depart_id});
      res.status(200).json({
      status: "success",
       data,
@@ -62,7 +62,7 @@ exports.getSubQuesByGrade = async (req, res) => {
         status: "success",
         data
     });
-  } catch (err) {console.log(err)
+  } catch (err) {
       res.status(404).json({ status: "fail", message: err });
   }
 };
