@@ -6,7 +6,7 @@ const Paper = require("../model/paperModel")
  * 一个人某段时间的考试成绩分析
  */
 exports.examsAnalysisOfUser = async (req, res) => {
-  try{console.log("-------err")
+  try{
     var begin_time = req.body.begin_time  //查询起止时间
     var end_time = req.body.end_time      //查询起止时间
     var user_id = req.body.user_id
@@ -69,7 +69,7 @@ exports.examsAnalysisOfUser = async (req, res) => {
         userScores: userScores
     }
     )
-  } catch (err) {console.log(err)
+  } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 }
@@ -84,7 +84,7 @@ exports.oneExamAnalysisOfUser = async (req, res) => {
     var paper_score = await getAverageScoreByPapersid(paper_id)
     var user_score = await Userpaper.findOne({ paper_id: paper_id, user_id: user_id }, 'public_score subpublic_score professional_score')
     //user_score.totalScore =user_score.public_score+user_score.subpublic_score+user_score.professional_score
-    console.log(paper_score)
+
     res.status(200).json({
         user_score: user_score,
         paper_score: paper_score

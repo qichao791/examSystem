@@ -111,7 +111,6 @@ async function generateUPforOneUser(req, res) {
     up.save(); //complete a new doc of userpaper collection
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -133,7 +132,6 @@ exports.reAssignPaperToNewUsers = async (req, res) => {
     }
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
-    console.log(err)
   }
 }
 /**
@@ -192,7 +190,6 @@ async function getPublicQues(req, res) {
     //--**-----------------------------
     return result;
   } catch (err) {
-    console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
   }
@@ -245,7 +242,6 @@ async function replenishPublicQues(req) {
           result1.push(result2[j]);
     return result1;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -273,7 +269,6 @@ async function getSubPublicQues(req, res) {
     //--**-----------------------------
     return result;
   } catch (err) {
-    console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
   }
@@ -331,7 +326,6 @@ async function replenishSubPublicQues(req) {
           result1.push(result2[j]);
     return result1;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -422,7 +416,6 @@ async function replenishProfessionalQues(req) {
           result1.push(result2[j]);
     return result1;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
@@ -450,7 +443,6 @@ exports.getOneQuesRandomly = async (req,res)=> {
       result,
     });
   } catch (err) {
-    console.log(err);
     res.status(404).json({ status: "fail", message: err });
   }
 }
@@ -626,7 +618,6 @@ exports.getUPinfoByPid = async (req, res) => {
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
-    console.log(err);
   }
 }
 exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
@@ -667,7 +658,6 @@ exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
        item.depart_id = result[i]._id[0];
        for(let j=0;j<result[i].user_list.length;j++){
           item.user_list.push(result[i].user_list[j][0]);
-          console.log(item.user_list[j].branch_id)
           let branchName = await Branch.findOne({_id:item.user_list[j].branch_id},'branch_name');
           item.user_list[j].branch_name=branchName.branch_name;
        }
@@ -681,7 +671,6 @@ exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
-    console.log(err);
   }
 }
 /**
@@ -913,7 +902,6 @@ async function calculateOneSectionByUidPid(req, res){
     data.save();
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };
@@ -992,7 +980,6 @@ async function calculateAllBanksByUidPid (req, res){
     } 
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };

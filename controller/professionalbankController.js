@@ -15,7 +15,7 @@ exports.getProfQuesByID = async (req, res) => {
     }
 };
 exports.getProfQuesByDepartAndBranch = async (req, res) => {
-  try{console.log(req.body.depart_id)
+  try{
         const data = await ProfQues.aggregate([ 
             {$match: {depart_id:req.body.depart_id}},
             {$match: {branch_id:req.body.branch_id}},
