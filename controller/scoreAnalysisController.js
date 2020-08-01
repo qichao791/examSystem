@@ -6,6 +6,7 @@ const Paper = require("../model/paperModel")
  * 一个人某段时间的考试成绩分析
  */
 exports.examsAnalysisOfUser = async (req, res) => {
+  try{console.log("-------err")
     var begin_time = req.body.begin_time  //查询起止时间
     var end_time = req.body.end_time      //查询起止时间
     var user_id = req.body.user_id
@@ -68,7 +69,9 @@ exports.examsAnalysisOfUser = async (req, res) => {
         userScores: userScores
     }
     )
-
+  } catch (err) {console.log(err)
+    res.status(404).json({ status: "fail", message: err });
+  }
 }
 
 /***
