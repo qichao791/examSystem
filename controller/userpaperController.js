@@ -578,7 +578,6 @@ exports.getPaperByPid = async (req, res) => {
 //based on paper_id, this function will return some infomation from userpaper and user collection
 exports.getUPinfoByPid = async (req, res) => {
   try {
-    console.log("--------");
     let result = await Userpaper.aggregate([
       {
         $lookup: {
@@ -624,6 +623,61 @@ exports.getUPinfoByPid = async (req, res) => {
     res.status(200).json({
         status: "success",
         result,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+    console.log(err);
+  }
+}
+exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
+  try {
+    let result = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: "user",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $match: { paper_id: req.body.paper_id } },   
+      //{ $group:{_id:'$userInfo.depart_id',user_id:{$push:"$user_id"},user_name:{$push:"$userInfo.user_name"},
+                //user_active:{$push:"$userInfo.active"},branch_id:{$push:"$userInfo.branch_id"},}},
+        {
+        $project: {
+          _id: 0,
+          //user_id: 1,
+          "userInfo._id":1,
+          "userInfo.depart_id":1,
+          "userInfo.user_name": 1,
+          "userInfo.active": 1,
+          "userInfo.branch_id": 1,
+        },
+      },
+      { $group:{_id:'$userInfo.depart_id',user_list:{$push:"$userInfo"}}},
+
+    ]);
+    var data=[];
+    
+    for(let i =0;i < result.length; i++){
+      var item={
+        depart_id:'',
+        user_list:[]
+      };
+       item.depart_id = result[i]._id[0];
+       for(let j=0;j<result[i].user_list.length;j++){
+          item.user_list.push(result[i].user_list[j][0]);
+          console.log(item.user_list[j].branch_id)
+          let branchName = await Branch.findOne({_id:item.user_list[j].branch_id},'branch_name');
+          item.user_list[j].branch_name=branchName.branch_name;
+       }
+       data.push(item)
+    }
+   
+      
+    res.status(200).json({
+        status: "success",
+        data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });

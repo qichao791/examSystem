@@ -22,4 +22,6 @@ router.route("/submitPaper").post(upController.submitPaper);
 router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);
 router.route("/reAssignPaperToNewUsers").post(upController.reAssignPaperToNewUsers);
 router.route("/getUPinfoByPid").post(upController.getUPinfoByPid);
+router.route("/getUsersByPidAndGroupByDepartment").post(upController.getUsersByPidAndGroupByDepartment);
+
 module.exports = router;
