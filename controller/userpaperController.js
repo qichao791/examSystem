@@ -62,12 +62,8 @@ async function generateUPforOneUser(req, res) {
     //based on the bank_scale, to set up the question's amount for each question bank
     let scale = onepaper.bank_scale;
     let publicScale = parseInt(scale.substring(0, scale.indexOf(","))) / 100;
-    let subpublicScale =
-      parseInt(
-        scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))
-      ) / 100;
-    let professionalScale =
-      parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
+    let subpublicScale = parseInt(scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))) / 100;
+    //let professionalScale = parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
 
     req.body.public_amount = Math.round(onepaper.amount * publicScale);
     req.body.subpublic_amount = Math.round(onepaper.amount * subpublicScale);
@@ -620,6 +616,7 @@ exports.getUPinfoByPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 }
+//based on one paper_id, get the data from userpaper collection and group the data by depart_id
 exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
   try {
     let result = await Userpaper.aggregate([
@@ -632,9 +629,7 @@ exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
         },
       },
       { $match: { paper_id: req.body.paper_id } },   
-      //{ $group:{_id:'$userInfo.depart_id',user_id:{$push:"$user_id"},user_name:{$push:"$userInfo.user_name"},
-                //user_active:{$push:"$userInfo.active"},branch_id:{$push:"$userInfo.branch_id"},}},
-        {
+      {
         $project: {
           _id: 0,
           //user_id: 1,
@@ -645,11 +640,11 @@ exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
           "userInfo.branch_id": 1,
         },
       },
-      { $group:{_id:'$userInfo.depart_id',user_list:{$push:"$userInfo"}}},
-
+      //{ $group:{_id:'$userInfo.depart_id',user_list:{$push:"$userInfo"}}},//$push:"$userInfo" will only push the userInfo array into the result
+      { $group:{_id:'$userInfo.depart_id',user_list:{$push:"$$ROOT"}}},//$push:"$$ROOT" will push all the fields listed in $project into the result
     ]);
     var data=[];
-    
+    /*
     for(let i =0;i < result.length; i++){
       var item={
         depart_id:'',
@@ -662,12 +657,24 @@ exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
           item.user_list[j].branch_name=branchName.branch_name;
        }
        data.push(item)
+    }*/
+    for(let i =0;i < result.length; i++){
+      var item={
+        depart_id:'',
+        user_list:[]
+      };
+       item.depart_id = result[i]._id[0];
+       for(let j=0;j<result[i].user_list.length;j++){
+          item.user_list.push(result[i].user_list[j].userInfo[0]);
+          let branchName = await Branch.findOne({_id:item.user_list[j].branch_id},'branch_name');
+          item.user_list[j].branch_name=branchName.branch_name;
+       }
+       data.push(item)
     }
-   
-      
     res.status(200).json({
         status: "success",
         data,
+  
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -879,10 +886,7 @@ async function calculateOneSectionByUidPid(req, res){
       whichquestionBank = ProfessionalQues;
     }
     for (let i = 0; i < qs.length; i++) {
-      let originalQuestion = await whichquestionBank.findOne(
-        { _id: qs[i].ques_id },
-        "statement"
-      );
+      let originalQuestion = await whichquestionBank.findOne( { _id: qs[i].ques_id }, "statement");
       let right_answer = originalQuestion.statement.right_answer;
       if (qs[i].user_answer === right_answer) {
         score = score + 100 / totalnum; //to add the value of the question to score because the user did it right.

@@ -63,7 +63,7 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     //console.log("req.body:", req.body)
     try {
-        const result = await User.replaceOne({ _id: req.body._id }, req.body);
+        const result = await User.replaceOne({ _id: req.body.user_id }, req.body);
         //console.log("result", result)
         if (result.nModified == 1) {
             res.status(200).json({
@@ -88,10 +88,10 @@ exports.updateUser = async (req, res) => {
  *删除某个用户,先删userpaper中的数据，再删user中的数据
  */
 exports.deleteUser = async (req, res) => {
-    var user_id = req.body.user_id
+    var user_id = req.query.user_id
 
     try {
-        await Userpaper.deleteOne({ user_id: user_id })
+        await Userpaper.deleteMany({ user_id: user_id })
         await User.deleteOne({ _id: user_id })
         res.status(200).json({
             status: true
