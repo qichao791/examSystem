@@ -1,4 +1,6 @@
 const Branch = require("../model/branchModel");
+const Depart = require("../model/departModel");
+const User = require("../model/userModel");
 const mongoose = require("mongoose");
 
 exports.getBranch = async (req, res) => {
@@ -44,16 +46,21 @@ exports.deleteBranch = async (req, res) => {
     var readyToDeleteBranch;
     let user = await User.findOne({branch_id:req.params.branch_id},'_id');
     if(user==null){
+      
         //-------delete the branch from the field branches of the depart which has connected to this branch
         depart = await belongedToWhichDepart(req.params.branch_id);//get the depart which connected to the branch to be deleted
-        let depart_id = depart[0].belongedToDepart[0]._id;           //obtain the _id of the depart
-        const originalDepart = await Depart.findOne({_id:depart_id});
-        for(let i=0;i<originalDepart.branches.length;i++){
-          let branch = originalDepart.branches.pop();
-          if(branch!=req.body.branch_id)
-             originalDepart.branches.push(branch);
+        //console.log("--------->>>>>>>"+Object.keys(depart[0]))
+        if(depart[0].belongedToDepart[0]!=null){
+          let depart_id = depart[0].belongedToDepart[0]._id;           //obtain the _id of the depart
+        
+          const originalDepart = await Depart.findOne({_id:depart_id});
+          for(let i=0;i<originalDepart.branches.length;i++){
+            let branch = originalDepart.branches.pop();
+            if(branch!=req.params.branch_id){
+              originalDepart.branches.push(branch);}
+          }
+          await originalDepart.save();
         }
-        await originalDepart.save();
         //--------------------------------------------------------------------------------
 
         readyToDeleteBranch = await Branch.findOneAndDelete({_id: req.params.branch_id});
@@ -68,7 +75,7 @@ exports.deleteBranch = async (req, res) => {
       } else{
         res.status(404).json({ status: "fail", message: "can't delete" });
       } 
-  } catch (err) {
+  } catch (err) {console.log(err)
     res.status(404).json({ status: "fail", message: err });
   }
 };

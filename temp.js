@@ -179,6 +179,37 @@ async function xxx(req, res) {
 
 }*/
 
-
-  let b = Depart.find({_id:"9aa08210-c96d-11ea-b5a3-8b2950890b26"});
-  console.log("--------->>>"+b)
+async function belongedToWhichDepart(branch_id){
+    try{
+      const depart = await Branch.aggregate(
+       [
+        {
+          $lookup: {
+            from: "department", //the colletion named department in the database qc of mongodb
+            localField: "_id", //the field of the collection branch which also is the model Branch in mongoose
+            foreignField: "branches", //the field of the collection department
+            as: "belongedToDepart",
+          },
+        },
+        {
+          $match:{_id:branch_id}
+        },
+        {
+          $project: {
+            //_id: 0,
+            //branch_name: 1,
+            "belongedToDepart._id": 1,
+            //"belongedToDepart.depart_name": 1,
+          },
+        },
+      ]);
+      //console.log(depart[0].belongedToDepart[0]._id);
+      return depart[0].belongedToDepart[0]._id
+    }catch(err){
+      return false;
+    }
+  
+  }
+  var depart=belongedToWhichDepart("06c82430-c95e-11ea-aa1d-572970e14b87")
+  console.log(depart)
+ // "19b5c450-d564-11ea-9b97-97731ce04117"

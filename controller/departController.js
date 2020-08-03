@@ -69,9 +69,9 @@ exports.deleteDepart = async (req, res) => {
     try {
       var readyToDeleteDepart;
       let user = await User.findOne({depart_id:req.params.depart_id},'_id');
-      let branch = await getBranchesByOneDepart(req.params.depart_id);
+      let branch = await Depart.findOne({_id:req.params.depart_id},'branches');
       //---if the depart to be delete doesn't be connected to any user or branch, the depart canbe allowed to delete.
-      if(user == null && branch.Branches.length >= 0){
+      if(user == null && branch.branches.length==0){
           readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
           if (readyToDeleteDepart!= null) {
             res.status(204).json({
@@ -85,38 +85,10 @@ exports.deleteDepart = async (req, res) => {
       }
       
     } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+      res.status(404).json({ status: "fail", message: err });console.log(err)
     }
 };
-async function getBranchesByOneDepart(depart_id){
-  try{
-      const data = await Depart.aggregate([
-      {
-        $lookup: {
-          from: 'branch', //the colletion named branch in the database qc of mongodb
-          localField: 'branches',  //the field of the collection department which also is the model Depart in mongoose
-          foreignField: '_id', //the field of the collection branch
-          as: 'Branches',
-        }
-      },
-      {
-        $match:{_id:depart_id}
-      },
-      {
-        $project: {
-          _id:1,
-          depart_name: 1,
-          'Branches._id': 1,
-          'Branches.branch_name': 1
-        }
-      }
-    ]);
-    return data;
 
-  }catch(err){
-  return false
-  }
-}
 exports.getBranchByDepart = async (req, res) => {
   try{
       const data = await Depart.aggregate([
