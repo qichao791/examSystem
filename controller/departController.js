@@ -1,5 +1,6 @@
 const Depart= require("../model/departModel");
 const mongoose = require("mongoose");
+const User = require("../model/userModel");
 
 exports.getDepart = async (req, res) => {
     try {
@@ -66,35 +67,56 @@ exports.delBranchFromDepart = async (req, res) => {
 };
 exports.deleteDepart = async (req, res) => {
     try {
-      const readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
-      
-      if (readyToDeleteDepart!= null) {
-        res.status(204).json({
-          status: "success",
-          data: null,
-        });
-      } else {
-        res.status(404).json({ status: "fail", message: "not found" });
+      var readyToDeleteDepart;
+      let user = await User.findOne({depart_id:req.params.depart_id},'_id');
+      let branch = await getBranchesByOneDepart(req.params.depart_id);
+      //---if the depart to be delete doesn't be connected to any user or branch, the depart canbe allowed to delete.
+      if(user == null && branch.Branches.length >= 0){
+          readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
+          if (readyToDeleteDepart!= null) {
+            res.status(204).json({
+              status: "success",
+            });
+          } else {
+            res.status(404).json({ status: "fail", message: "not found" });
+          }
+      }else{
+        res.status(404).json({ status: "fail", message: "can't delete" });
       }
+      
     } catch (err) {
       res.status(404).json({ status: "fail", message: err });
     }
 };
-exports.updateDepart = async (req, res) => {
-    try {
-      const readyToUpdateDepart = await Depart.findOneAndUpdate({ _id:req.params.depart_id},req.body,{
-        new: true,
-        runValidators: true,
-      });
+async function getBranchesByOneDepart(depart_id){
+  try{
+      const data = await Depart.aggregate([
+      {
+        $lookup: {
+          from: 'branch', //the colletion named branch in the database qc of mongodb
+          localField: 'branches',  //the field of the collection department which also is the model Depart in mongoose
+          foreignField: '_id', //the field of the collection branch
+          as: 'Branches',
+        }
+      },
+      {
+        $match:{_id:depart_id}
+      },
+      {
+        $project: {
+          _id:1,
+          depart_name: 1,
+          'Branches._id': 1,
+          'Branches.branch_name': 1
+        }
+      }
+    ]);
+    return data;
 
-      res.status(200).json({
-        status: "success",
-        readyToUpdateDepart,
-      });
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
-}; 
+  }catch(err){
+  return false
+  }
+}
 exports.getBranchByDepart = async (req, res) => {
   try{
       const data = await Depart.aggregate([
@@ -117,9 +139,24 @@ exports.getBranchByDepart = async (req, res) => {
     ]);
     res.status(200).json({
       status: "success",
-      data,
+      data
     });
   }catch(err){
     res.status(404).json({ status: "fail", message: err });
   }
-}
+};
+exports.updateDepart = async (req, res) => {
+  try {
+    const readyToUpdateDepart = await Depart.findOneAndUpdate({ _id:req.params.depart_id},req.body,{
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: "success",
+      readyToUpdateDepart,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}; 

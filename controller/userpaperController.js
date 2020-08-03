@@ -171,7 +171,7 @@ async function updateGradeForBank(whichquestionBank) {
 async function getPublicQues(req, res) {
   try {
     let result = await PublicQues.aggregate([
-      { $match: { grade: req.body.grade } },
+      { $match: ç},
       { $sample: { size: req.body.public_amount } },
       //{ $project: { _id: 1 } },
     ]);

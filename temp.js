@@ -103,7 +103,7 @@ Depart.findOne({ depart_name:"机修系统"},'_id',function(err,departID){
     else
     console.log(departID);
 });
-*/
+
 async function ddd(){
     try {
         var xl = require('xlsx');
@@ -177,5 +177,8 @@ async function xxx(req, res) {
     console.log("结果数量：",branch_users_paperscore.length)
     console.log(branch_users_paperscore)
 
-}
-xxx()
+}*/
+
+
+  let b = Depart.find({_id:"9aa08210-c96d-11ea-b5a3-8b2950890b26"});
+  console.log("--------->>>"+b)
