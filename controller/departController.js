@@ -78,10 +78,10 @@ exports.deleteDepart = async (req, res) => {
               status: "success",
             });
           } else {
-            res.status(404).json({ status: "fail", message: "not found" });
+            res.status(501).json({ status: "fail", message: "not found" });
           }
       }else{
-        res.status(404).json({ status: "fail", message: "can't delete" });
+        res.status(502).json({ status: "fail", message: "can't delete" });
       }
       
     } catch (err) {
