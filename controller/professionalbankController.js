@@ -114,7 +114,7 @@ exports.updateProfQues = async (req, res) => {
 }; 
 exports.importQuessToProfessionalBank = async(req,res) =>{ 
   try{
-      let data = req.body.data;
+    let data = req.body;
       for(let i=0,j=0;i<data.length;i++){
         let ques = new ProfQues();  
 
@@ -157,18 +157,34 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
         ques.analysis = data[i].analysis;
         ques.knowlege = data[i].knowlege;
         ques.grade = data[i].grade;
+
+        var images,voices,videos;
+        if(data[i].images==null)
+            images=[];
+        else 
+            images = data[i].images.split('$')
+        if(data[i].voices==null)
+            voices=[];
+        else
+           voices=data[i].voices.split('$')
+        if(data[i].videos==null)
+           videos=[];
+        else
+           videos=data[i].videos.split('$')
         ques.attachment = {
-            image:data[i].images.split('$'),
-            voice:data[i].voices.split('$'),
-            video:data[i].videos.split('$'),
+            image:images,
+            voice:voices,
+            video:videos,
+      
         }
         await ques.save();
        
-        res.status(200).json({
-          status: "success",
-        });
+       
       }
+      res.status(200).json({
+        status: "success",
+      });
   } catch (err) {
-        res.status(404).json({ status: "fail", message: err });
+        res.status(404).json({ status: "fail", message: err });console.log(err)
   }
 }

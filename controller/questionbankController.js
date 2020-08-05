@@ -115,19 +115,19 @@ exports.updatePublicQues = async (req, res) => {
   }
 };
 exports.importQuessToPublicBank = async(req,res) =>{ 
-  //var xl = require('xlsx');
-  //var fs = require('fs');
-  //var xlsxFileName = req.body.fileName;
-  //var workbook = xl.readFile(xlsxFileName)
-  //const sheetNames = workbook.SheetNames; // 返回 ['sheet1', 'sheet2']
+  // var xl = require('xlsx');
+  // var fs = require('fs');
+  // var xlsxFileName = req.body.fileName;
+  // var workbook = xl.readFile(xlsxFileName)
+  // const sheetNames = workbook.SheetNames; // 返回 ['sheet1', 'sheet2']
 
   // 根据表名获取对应某张表
 
-  //const worksheet = workbook.Sheets[sheetNames[0]];
-  //var dataa =xl.utils.sheet_to_json(worksheet);
+  // const worksheet = workbook.Sheets[sheetNames[0]];
+  // var dataa =xl.utils.sheet_to_json(worksheet);
 
   try {
-    let data = req.body.data;
+    let data = req.body;
     for(let i=0;i<data.length;i++){
       let ques = new PublicQues();
         ques.statement = {
@@ -138,18 +138,33 @@ exports.importQuessToPublicBank = async(req,res) =>{
         ques.analysis = data[i].analysis;
         ques.knowlege = data[i].knowlege;
         ques.grade = data[i].grade;
+        
+        var images,voices,videos;
+        if(data[i].images==null)
+            images=[];
+        else 
+            images = data[i].images.split('$')
+        if(data[i].voices==null)
+            voices=[];
+        else
+           voices=data[i].voices.split('$')
+        if(data[i].videos==null)
+           videos=[];
+        else
+           videos=data[i].videos.split('$')
         ques.attachment = {
-           image:data[i].images.split('$'),
-           voice:data[i].voices.split('$'),
-           video:data[i].videos.split('$'),
+            image:images,
+            voice:voices,
+            video:videos,
+      
         }
-        await ques.save();
-        res.status(200).json({
+       await ques.save();
+    } 
+    res.status(200).json({
           status: "success",
-        });
-    }
-    } catch (err) {
+    });
+  } catch (err) {
       res.status(404).json({ status: "fail", message: err });
-    }
+  }
 }
 

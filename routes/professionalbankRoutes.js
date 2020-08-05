@@ -27,4 +27,8 @@ router
 router
   .route("/getLikeQuestion")
   .post(professionalbankController.getLikeQuestion)
+router
+  .route("/importQuessToProfessionalBank")
+  .post(professionalbankController.importQuessToProfessionalBank)
+  
 module.exports = router;

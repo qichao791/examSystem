@@ -121,7 +121,7 @@ exports.updateSubQues = async (req, res) => {
 }; 
 exports.importQuessToSubPublicBank = async(req,res) =>{ 
   try {
-    let data = req.body.data;
+    let data = req.body;
     for(let i=0;i<data.length;i++){
       let ques = new SubQues();
       let departId = await Depart.findOne({ depart_name:data[i].depart_name},'_id');
@@ -135,19 +135,32 @@ exports.importQuessToSubPublicBank = async(req,res) =>{
       ques.analysis = data[i].analysis;
       ques.knowlege = data[i].knowlege;
       ques.grade = data[i].grade;
-      ques.attachment = {
-           image:data[i].images.split('$'),
-           voice:data[i].voices.split('$'),
-           video:data[i].videos.split('$'),
-      }
+      var images,voices,videos;
+        if(data[i].images==null)
+            images=[];
+        else 
+            images = data[i].images.split('$')
+        if(data[i].voices==null)
+            voices=[];
+        else
+           voices=data[i].voices.split('$')
+        if(data[i].videos==null)
+           videos=[];
+        else
+           videos=data[i].videos.split('$')
+        ques.attachment = {
+            image:images,
+            voice:voices,
+            video:videos,
+        }
       await ques.save();
-      res.status(200).json({
-          status: "success",
-      });
     }
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
+    res.status(200).json({
+        status: "success",
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 }
 
 //**author:qichao 

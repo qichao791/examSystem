@@ -210,6 +210,8 @@ async function belongedToWhichDepart(branch_id){
     }
   
   }
-  var depart=belongedToWhichDepart("06c82430-c95e-11ea-aa1d-572970e14b87")
-  console.log(depart)
- // "19b5c450-d564-11ea-9b97-97731ce04117"
+  //var depart=belongedToWhichDepart("06c82430-c95e-11ea-aa1d-572970e14b87")
+  //console.log(depart)
+let aa='abcd'
+console.log(aa.indexOf('$'))
+  

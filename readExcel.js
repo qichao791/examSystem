@@ -36,7 +36,7 @@ mongoose
 },{_id:false}); 
 
 const mytest = mongoose.model("mytest", mySchema,'mytest');
-
+*/
 async function abc(){
     var xl = require('xlsx');
     var fs = require('fs');
@@ -72,4 +72,3 @@ async function abc(){
       }
 }
 abc();
-*/
