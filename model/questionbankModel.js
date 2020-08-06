@@ -13,11 +13,7 @@ const questionbankSchema = new mongoose.Schema({
             type: String,
             required: [true, "Please tell us the question's statement."],
         },
-        options: [  String
-            //{
-               //type:String,
-            //},
-        ],
+        options: [  String  ],
         right_answer:{
             type:String,
             required: [true, "Please tell us the answer."],
@@ -25,9 +21,11 @@ const questionbankSchema = new mongoose.Schema({
     },
     analysis: {
         type: String,
+        default:"",
     },
     knowlege: {
         type: String,
+        default:"",
     },
     grade: {
         type: Number,
@@ -48,6 +46,14 @@ const questionbankSchema = new mongoose.Schema({
             ]
         
     },
+    right_times:{
+        type: Number,
+        default:10,
+    },
+    wrong_times:{
+        type: Number,
+        default:10,
+    }
 },{_id:false});
 
 const Quesitonbank = mongoose.model("Quesitonbank", questionbankSchema,'questionbank');

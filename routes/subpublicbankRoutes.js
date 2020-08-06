@@ -11,8 +11,15 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(questionbankController.getAllBranches)
+  .get(subpublicbankController.getSubPublicQuesByDepart)
   .post(subpublicbankController.createSubQues);
+router
+  .route("/getSubPublicQuesByDepart")
+  .post(subpublicbankController.getSubPublicQuesByDepart)
+
+router
+  .route("/getLikeQuestion")
+  .post(subpublicbankController.getLikeQuestion)
 
 router
   .route("/:ques_id")
@@ -22,8 +29,5 @@ router
 
 router
   .route("/:grade")
-  .get(subpublicbankController.getSubQuesByGrade)
-  //.patch(questionbankController.updateQues)
-  //.delete(questionbankController.deleteQues);
-
+  .post(subpublicbankController.getSubQuesByGrade)
 module.exports = router;

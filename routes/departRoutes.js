@@ -19,5 +19,13 @@ router
   .get(departController.getDepart)
   .patch(departController.updateDepart)
   .delete(departController.deleteDepart);
-
+router
+  .route("/getBranchByDepart")
+  .post(departController.getBranchByDepart)
+router
+  .route("/addBranchToDepart")
+  .post(departController.addBranchToDepart) 
+router
+  .route("/delBranchFromDepart")
+  .post(departController.delBranchFromDepart)   
 module.exports = router;

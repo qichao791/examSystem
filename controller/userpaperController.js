@@ -5,13 +5,31 @@ const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 const Paper = require("../model/paperModel");
 const User = require("../model/userModel");
+<<<<<<< HEAD
 const { userLogin } = require("./userController");
+=======
+const Depart= require("../model/departModel");
+const Branch = require("../model/branchModel");
+>>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
 /**
  * author: qichao
  * date: 2020-7
  */
 exports.generateUPforUsers = async (req, res) => {
   try {
+     const result = await createUPforUsers(req, res);
+     res.status(200).json({ status: "success" });
+  } catch (err) {
+    res.status(404).json({ status: "failed", message: err });
+  }
+};
+async function createUPforUsers(req, res){
+  try {
+    //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
+    await updateGradeForBank(PublicQues);
+    await updateGradeForBank(SubPublicQues);
+    await updateGradeForBank(ProfessionalQues);
+    //////////////////////////////////////////////////////////////////////
     let users = req.body.userid_list;
     // if there is no doc based the user_id and paper_id in the userpaper collection,
     // the new doc based on the current user_id and paper_id canbe created.
@@ -31,9 +49,9 @@ exports.generateUPforUsers = async (req, res) => {
       req.body.branch_id = depart_branch.branch_id;
       await generateUPforOneUser(req, res);
     }
-    res.status(200).json({ status: "success" });
+    return true;
   } catch (err) {
-    res.status(404).json({ status: "failed", message: err });
+    return false;
   }
 };
 async function generateUPforOneUser(req, res) {
@@ -48,12 +66,8 @@ async function generateUPforOneUser(req, res) {
     //based on the bank_scale, to set up the question's amount for each question bank
     let scale = onepaper.bank_scale;
     let publicScale = parseInt(scale.substring(0, scale.indexOf(","))) / 100;
-    let subpublicScale =
-      parseInt(
-        scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))
-      ) / 100;
-    let professionalScale =
-      parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
+    let subpublicScale = parseInt(scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))) / 100;
+    //let professionalScale = parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
 
     req.body.public_amount = Math.round(onepaper.amount * publicScale);
     req.body.subpublic_amount = Math.round(onepaper.amount * subpublicScale);
@@ -97,10 +111,62 @@ async function generateUPforOneUser(req, res) {
     up.save(); //complete a new doc of userpaper collection
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 }
+exports.reAssignPaperToNewUsers = async (req, res) => {
+  try {
+    let paperInfo = await Paper.findOne({_id: req.body.paper_id});
+
+    if( Date.now() - paperInfo.start_time < 0 ){ //if the start time of the paper with the paper_id is behind current time
+      const data = await Userpaper.deleteMany({paper_id: req.body.paper_id});//delete all the userpaper based on paper_id
+      
+      await createUPforUsers(req, res);//re-assign new users to the paper_id
+      res.status(200).json({
+        status: "success"
+      });
+    }else{
+      res.status(204).json({
+        status: "out of date"
+      });
+    }
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}
+/**
+ * 
+ * @author:qichao
+ * update the questions' grade of whichquestionBank
+ */
+async function updateGradeForBank(whichquestionBank) {
+  try {
+    let mycursor = await whichquestionBank.find();
+      for(let j=0;j<mycursor.length;j++){
+        let item = mycursor[j];
+        let rt = item.right_times;//right times
+        let wt = item.wrong_times;//wrong times
+        if(rt/(rt+wt) > 0.75)     //right ratio is greater than 0.75,the grade will be 1
+           item.grade = 1;
+        else if(rt/(rt+wt) < 0.25)//right ratio is lower than 0.25,the grade will be 3
+           item.grade = 3;    
+        else                     //right ratio is between [0.25,0.75], the grade will be 2
+           item.grade = 2;
+        
+        if(rt+wt>=100000){ //if the current question has been did more than 100 thousand times, the right times and wrong times will be divided by 100
+                           //the aim is to make the value not bigger than 100 thousand in the circurmstance that the grade will not change 
+            rt = Math.round( rt / 100 );
+            wt = Math.round( wt / 100 );
+        }
+        await item.save();
+      }
+      
+      return true;
+  } catch (err) {
+      return false;
+  }
+}
+
 /**
  * author: qichao
  * date: 2020-7
@@ -109,15 +175,74 @@ async function generateUPforOneUser(req, res) {
 async function getPublicQues(req, res) {
   try {
     let result = await PublicQues.aggregate([
-      { $match: { grade: req.body.grade } },
+      { $match: ç},
       { $sample: { size: req.body.public_amount } },
       //{ $project: { _id: 1 } },
     ]);
+    //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
+    if(result.length < req.body.public_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishPublicQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**-----------------------------
     return result;
   } catch (err) {
-    console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
+  }
+}
+async function replenishPublicQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+    //if(result.length < req.body.public_amount){
+      let amount1 = req.body.public_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 1 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 1 } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    return false;
   }
 }
 /**
@@ -133,11 +258,75 @@ async function getSubPublicQues(req, res) {
       { $sample: { size: req.body.subpublic_amount } },
       //{ $project: { _id: 1 } },
     ]);
+     //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
+     if(result.length < req.body.subpublic_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishSubPublicQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**-----------------------------
     return result;
   } catch (err) {
-    console.log(err);
     return false;
     //res.status(404).json({ status: "fail", message: err });
+  }
+}
+async function replenishSubPublicQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+      let amount1 = req.body.subpublic_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await SubPublicQues.aggregate([
+          { $match: { grade: 1 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.subpublic_amount){
+          let amount2 = req.body.subpublic_amount - req.body.result_length - result1.length;
+          result2 = await SubPublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await SubPublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.subpublic_amount){
+          let amount2 = req.body.subpublic_amount - req.body.result_length - result1.length;
+          result2 = await SubPublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await SubPublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.subpublic_amount){
+          let amount2 = req.body.subpublic_amount - req.body.result_length - result1.length;
+          result2 = await SubPublicQues.aggregate([
+              { $match: { grade: 1 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    return false;
   }
 }
 /**
@@ -154,26 +343,97 @@ async function getProfessionalQues(req, res) {
       { $sample: { size: req.body.professional_amount } },
       //{ $project: { _id: 1 } },
     ]);
+    //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
+    if(result.length < req.body.professional_amount){
+      req.body.result_length=result.length;
+      let replenish = await replenishProfessionalQues(req);
+      if(replenish!=null)
+        for(let i=0;i<replenish.length;i++)
+          result.push(replenish[i]);
+    }
+    //--**-----------------------------
     return result;
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 }
-//fetch one question from 3 banks randomly. the parameter 'grade','quesBank' and 'user_id' must be included in the req.
+async function replenishProfessionalQues(req) {
+  try {
+    var result1=null;
+    var result2=null;
+      let amount1 = req.body.professional_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await ProfessionalQues.aggregate([
+          { $match: { grade: 1 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $match: { branch_id: req.body.branch_id } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.professional_amount){
+          let amount2 = req.body.professional_amount - req.body.result_length - result1.length;
+          result2 = await ProfessionalQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $match: { branch_id: req.body.branch_id } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await ProfessionalQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $match: { branch_id: req.body.branch_id } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.professional_amount){
+          let amount2 = req.body.professional_amount - req.body.result_length - result1.length;
+          result2 = await ProfessionalQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $match: { branch_id: req.body.branch_id } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await ProfessionalQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { depart_id: req.body.depart_id} },
+          { $match: { branch_id: req.body.branch_id } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.professional_amount){
+          let amount2 = req.body.professional_amount - req.body.result_length - result1.length;
+          result2 = await ProfessionalQues.aggregate([
+              { $match: { grade: 1 } },
+              { $match: { depart_id: req.body.depart_id} },
+              { $match: { branch_id: req.body.branch_id } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+    return result1;
+  } catch (err) {
+    return false;
+  }
+}
+//fetch one question from any one of 3 banks randomly base on the value of quesBank. the parameter 'grade','quesBank' and 'user_id' must be included in the req.
 exports.getOneQuesRandomly = async (req,res)=> {
   try {
     let depart_branch = await User.findOne({_id:req.body.user_id},'depart_id branch_id');//get the 'depart_id branch_id' based on user_id
     req.body.depart_id = depart_branch.depart_id;
     req.body.branch_id = depart_branch.branch_id;
-    let quesBank = req.body.quesBank;
+    let quesBank = req.body.section;
     let ques;
-    if( quesBank === 1){//1 means public question bank
+    if( quesBank === 1){//if quesBank's value is 1 that means public question bank
       req.body.public_amount =1;//
       ques = await getPublicQues(req, res);
-    }else if( quesBank === 2){//2 means sub public question bank
+    }else if( quesBank === 2){//if quesBank's value is 1 that 2 means sub public question bank
       req.body.subpublic_amount =1;
       ques = await getSubPublicQues(req, res);
-    }else if( quesBank === 3){//3 means professional question bank
+    }else if( quesBank === 3){//if quesBank's value is 1 that 3 means professional question bank
       req.body.professional_amount = 1;
       ques = await getProfessionalQues(req, res);
     }
@@ -183,7 +443,6 @@ exports.getOneQuesRandomly = async (req,res)=> {
       result,
     });
   } catch (err) {
-    console.log(err);
     res.status(404).json({ status: "fail", message: err });
   }
 }
@@ -203,10 +462,16 @@ exports.getPaperByUid = async (req, res) => {
           as: "data",
         },
       },
-      { $match: { user_id: req.query.user_id } },
-      { $match: { is_finished: req.query.is_finished === "true" } },
-      { $match: { "data.is_resit": req.query.is_resit === "true" } },
-
+      //{ $match: { user_id: req.query.user_id } },
+      //{ $match: { is_finished: req.query.is_finished === "true" } },
+      //{ $match: { "data.is_resit": req.query.is_resit === "true" } },
+      { $match: {$and:[
+                       { user_id: req.query.user_id } ,
+                       { is_finished: req.query.is_finished === "true"},
+                       { "data.is_resit": req.query.is_resit === "true"}
+                      ]
+                }
+      },
       {
         $addFields: {
           score: {
@@ -292,16 +557,133 @@ exports.getPaperByUid = async (req, res) => {
 exports.getPaperByPid = async (req, res) => {
   try {
     const data = await Userpaper.find({
-      paper_id: req.params.paper_id,
+      paper_id: req.body.paper_id,
     });
     res.status(200).json({
       status: "success",
-      data: data,
+      data,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+//based on paper_id, this function will return some infomation from userpaper and user collection
+exports.getUPinfoByPid = async (req, res) => {
+  try {
+    let result = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: "user",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $match: { paper_id: req.body.paper_id } },   
+      {
+        $addFields: { score: {$add: ["$public_score", "$subpublic_score", "$professional_score"],},}, 
+      },
+      {
+        $project: {
+          _id: 0,
+          user_id: 1,
+          score: 1,
+          begin_time: 1,
+          submit_time: 1,
+          is_finished:1,
+          "userInfo.user_name": 1,
+          "userInfo.depart_id": 1,
+          "userInfo.branch_id": 1,
+        },
+      },
+    ]);
+    for(let i = 0;i<result.length;i++){
+      result[i].user_name= result[i].userInfo[0].user_name;//fetch the username from userInfo[0] and save to result[i] directly
+      let depart_name = await Depart.findOne({_id:result[i].userInfo[0].depart_id},'depart_name');
+      result[i].depart_name=depart_name.depart_name;//save depart name of one user to result[i] directly
+      if(result[i].userInfo[0].branch_id != null ){
+        let branch_name = await Branch.findOne({_id:result[i].userInfo[0].branch_id},'branch_name');
+        result[i].branch_name=branch_name.branch_name;//save branch name of one user to result[i] directly
+      }
+      let status = 1;  //1 means the user hasn't logged in system yet; 
+      if(result[i].is_finished === true)
+          status = 3;  //3 means the user has submit the paper.
+      else if(result[i].begin_time.length != 0 )
+          status = 2;  //2 means the user is doing the paper; 
+      result[i].status=status;
+    }
+    res.status(200).json({
+        status: "success",
+        result,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}
+//based on one paper_id, get the data from userpaper collection and group the data by depart_id
+exports.getUsersByPidAndGroupByDepartment = async (req, res) => {
+  try {
+    let result = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: "user",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "userInfo",
+        },
+      },
+      { $match: { paper_id: req.body.paper_id } },   
+      {
+        $project: {
+          _id: 0,
+          //user_id: 1,
+          "userInfo._id":1,
+          "userInfo.depart_id":1,
+          "userInfo.user_name": 1,
+          "userInfo.active": 1,
+          "userInfo.branch_id": 1,
+        },
+      },
+      //{ $group:{_id:'$userInfo.depart_id',user_list:{$push:"$userInfo"}}},//$push:"$userInfo" will only push the userInfo array into the result
+      { $group:{_id:'$userInfo.depart_id',user_list:{$push:"$$ROOT"}}},//$push:"$$ROOT" will push all the fields listed in $project into the result
+    ]);
+    var data=[];
+    /*
+    for(let i =0;i < result.length; i++){
+      var item={
+        depart_id:'',
+        user_list:[]
+      };
+       item.depart_id = result[i]._id[0];
+       for(let j=0;j<result[i].user_list.length;j++){
+          item.user_list.push(result[i].user_list[j][0]);
+          let branchName = await Branch.findOne({_id:item.user_list[j].branch_id},'branch_name');
+          item.user_list[j].branch_name=branchName.branch_name;
+       }
+       data.push(item)
+    }*/
+    for(let i =0;i < result.length; i++){
+      var item={
+        depart_id:'',
+        user_list:[]
+      };
+       item.depart_id = result[i]._id[0];
+       for(let j=0;j<result[i].user_list.length;j++){
+          item.user_list.push(result[i].user_list[j].userInfo[0]);
+          let branchName = await Branch.findOne({_id:item.user_list[j].branch_id},'branch_name');
+          item.user_list[j].branch_name=branchName.branch_name;
+       }
+       data.push(item)
+    }
+    res.status(200).json({
+        status: "success",
+        data,
+  
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}
 /**
  * author: qichao
  * date: 2020-7
@@ -452,6 +834,30 @@ exports.deleteOneByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+exports.deleteByPid = async (req, res) => {
+  try {
+    let paperInfo = await Paper.findOne({_id: req.query.paper_id});
+
+    if( Date.now() - paperInfo.start_time < 0 ){ 
+      const data = await Userpaper.deleteMany({paper_id: req.query.paper_id});
+
+      if (data != null) {
+        res.status(204).json({
+          status: "success"
+        });
+      } else {
+        res.status(404).json({ status: "fail", message: "not found" });
+      }
+    }else{
+      res.status(204).json({
+        status: "out of date"
+      });
+    }
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};    
+
 /**
  * author: qichao
  * date: 2020-7
@@ -484,19 +890,19 @@ async function calculateOneSectionByUidPid(req, res){
       whichquestionBank = ProfessionalQues;
     }
     for (let i = 0; i < qs.length; i++) {
-      let info = await whichquestionBank.findOne(
-        { _id: qs[i].ques_id },
-        "statement"
-      );
-      let right_answer = info.statement.right_answer;
+      let originalQuestion = await whichquestionBank.findOne( { _id: qs[i].ques_id }, "statement");
+      let right_answer = originalQuestion.statement.right_answer;
       if (qs[i].user_answer === right_answer) {
-        score = score + 100 / totalnum; //to set the value of each question.
-        score = Math.round(score); //score.toFixed(1);
+        score = score + 100 / totalnum; //to add the value of the question to score because the user did it right.
+        //score = Math.round(score); //score.toFixed(1);
+        originalQuestion.right_times++;//the current question is did right by the user, so the right times increases. 
+      }else{
+        originalQuestion.wrong_times++;//the current question is did wrong by the user, so the wrong times increases. 
       }
     }
 
     //-----update the user_answer--------
-
+    score = Math.round(score); //score.toFixed(1);
     if (section === 2) data.subpublic_score = score;
     else if (section === 3) data.professional_score = score;
     else data.public_score = score;
@@ -504,7 +910,6 @@ async function calculateOneSectionByUidPid(req, res){
     data.save();
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };
@@ -573,15 +978,7 @@ exports.submitPaper = async (req, res) => {
  * author: qichao
  * date: 2020-7
  */
-exports.getAllPapers = async (req, res) => {
-  const data = await Userpaper.find();
 
-  res.status(200).json({
-    status: "success",
-    results: branches.length,
-    data: data,
-  });
-};
 async function calculateAllBanksByUidPid (req, res){
   try {
     //loop 3 times. because there are 3 question sections which are public, subpublic, profession
@@ -591,10 +988,10 @@ async function calculateAllBanksByUidPid (req, res){
     } 
     return true;
   } catch (err) {
-    console.log(err);
     return false;
   }
 };
+<<<<<<< HEAD
 /**
  * author: caohongyuan
  * date: 2020-7
@@ -697,3 +1094,14 @@ exports.getUPEssentialsByPid = async (req, res) => {
       console.log(err);
   }
 }
+=======
+exports.getAllPapers = async (req, res) => {
+  const data = await Userpaper.find();
+
+  res.status(200).json({
+    status: "success",
+    results: branches.length,
+    data: data,
+  });
+};
+>>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa

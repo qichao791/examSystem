@@ -1,5 +1,6 @@
 const Depart= require("../model/departModel");
 const mongoose = require("mongoose");
+const User = require("../model/userModel");
 
 exports.getDepart = async (req, res) => {
     try {
@@ -34,37 +35,60 @@ exports.createDepart = async (req, res) => {
         console.log(err);
     }
 };
+exports.addBranchToDepart = async (req, res) => {
+  try{
+    const originalDepart = await Depart.findOne({_id:req.body.depart_id});
+    for(let i = 0;i < req.body.branch_id.length;i++ )
+        originalDepart.branches.push(req.body.branch_id[i]);
+    await originalDepart.save();
+    res.status(200).json({
+      status: "success",
+    });
+  }catch (err) {
+    console.log(err)
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
+exports.delBranchFromDepart = async (req, res) => {
+  try{
+    const originalDepart = await Depart.findOne({_id:req.body.depart_id});
+    for(let i=0;i<originalDepart.branches.length;i++){
+      let branch = originalDepart.branches.pop();
+      if(branch!=req.body.branch_id)
+         originalDepart.branches.push(branch);
+    }
+    await originalDepart.save();
+    res.status(200).json({
+      status: "success",
+    });
+  }catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 exports.deleteDepart = async (req, res) => {
     try {
-      const readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
-      
-      if (readyToDeleteDepart!= null) {
-        res.status(204).json({
-          status: "success",
-          data: null,
-        });
-      } else {
-        res.status(404).json({ status: "fail", message: "not found" });
+      var readyToDeleteDepart;
+      let user = await User.findOne({depart_id:req.params.depart_id},'_id');
+      let branch = await Depart.findOne({_id:req.params.depart_id},'branches');
+      //---if the depart to be delete doesn't be connected to any user or branch, the depart canbe allowed to delete.
+      if(user == null && branch.branches.length==0){
+          readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
+          if (readyToDeleteDepart!= null) {
+            res.status(204).json({
+              status: "success",
+            });
+          } else {
+            res.status(501).json({ status: "fail", message: "not found" });
+          }
+      }else{
+        res.status(502).json({ status: "fail", message: "can't delete" });
       }
+      
     } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+      res.status(404).json({ status: "fail", message: err });console.log(err)
     }
 };
-exports.updateDepart = async (req, res) => {
-    try {
-      const readyToUpdateDepart = await Depart.findOneAndUpdate({ _id:req.params.depart_id},req.body,{
-        new: true,
-        runValidators: true,
-      });
 
-      res.status(200).json({
-        status: "success",
-        readyToUpdateDepart,
-      });
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
-}; 
 exports.getBranchByDepart = async (req, res) => {
   try{
       const data = await Depart.aggregate([
@@ -78,7 +102,7 @@ exports.getBranchByDepart = async (req, res) => {
       },
       {
         $project: {
-          _id:0,
+          _id:1,
           depart_name: 1,
           'Branches._id': 1,
           'Branches.branch_name': 1
@@ -87,9 +111,24 @@ exports.getBranchByDepart = async (req, res) => {
     ]);
     res.status(200).json({
       status: "success",
-      data,
+      data
     });
   }catch(err){
     res.status(404).json({ status: "fail", message: err });
   }
-}
+};
+exports.updateDepart = async (req, res) => {
+  try {
+    const readyToUpdateDepart = await Depart.findOneAndUpdate({ _id:req.params.depart_id},req.body,{
+      new: true,
+      runValidators: true,
+    });
+
+    res.status(200).json({
+      status: "success",
+      readyToUpdateDepart,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}; 

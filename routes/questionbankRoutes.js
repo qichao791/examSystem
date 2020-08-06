@@ -11,7 +11,7 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(questionbankController.getAllBranches)
+  .get(questionbankController.getAllPublicQues)
   .post(questionbankController.createPublicQues);
 
 router
@@ -21,11 +21,19 @@ router
   .delete(questionbankController.deletePublicQues);
 
 router
-  .route("/:grade")
-  .get(questionbankController.getPublicQuesByGrade)
-  //.patch(questionbankController.updateQues)
-  //.delete(questionbankController.deleteQues);
+  .route("/getPublicQuesByGrade")
+  .post(questionbankController.getPublicQuesByGrade)
 
+<<<<<<< HEAD
 router.route("/stem").post(questionbankController.getStatementByKeyWords)
 
+=======
+router
+  .route("/importQuessToPublicBank")
+  .post(questionbankController.importQuessToPublicBank);
+
+router
+  .route("/getLikeQuestion")
+  .post(questionbankController.getLikeQuestion)
+>>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
 module.exports = router;

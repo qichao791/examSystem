@@ -28,6 +28,7 @@ exports.getAllPapers = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+
 exports.createPaper = async (req, res) => {
   try {
     const newPaper = await Paper.create(req.body);
@@ -39,6 +40,7 @@ exports.createPaper = async (req, res) => {
 };
 
 exports.addPaper = async (req, res) => {
+  //console.log(req)
   try {
     const newPaper = await Paper.create(req.body);
     //console.log("newPaper",newPaper)
@@ -60,7 +62,7 @@ exports.addPaper = async (req, res) => {
 exports.modifyPaper = async (req, res) => {
   try {
     const result = await Paper.replaceOne({ _id: req.body.paper_id }, req.body);
-    console.log("result", result)
+    //console.log("result", result)
     if (result.nModified == 1) {
       res.status(200).json({
         status: "true",

@@ -11,9 +11,13 @@ router.all("*", (req, res, next) => {
 
 router
   .route("/")
-  //.get(questionbankController.getAllBranches)
   .post(professionalbankController.createProfQues);
-
+router
+  .route("/getProfQuesByDepartAndBranch")
+  .post(professionalbankController.getProfQuesByDepartAndBranch);
+router
+  .route("/getProfQuesByGrade")
+  .post(professionalbankController.getProfQuesByGrade)
 router
   .route("/:ques_id")
   .get(professionalbankController.getProfQuesByID)
@@ -21,9 +25,10 @@ router
   .delete(professionalbankController.deleteProfQues);
 
 router
-  .route("/:grade")
-  .get(professionalbankController.getProfQuesByGrade)
-  //.patch(questionbankController.updateQues)
-  //.delete(questionbankController.deleteQues);
-
+  .route("/getLikeQuestion")
+  .post(professionalbankController.getLikeQuestion)
+router
+  .route("/importQuessToProfessionalBank")
+  .post(professionalbankController.importQuessToProfessionalBank)
+  
 module.exports = router;
