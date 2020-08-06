@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("./node_modules/express");
 const upController = require("../controller/userpaperController");
 const router = express.Router();
 
@@ -25,5 +25,8 @@ router.route("/updateByUidPid").post(upController.updateOneByUidPid);
 router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
 router.route("/submitPaper").post(upController.submitPaper);
 router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);
+
+router.route("/getUserInfoByPid").post(upController.getUserInfoByPid);
+router.route("/getUPEssentialsByPid").post(upController.getUPEssentialsByPid);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 // name, departId, branchId, photo, password
 
+//操作userpaper表(集合)，首先定义一个Schema，Schema里面的对象和数据库表里的字段需要一一对应
 const userpaperSchema = new mongoose.Schema({
   user_id:{
     type: mongoose.Schema.Types.String,
@@ -72,4 +73,5 @@ const userpaperSchema = new mongoose.Schema({
 });
 //userpaperSchema.index({ user_id: 1, paper_id: 1}, { unique: true });// I'd like setting composite primary key 
 const Userpaper = mongoose.model("Userpaper", userpaperSchema,'userpaper');
+//暴露Userpaper
 module.exports = Userpaper;

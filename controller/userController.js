@@ -109,6 +109,7 @@ exports.userLogin = async (req, res) => {
     var password = req.body.password
 
     var user = (await User.findById(user_id));
+    console.log("User:",user);
     if (user == null) {
         res.status(200).json({
             status: "false",

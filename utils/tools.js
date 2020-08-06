@@ -1,4 +1,4 @@
-var multer = require("multer")
+var multer = require("../node_modules/multer")
 var path = require("path")
 
 let tools = {

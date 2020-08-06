@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("./node_modules/express");
 const questionbankController = require("../controller/questionbankController");
 const router = express.Router(); 
 router.all("*", (req, res, next) => {
@@ -25,5 +25,7 @@ router
   .get(questionbankController.getPublicQuesByGrade)
   //.patch(questionbankController.updateQues)
   //.delete(questionbankController.deleteQues);
+
+router.route("/stem").post(questionbankController.getStatementByKeyWords)
 
 module.exports = router;

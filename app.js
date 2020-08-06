@@ -1,6 +1,6 @@
-const express = require("express");
-const morgan = require("morgan");
-const bodyParser = require('body-parser')
+const express = require("./node_modules/express");
+const morgan = require("./node_modules/morgan");
+const bodyParser = require('./node_modules/body-parser')
 
 
 const departRouter = require("./routes/departRoutes");
