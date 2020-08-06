@@ -16,6 +16,11 @@ router
 router
   .route("/getSubPublicQuesByDepart")
   .post(subpublicbankController.getSubPublicQuesByDepart)
+
+router
+  .route("/getLikeQuestion")
+  .post(subpublicbankController.getLikeQuestion)
+
 router
   .route("/:ques_id")
   .get(subpublicbankController.getSubQuesByID)
@@ -25,8 +30,4 @@ router
 router
   .route("/:grade")
   .post(subpublicbankController.getSubQuesByGrade)
-
-router
-  .route("/getLikeQuestion")
-  .post(subpublicbankController.getLikeQuestion)
 module.exports = router;
