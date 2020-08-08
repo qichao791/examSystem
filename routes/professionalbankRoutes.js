@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("./node_modules/express");
 const professionalbankController = require("../controller/professionalbankController");
 const router = express.Router(); 
 router.all("*", (req, res, next) => {

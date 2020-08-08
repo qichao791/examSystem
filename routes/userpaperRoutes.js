@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("./node_modules/express");
 const upController = require("../controller/userpaperController");
 const router = express.Router();
 
@@ -23,5 +23,8 @@ router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);
 router.route("/reAssignPaperToNewUsers").post(upController.reAssignPaperToNewUsers);
 router.route("/getUPinfoByPid").post(upController.getUPinfoByPid);
 router.route("/getUsersByPidAndGroupByDepartment").post(upController.getUsersByPidAndGroupByDepartment);
+
+router.route("/getUserInfoByPid").post(upController.getUserInfoByPid);
+router.route("/getUPEssentialsByPid").post(upController.getUPEssentialsByPid);
 
 module.exports = router;

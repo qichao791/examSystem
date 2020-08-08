@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const uuid = require("uuid");
+const uuid = require("../node_modules/uuid/dist");
 //let departID = uuid.v1().substring(0,4);//Generate the departID with 4 charactors.
 
 const departSchema = new mongoose.Schema({

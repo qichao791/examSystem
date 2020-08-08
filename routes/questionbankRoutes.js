@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("./node_modules/express");
 const questionbankController = require("../controller/questionbankController");
 const router = express.Router(); 
 router.all("*", (req, res, next) => {
@@ -24,6 +24,10 @@ router
   .route("/getPublicQuesByGrade")
   .post(questionbankController.getPublicQuesByGrade)
 
+<<<<<<< HEAD
+router.route("/stem").post(questionbankController.getStatementByKeyWords)
+
+=======
 router
   .route("/importQuessToPublicBank")
   .post(questionbankController.importQuessToPublicBank);
@@ -31,4 +35,5 @@ router
 router
   .route("/getLikeQuestion")
   .post(questionbankController.getLikeQuestion)
+>>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
 module.exports = router;

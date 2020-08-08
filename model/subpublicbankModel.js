@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const uuid = require("uuid");
+const uuid = require("../node_modules/uuid/dist");
 
 const subpublicbankSchema = new mongoose.Schema({
     _id:{

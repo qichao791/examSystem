@@ -5,8 +5,12 @@ const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 const Paper = require("../model/paperModel");
 const User = require("../model/userModel");
+<<<<<<< HEAD
+const { userLogin } = require("./userController");
+=======
 const Depart= require("../model/departModel");
 const Branch = require("../model/branchModel");
+>>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
 /**
  * author: qichao
  * date: 2020-7
@@ -988,6 +992,110 @@ async function calculateAllBanksByUidPid (req, res){
     return false;
   }
 };
+<<<<<<< HEAD
+/**
+ * author: caohongyuan
+ * date: 2020-7
+ */
+exports.getUserInfoByPid = async (req, res) => {
+  try { 
+    var pid = req.body.paper_id;
+    var paperid = await Userpaper.find({paper_id:pid}, 'paper_id')
+    if (paperid[0] == null){
+      res.status(200).json({
+        status: "false",
+        message: "查无此卷",
+      })
+    } else {
+        const data = await Userpaper.aggregate([
+          {
+            $lookup: {
+              from: 'user',
+              localField: 'user_id',
+              foreignField: '_id',
+              as: 'Users',
+            }
+          },
+          {
+           $match: {
+              paper_id: pid
+            }
+        },
+          {
+             $project: {
+                _id:0,
+                paper_id: 1,
+                is_finished: 1,
+                public_score: 1,
+                subpublic_score: 1,
+                professional_score: 1,
+                begin_time: 1,
+                submit_time: 1,
+                'Users.user_name': 1,
+                'Users.depart_id': 1,
+                'Users.branch_id': 1,
+            }
+          }
+        ]);
+        console.log("userinfo:", data)
+        res.status(200).json({
+            status: "ture",
+            data
+          })
+        }
+    } catch(err) {
+          console.log(err);
+    }
+  }
+/**
+ * author: caohongyuan
+ * date: 2020-7
+ */
+exports.getUPEssentialsByPid = async (req, res) => {
+  try { 
+    var pid = req.body.paper_id;
+    const data = await Userpaper.aggregate([
+      {
+        $lookup: {
+          from: 'user',
+          localField: 'user_id',
+          foreignField: '_id',
+          as: 'Users',
+        }
+      },
+      {
+        $addFields: {
+          score: {
+            $add: ["$public_score", "$subpublic_score", "$professional_score"],
+          },
+        }, // 添加一个score字段，值为原有三个字段相加之和，即总分之意
+      },
+      {
+        $match: {
+          paper_id: pid
+        }
+    },
+      {
+          $project: {
+            _id:0,
+            'Users.user_name': 1,
+            'Users.depart_id': 1,
+            'Users.branch_id': 1,
+            is_finished: 1,
+            score: 1,
+        }
+      }
+    ]);
+    console.log("userpaper essentials:", data)
+    res.status(200).json({
+        status: "ture",
+        data
+      })
+    } catch(err) {
+      console.log(err);
+  }
+}
+=======
 exports.getAllPapers = async (req, res) => {
   const data = await Userpaper.find();
 
@@ -997,3 +1105,4 @@ exports.getAllPapers = async (req, res) => {
     data: data,
   });
 };
+>>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa

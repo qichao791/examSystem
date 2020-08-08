@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require("./node_modules/express");
 const userController = require("../controller/userController");
 const questionbankController = require("../controller/questionbankController");
 const professionalbankController = require("../controller/professionalbankController");

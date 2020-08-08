@@ -28,6 +28,7 @@ exports.getAllBranches = async (req, res) => {
       branches,
     });
   } catch (err) {
+    console.log(err)
     res.status(404).json({ status: "failed", message: err });
   }
 };
@@ -130,8 +131,7 @@ async function belongedToWhichDepart(branch_id){
 }
 exports.getDepartByBranch = async (req, res) => {
   try{
-    const data = await Branch.aggregate(
-     [
+    const data = await Branch.aggregate([
       {
         $lookup: {
           from: "department", //the colletion named department in the database qc of mongodb
