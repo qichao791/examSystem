@@ -1,4 +1,4 @@
-const express = require("./node_modules/express");
+const express = require("express");
 const departController = require("../controller/departController");
 const router = express.Router(); //{ mergeParams: true }
 router.all("*", (req, res, next) => {
