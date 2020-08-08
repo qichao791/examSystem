@@ -171,7 +171,7 @@ async function updateGradeForBank(whichquestionBank) {
 async function getPublicQues(req, res) {
   try {
     let result = await PublicQues.aggregate([
-      { $match: ç},
+      { $match: { grade: req.body.grade } },
       { $sample: { size: req.body.public_amount } },
       //{ $project: { _id: 1 } },
     ]);
@@ -433,13 +433,14 @@ exports.getOneQuesRandomly = async (req,res)=> {
       req.body.professional_amount = 1;
       ques = await getProfessionalQues(req, res);
     }
-    let result = ques[0];
+    let data = ques[0];
+
     res.status(200).json({
       status: "success",
-      result,
+      data,
     });
   } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: "fail", message: err });console.log(err)
   }
 }
 /**

@@ -6,6 +6,7 @@ const ProfQues= require("./model/professionalbankModel");
 const Depart= require("./model/departModel");
 const Branch = require("./model/branchModel");
 const Userpaper = require("./model/userpaperModel");
+const { subscribe } = require("./routes/professionalbankRoutes");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
  /*
 mongoose
@@ -212,6 +213,184 @@ async function belongedToWhichDepart(branch_id){
   }
   //var depart=belongedToWhichDepart("06c82430-c95e-11ea-aa1d-572970e14b87")
   //console.log(depart)
-let aa='abcd'
-console.log(aa.indexOf('$'))
+  async function publicquess(){ 
+    var xl = require('xlsx');
+    var fs = require('fs');
+   // var xlsxFileName = req.body.fileName;
+    var workbook = xl.readFile("1.xlsx")
+    const sheetNames = workbook.SheetNames; // 返回 ['sheet1', 'sheet2']
+    
+    const worksheet = workbook.Sheets[sheetNames[0]];
+    var data =xl.utils.sheet_to_json(worksheet);
   
+    try {
+    
+      for(let i=0;i<data.length;i++){
+        let ques = new PublicQues();
+          ques.statement = {
+             stem: data[i].stem,
+             options: data[i].options.split('$'),
+             right_answer:data[i].right_answer,
+          }
+          ques.analysis = data[i].analysis;
+          ques.knowlege = data[i].knowlege;
+          ques.grade = data[i].grade;
+          
+          var images,voices,videos;
+          if(data[i].images==null)
+              images=[];
+          else 
+              images = data[i].images.split('$')
+          if(data[i].voices==null)
+              voices=[];
+          else
+             voices=data[i].voices.split('$')
+          if(data[i].videos==null)
+             videos=[];
+          else
+             videos=data[i].videos.split('$')
+          ques.attachment = {
+              image:images,
+              voice:voices,
+              video:videos,
+        
+          }
+         await ques.save();
+      } 
+     
+    } catch (err) {
+      console.log(err)
+    }
+  }
+async function Prof() { 
+    try{
+      var xl = require('xlsx');
+      var fs = require('fs');
+     // var xlsxFileName = req.body.fileName;
+      var workbook = xl.readFile("3.xlsx")
+      const sheetNames = workbook.SheetNames; // 返回 ['sheet1', 'sheet2']
+      
+      const worksheet = workbook.Sheets[sheetNames[0]];
+      var data =xl.utils.sheet_to_json(worksheet);
+   
+        for(let i=0,j=0;i<data.length;i++){
+          let ques = new ProfQues();  
+  
+          let departId = await Depart.findOne({ depart_name:data[i].depart_name},'_id');
+          let branchId_list = await Branch.find({ branch_name:data[i].branch_name},'_id');
+          ques.depart_id = departId._id;
+          for(j=0;j<branchId_list.length;j++){ 
+            const br = await Branch.aggregate(
+              [
+              {
+                $lookup: {
+                  from: "department", //the colletion named department in the database qc of mongodb
+                  localField: "_id", //the field of the collection branch which also is the model Branch in mongoose
+                  foreignField: "branches", //the field of the collection department
+                  as: "belongedToDepart",
+                },
+              },
+              {
+                $match:{_id:branchId_list[j]._id}
+              },
+              {
+                $project: {
+                  _id: 0,
+                  "belongedToDepart._id": 1,
+                },
+              },
+            ]);
+          
+            if(br[0].belongedToDepart[0]._id==ques.depart_id){
+                break;
+            }
+                
+          }
+          ques.branch_id = branchId_list[j]._id;
+          ques.statement = {
+              stem: data[i].stem,
+              options: data[i].options.split('$'),
+              right_answer:data[i].right_answer,
+          }
+          ques.analysis = data[i].analysis;
+          ques.knowlege = data[i].knowlege;
+          ques.grade = data[i].grade;
+  
+          var images,voices,videos;
+          if(data[i].images==null)
+              images=[];
+          else 
+              images = data[i].images.split('$')
+          if(data[i].voices==null)
+              voices=[];
+          else
+             voices=data[i].voices.split('$')
+          if(data[i].videos==null)
+             videos=[];
+          else
+             videos=data[i].videos.split('$')
+          ques.attachment = {
+              image:images,
+              voice:voices,
+              video:videos,
+        
+          }
+          await ques.save();
+         
+         
+        }
+        
+    } catch (err) {
+          console.log(err)
+    }
+  }
+  async function Sub() { 
+    try {
+      var xl = require('xlsx');
+      var fs = require('fs');
+     // var xlsxFileName = req.body.fileName;
+      var workbook = xl.readFile("2.xlsx")
+      const sheetNames = workbook.SheetNames; // 返回 ['sheet1', 'sheet2']
+      
+      const worksheet = workbook.Sheets[sheetNames[0]];
+      var data =xl.utils.sheet_to_json(worksheet);
+   
+      for(let i=0;i<data.length;i++){
+        let ques = new SubQues();
+        let departId = await Depart.findOne({ depart_name:data[i].depart_name},'_id');
+        ques.depart_id = departId._id;
+        //getDepartIDbyName(data[i].depart_name);
+        ques.statement = {
+             stem: data[i].stem,
+             options: data[i].options.split('$'),
+             right_answer:data[i].right_answer,
+        }
+        ques.analysis = data[i].analysis;
+        ques.knowlege = data[i].knowlege;
+        ques.grade = data[i].grade;
+        var images,voices,videos;
+          if(data[i].images==null)
+              images=[];
+          else 
+              images = data[i].images.split('$')
+          if(data[i].voices==null)
+              voices=[];
+          else
+             voices=data[i].voices.split('$')
+          if(data[i].videos==null)
+             videos=[];
+          else
+             videos=data[i].videos.split('$')
+          ques.attachment = {
+              image:images,
+              voice:voices,
+              video:videos,
+          }
+        await ques.save();
+      }
+   
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  Sub()
