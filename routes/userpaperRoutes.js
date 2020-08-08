@@ -1,4 +1,4 @@
-const express = require("./node_modules/express");
+const express = require("express");
 const upController = require("../controller/userpaperController");
 const router = express.Router();
 

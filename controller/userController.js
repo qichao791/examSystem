@@ -106,23 +106,11 @@ exports.deleteUser = async (req, res) => {
 
 exports.userLogin = async (req, res) => {
     try {
-        var user_id = req.body._id
-        var password = req.body.password
+        var user_id = req.body._id;
+        var password = req.body.password;
 
-<<<<<<< HEAD
-    var user = (await User.findById(user_id));
-    console.log("User:",user);
-    if (user == null) {
-        res.status(200).json({
-            status: "false",
-            message: "用户不存在"
-        })
-    } else {
-        if (user.password != password) {
-=======
         var user = (await User.findById(user_id));
         if (user == null) {
->>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
             res.status(200).json({
                 status: false,
                 message: "用户不存在"

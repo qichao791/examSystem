@@ -5,12 +5,9 @@ const SubPublicQues = require("../model/subpublicbankModel");
 const ProfessionalQues = require("../model/professionalbankModel");
 const Paper = require("../model/paperModel");
 const User = require("../model/userModel");
-<<<<<<< HEAD
 const { userLogin } = require("./userController");
-=======
 const Depart= require("../model/departModel");
 const Branch = require("../model/branchModel");
->>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
 /**
  * author: qichao
  * date: 2020-7
@@ -992,7 +989,6 @@ async function calculateAllBanksByUidPid (req, res){
     return false;
   }
 };
-<<<<<<< HEAD
 /**
  * author: caohongyuan
  * date: 2020-7
@@ -1095,7 +1091,6 @@ exports.getUPEssentialsByPid = async (req, res) => {
       console.log(err);
   }
 }
-=======
 exports.getAllPapers = async (req, res) => {
   const data = await Userpaper.find();
 
@@ -1105,4 +1100,3 @@ exports.getAllPapers = async (req, res) => {
     data: data,
   });
 };
->>>>>>> dcdd6bc7fc95b23783b2e314c9e6a1288d880afa
