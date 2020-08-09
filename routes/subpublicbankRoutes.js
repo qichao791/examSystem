@@ -27,8 +27,6 @@ router
   .patch(subpublicbankController.updateSubQues)
   .delete(subpublicbankController.deleteSubQues);
 
-<<<<<<< HEAD
-
 
 router
   .route("/getLikeQuestion")
@@ -43,9 +41,4 @@ router
   .route("/:grade")
   .post(subpublicbankController.getSubQuesByGrade)
 
-=======
-router
-  .route("/:grade")
-  .post(subpublicbankController.getSubQuesByGrade)
->>>>>>> 465d6146550ecaa1b9956edd6821f124a45d2c67
 module.exports = router;
