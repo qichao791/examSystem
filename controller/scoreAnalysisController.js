@@ -10,11 +10,11 @@ exports.examsAnalysisOfUser = async (req, res) => {
         var begin_time = req.body.begin_time  //查询起止时间
         var end_time = req.body.end_time      //查询起止时间
         var user_id = req.body.user_id
-
+       console.log(begin_time)
+       console.log("endTime:"+end_time)
+       console.log(user_id)
         var userExamsInfo = await Userpaper.aggregate([
-            {
-                $match: { user_id: user_id }
-            },
+            
             {
                 $lookup: {
                     from: 'paper',
@@ -24,8 +24,18 @@ exports.examsAnalysisOfUser = async (req, res) => {
                 }
             },
             {
-                $match: { $and: [{ 'userpaper_paper.start_time': { $gte: begin_time } }, { 'userpaper_paper.end_time': { $lte: end_time } }] }
+                $match: { user_id: user_id }
             },
+            // {
+            //     $match: { $and: [{ 'userpaper_paper.start_time': { $gte: begin_time } }, { 'userpaper_paper.end_time': { $lte: end_time } }] }
+            // },
+            {
+                $match: { 'userpaper_paper.start_time': { $gte: begin_time } },  
+            },
+            {
+                $match: { 'userpaper_paper.end_time': { $lte: end_time } },  
+            },
+          
             {
                 $project: {
                     _id: 1,
@@ -67,17 +77,18 @@ exports.examsAnalysisOfUser = async (req, res) => {
             examsAvgScore.push(papersAvgScore[i].average_score)
             userScores.push(userExamsInfo[i].score)
         }
-        // console.log("userExamsInfo", userExamsInfo)
-        // console.log("userExamsInfo数目", userExamsInfo.length)
-
+        console.log("userExamsInfo", userExamsInfo)
+        console.log("userExamsInfo数目", userExamsInfo.length)
+        
         res.status(200).json({
             exams: exams,
             examsAvgScore: examsAvgScore,
             userScores: userScores
         }
         )
+
     } catch (err) {
-        res.status(404).json({ status: "fail", message: err });
+        res.status(404).json({ status: "fail", message: err });console.log(err)
     }
 }
 

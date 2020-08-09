@@ -1,6 +1,6 @@
 const express = require("express");
 const subpublicbankController = require("../controller/subpublicbankController");
-const router = express.Router(); 
+const router = express.Router();
 router.all("*", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "*");
@@ -27,7 +27,18 @@ router
   .patch(subpublicbankController.updateSubQues)
   .delete(subpublicbankController.deleteSubQues);
 
+
+router
+  .route("/getLikeQuestion")
+  .post(subpublicbankController.getLikeQuestion)
+
+
+router
+  .route("/importQuessToSubPublicBank")
+  .post(subpublicbankController.importQuessToSubPublicBank)
+
 router
   .route("/:grade")
   .post(subpublicbankController.getSubQuesByGrade)
+
 module.exports = router;

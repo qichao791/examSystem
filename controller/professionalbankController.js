@@ -63,10 +63,10 @@ exports.getProfQuesByGrade = async (req, res) => {
 exports.getLikeQuestion = async (req, res) => {
   try {
      var reg = new RegExp(req.body.stem);
-     const data = await ProfQues.find({'statement.stem':{$regex: reg}});
+     const result = await ProfQues.find({'statement.stem':{$regex: reg}});
      res.status(200).json({
       status: "success",
-      data,
+      result,
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -115,6 +115,7 @@ exports.updateProfQues = async (req, res) => {
 exports.importQuessToProfessionalBank = async(req,res) =>{ 
   try{
     let data = req.body;
+    console.log("professionalBankData:",data)
       for(let i=0,j=0;i<data.length;i++){
         let ques = new ProfQues();  
 
@@ -178,12 +179,12 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
       
         }
         await ques.save();
+        
        
-       
-      }
-      res.status(200).json({
+      }res.status(200).json({
         status: "success",
       });
+     
   } catch (err) {
         res.status(404).json({ status: "fail", message: err });console.log(err)
   }
