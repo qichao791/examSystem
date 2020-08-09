@@ -2,10 +2,14 @@ var multer = require("multer")
 var path = require("path")
 
 let tools = {
+    
     multer() {
         var storage = multer.diskStorage({
             //配置上传的目录
             destination: function (req, file, cb) {
+                // console.log("req:",req)
+                // console.log("file",file)
+                
                 var mimetype = file.mimetype
                 var path
                 if(req.body.type=="avatar"){

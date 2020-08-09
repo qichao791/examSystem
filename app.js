@@ -14,7 +14,8 @@ const scoreRouter = require("./routes/scoreRoutes");
 
 
 const app = express();
-
+app.use(bodyParser.json({limit: '1024mb'}));
+app.use(bodyParser.urlencoded({limit: '1024mb', extended: true}));
 
 console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === "development") {
@@ -23,8 +24,9 @@ if (process.env.NODE_ENV === "development") {
 app.use(morgan("dev"));
 app.use(express.json());
 
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+// app.use(bodyParser.urlencoded({ extended: false }))
+// app.use(bodyParser.json())
+
 
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/users", userRouter);

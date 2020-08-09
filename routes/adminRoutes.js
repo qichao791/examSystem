@@ -39,7 +39,7 @@ router
 
 router
   .route("/file")
-  .post(tools.multer().single("file"), adminController.upLoadFile)
+  .post(tools.multer().array("file"), adminController.upLoadFile)
   .delete(adminController.deleteFile);
 
 module.exports = router;

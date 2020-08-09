@@ -128,6 +128,7 @@ exports.importQuessToPublicBank = async(req,res) =>{
 
   try {
     let data = req.body;
+    console.log("piblicBankData:",data)
     for(let i=0;i<data.length;i++){
       let ques = new PublicQues();
         ques.statement = {
