@@ -16,12 +16,18 @@ router
 router
   .route("/getSubPublicQuesByDepart")
   .post(subpublicbankController.getSubPublicQuesByDepart)
+
+router
+  .route("/getLikeQuestion")
+  .post(subpublicbankController.getLikeQuestion)
+
 router
   .route("/:ques_id")
   .get(subpublicbankController.getSubQuesByID)
   .patch(subpublicbankController.updateSubQues)
   .delete(subpublicbankController.deleteSubQues);
 
+<<<<<<< HEAD
 
 
 router
@@ -37,4 +43,9 @@ router
   .route("/:grade")
   .post(subpublicbankController.getSubQuesByGrade)
 
+=======
+router
+  .route("/:grade")
+  .post(subpublicbankController.getSubQuesByGrade)
+>>>>>>> 465d6146550ecaa1b9956edd6821f124a45d2c67
 module.exports = router;

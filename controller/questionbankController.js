@@ -26,26 +26,26 @@ exports.getLikeQuestion = async (req, res) => {
   }
 };*/
 exports.getLikeQuestion = async (req, res) => {
-  try{
+  try {
     //const stem = await PublicQues.find({'statement.stem': new RegExp(req.body.keywords)});
     const reg = new RegExp(req.body.stem, 'g');
     //RegExp对象表示正则表达式，它可以对字符串执行模式匹配，‘g’表示执行全局配置
     const result = await PublicQues.find({
-        'statement.stem' : { $regex: reg } //$regex用于实现模糊查询
+      'statement.stem': { $regex: reg } //$regex用于实现模糊查询
     })
     res.status(200).json({
       status: "success",
       result
     });
-  } catch(err) {
-      res.status(404).json({ status: "fail", message: err });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
   }
 }
 
 exports.getAllPublicQues = async (req, res) => {
   try {
-     const data = await PublicQues.find();
-     res.status(200).json({
+    const data = await PublicQues.find();
+    res.status(200).json({
       status: "success",
       data,
     });
@@ -56,15 +56,15 @@ exports.getAllPublicQues = async (req, res) => {
 exports.getPublicQuesByGrade = async (req, res) => {
   try {
     var data;
-    if(req.body.amount==null){
-      data = await PublicQues.find({grade:req.body.grade});
-    }else{
+    if (req.body.amount == null) {
+      data = await PublicQues.find({ grade: req.body.grade });
+    } else {
       data = await PublicQues.aggregate([
-           { $match: { grade: req.body.grade } },
-           { $sample: { size: req.body.amount } },
-           //{$project:{ _id:0,statement:1 }}
+        { $match: { grade: req.body.grade } },
+        { $sample: { size: req.body.amount } },
+        //{$project:{ _id:0,statement:1 }}
       ]);
-    }  
+    }
     res.status(200).json({
       status: "success",
       data,
@@ -114,7 +114,7 @@ exports.updatePublicQues = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-exports.importQuessToPublicBank = async(req,res) =>{ 
+exports.importQuessToPublicBank = async (req, res) => {
   // var xl = require('xlsx');
   // var fs = require('fs');
   // var xlsxFileName = req.body.fileName;
@@ -128,44 +128,64 @@ exports.importQuessToPublicBank = async(req,res) =>{
 
   try {
     let data = req.body;
+<<<<<<< HEAD
     console.log("piblicBankData:",data)
     for(let i=0;i<data.length;i++){
+=======
+    for (let i = 0; i < data.length; i++) {
+>>>>>>> 465d6146550ecaa1b9956edd6821f124a45d2c67
       let ques = new PublicQues();
-        ques.statement = {
-           stem: data[i].stem,
-           options: data[i].options.split('$'),
-           right_answer:data[i].right_answer,
-        }
-        ques.analysis = data[i].analysis;
-        ques.knowlege = data[i].knowlege;
-        ques.grade = data[i].grade;
-        
-        var images,voices,videos;
-        if(data[i].images==null)
-            images=[];
-        else 
-            images = data[i].images.split('$')
-        if(data[i].voices==null)
-            voices=[];
-        else
-           voices=data[i].voices.split('$')
-        if(data[i].videos==null)
-           videos=[];
-        else
-           videos=data[i].videos.split('$')
-        ques.attachment = {
-            image:images,
-            voice:voices,
-            video:videos,
-      
-        }
-       await ques.save();
-    } 
+      ques.statement = {
+        stem: data[i].stem,
+        options: data[i].options.split('$'),
+        right_answer: data[i].right_answer,
+      }
+      ques.analysis = data[i].analysis;
+      ques.knowlege = data[i].knowlege;
+      ques.grade = data[i].grade;
+
+      var images, voices, videos;
+      if (data[i].images == null)
+        images = [];
+      else
+        images = data[i].images.split('$')
+      if (data[i].voices == null)
+        voices = [];
+      else
+        voices = data[i].voices.split('$')
+      if (data[i].videos == null)
+        videos = [];
+      else
+        videos = data[i].videos.split('$')
+      ques.attachment = {
+        image: images,
+        voice: voices,
+        video: videos,
+
+      }
+      await ques.save();
+    }
     res.status(200).json({
-          status: "success",
+      status: "success",
     });
   } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: "fail", message: err });
   }
 }
 
+exports.getStatementByKeyWords = async (req, res) => {
+  try {
+    //const stem = await PublicQues.find({'statement.stem': new RegExp(req.body.keywords)});
+    const stem = new RegExp(req.body.keywords, 'g');
+    //RegExp对象表示正则表达式，它可以对字符串执行模式匹配，‘g’表示执行全局配置
+    const result = await PublicQues.find({
+      'statement.stem': { $regex: stem } //$regex用于实现模糊查询
+    })
+    res.status(200).json({
+      status: "success",
+      result
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+}

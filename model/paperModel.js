@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const uuid = require("uuid");
+const uuid = require("../node_modules/uuid/dist");
 ////let paperID = uuid.v1().substring(0,10);//Generate the paperID with 4 charactors.
 
 const paperSchema = new mongoose.Schema({

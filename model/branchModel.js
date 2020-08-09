@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const uuid = require("uuid");
+const uuid = require("../node_modules/uuid/dist");
 //let branchID = uuid.v1().substring(0,4);//Generate the branchID with 4 charactors.
 
 const branchSchema = new mongoose.Schema({

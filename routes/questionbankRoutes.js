@@ -24,6 +24,8 @@ router
   .route("/getPublicQuesByGrade")
   .post(questionbankController.getPublicQuesByGrade)
 
+router.route("/stem").post(questionbankController.getStatementByKeyWords)
+
 router
   .route("/importQuessToPublicBank")
   .post(questionbankController.importQuessToPublicBank);

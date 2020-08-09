@@ -24,4 +24,7 @@ router.route("/reAssignPaperToNewUsers").post(upController.reAssignPaperToNewUse
 router.route("/getUPinfoByPid").post(upController.getUPinfoByPid);
 router.route("/getUsersByPidAndGroupByDepartment").post(upController.getUsersByPidAndGroupByDepartment);
 
+router.route("/getUserInfoByPid").post(upController.getUserInfoByPid);
+router.route("/getUPEssentialsByPid").post(upController.getUPEssentialsByPid);
+
 module.exports = router;

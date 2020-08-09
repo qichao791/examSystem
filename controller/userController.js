@@ -106,8 +106,8 @@ exports.deleteUser = async (req, res) => {
 
 exports.userLogin = async (req, res) => {
     try {
-        var user_id = req.body._id
-        var password = req.body.password
+        var user_id = req.body._id;
+        var password = req.body.password;
 
         var user = (await User.findById(user_id));
         if (user == null) {
