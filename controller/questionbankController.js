@@ -131,55 +131,62 @@ exports.importQuessToPublicBank = async (req, res) => {
 
   // const worksheet = workbook.Sheets[sheetNames[0]];
   // var dataa =xl.utils.sheet_to_json(worksheet);
-
   try {
     let data = req.body;
-    for (let i = 0; i < data.length; i++) {
+    for(let i=0;i<data.length;i++){
       let ques = new PublicQues();
-      ques.statement = {
-        stem: data[i].stem,
-        options: data[i].options.split("$"),
-        right_answer: data[i].right_answer
-      };
-      ques.analysis = data[i].analysis;
-      ques.knowlege = data[i].knowlege;
-      ques.grade = data[i].grade;
-
-      var images, voices, videos;
-      if (data[i].images == null) images = [];
-      else images = data[i].images.split("$");
-      if (data[i].voices == null) voices = [];
-      else voices = data[i].voices.split("$");
-      if (data[i].videos == null) videos = [];
-      else videos = data[i].videos.split("$");
-      ques.attachment = {
-        image: images,
-        voice: voices,
-        video: videos
-      };
-      await ques.save();
-    }
+        ques.statement = {
+           stem: data[i].stem,
+           options: data[i].options.split('$'),
+           right_answer:data[i].right_answer,
+        }
+        ques.analysis = data[i].analysis;
+        ques.knowlege = data[i].knowlege;
+        ques.grade = data[i].grade;
+        
+        var images,voices,videos;
+        if(data[i].images==null)
+            images=[];
+        else 
+            images = data[i].images.split('$')
+        if(data[i].voices==null)
+            voices=[];
+        else
+           voices=data[i].voices.split('$')
+        if(data[i].videos==null)
+           videos=[];
+        else
+           videos=data[i].videos.split('$')
+        ques.attachment = {
+          image:images,
+            voice:voices,
+            video:videos,
+      
+        }
+       await ques.save();
+    } 
     res.status(200).json({
-      status: "success"
+          status: "success",
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
-};
-
+}
 exports.getStatementByKeyWords = async (req, res) => {
-  try {
+  try{
     //const stem = await PublicQues.find({'statement.stem': new RegExp(req.body.keywords)});
     const stem = new RegExp(req.body.keywords, "g");
     //RegExp对象表示正则表达式，它可以对字符串执行模式匹配，‘g’表示执行全局配置
     const result = await PublicQues.find({
-      "statement.stem": { $regex: stem } //$regex用于实现模糊查询
-    });
+        'statement.stem' : { $regex: stem } //$regex用于实现模糊查询
+    })
     res.status(200).json({
       status: "success",
       result
     });
-  } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+  } catch(err) {
+      res.status(404).json({ status: "fail", message: err });
   }
-};
+}
+
+

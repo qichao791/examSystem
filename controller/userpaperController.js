@@ -712,7 +712,9 @@ exports.getPaperByUidPid = async (req, res) => {
       professional_questions: {
         proqs,
       },*/
-      pqs,spqs,proqs,
+      pqs:pqs||[],
+      spqs:spqs||[],
+      proqs:proqs||[],
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -796,13 +798,15 @@ async function getQuesByQid(qs, whichquestionBank) {
         { _id: qs[i].ques_id },
         "statement attachment"
       );
-      let item = {
-        ques_id: qs[i].ques_id,
-        ...statement[0].statement,
-        user_answer: qs[i].user_answer,
-        attachment: statement[0].attachment,
-      };
-      result.push(item);
+      if(statement.length){
+        let item = {
+          ques_id: qs[i].ques_id,
+          ...statement[0].statement,
+          user_answer: qs[i].user_answer,
+          attachment: statement[0].attachment,
+        };
+        result.push(item);
+      }
     }
     return result;
   } catch (err) {
@@ -989,6 +993,15 @@ async function calculateAllBanksByUidPid (req, res){
     return false;
   }
 };
+exports.getAllPapers = async (req, res) => {
+  const data = await Userpaper.find();
+
+  res.status(200).json({
+    status: "success",
+    results: branches.length,
+    data: data,
+  });
+};
 /**
  * author: caohongyuan
  * date: 2020-7
@@ -1090,13 +1103,4 @@ exports.getUPEssentialsByPid = async (req, res) => {
     } catch(err) {
       console.log(err);
   }
-}
-exports.getAllPapers = async (req, res) => {
-  const data = await Userpaper.find();
-
-  res.status(200).json({
-    status: "success",
-    results: branches.length,
-    data: data,
-  });
 };

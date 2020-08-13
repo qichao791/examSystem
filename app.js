@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+=======
+const express = require("./node_modules/express");
+const morgan = require("./node_modules/morgan");
+const bodyParser = require('./node_modules/body-parser')
+
+
+>>>>>>> 1a8e81b5166f1427df0d5c097a61ac24f768255c
 const departRouter = require("./routes/departRoutes");
 const branchRouter = require("./routes/branchRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -11,6 +19,10 @@ const professionalbankRouter = require("./routes/professionalbankRoutes");
 const userpaperRouter = require("./routes/userpaperRoutes");
 const adminRouter = require("./routes/adminRoutes");
 const scoreRouter = require("./routes/scoreRoutes");
+<<<<<<< HEAD
+=======
+const systemsettingRouter = require("./routes/systemsettingRoutes");
+>>>>>>> 1a8e81b5166f1427df0d5c097a61ac24f768255c
 
 const app = express();
 app.use(bodyParser.json({ limit: "1024mb" }));
@@ -38,5 +50,6 @@ app.use("/api/v1/professionalquestion", professionalbankRouter);
 app.use("/api/v1/userpaper", userpaperRouter);
 app.use("/api/v1/paper", paperRouter);
 app.use("/api/v1/score", scoreRouter);
+app.use("/api/v1/systemsetting",systemsettingRouter);
 
 module.exports = app;

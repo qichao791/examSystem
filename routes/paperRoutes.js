@@ -16,9 +16,18 @@ router
   .post(paperController.createPaper);
 
 router
+  .route("/getPapersByYearAndMonth")
+  .post(paperController.getPapersByYearAndMonth);
+
+router
+  .route("/getLikePapers")
+  .post(paperController.getLikePapers);
+router
+  .route("/batch")
+  .post(paperController.getBatch);
+router
   .route("/:paper_id")
   .get(paperController.getPaper)
   .patch(paperController.updatePaper)
   .delete(paperController.deletePaper);
-
 module.exports = router;
