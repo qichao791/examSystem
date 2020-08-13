@@ -13,7 +13,7 @@ const professionalbankRouter = require("./routes/professionalbankRoutes");
 const userpaperRouter = require("./routes/userpaperRoutes");
 const adminRouter = require("./routes/adminRoutes");
 const scoreRouter = require("./routes/scoreRoutes");
- 
+const systemsettingRouter = require("./routes/systemsettingRoutes");
 
 const app = express();
 app.use(bodyParser.json({limit: '1024mb'}));
@@ -40,5 +40,6 @@ app.use("/api/v1/professionalquestion", professionalbankRouter);
 app.use("/api/v1/userpaper", userpaperRouter);
 app.use("/api/v1/paper", paperRouter);
 app.use("/api/v1/score", scoreRouter);
+app.use("/api/v1/systemsetting",systemsettingRouter);
 
 module.exports = app;
