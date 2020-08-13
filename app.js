@@ -19,10 +19,7 @@ const professionalbankRouter = require("./routes/professionalbankRoutes");
 const userpaperRouter = require("./routes/userpaperRoutes");
 const adminRouter = require("./routes/adminRoutes");
 const scoreRouter = require("./routes/scoreRoutes");
-<<<<<<< HEAD
-=======
 const systemsettingRouter = require("./routes/systemsettingRoutes");
->>>>>>> 1a8e81b5166f1427df0d5c097a61ac24f768255c
 
 const app = express();
 app.use(bodyParser.json({ limit: "1024mb" }));
