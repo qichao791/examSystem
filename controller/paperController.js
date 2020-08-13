@@ -153,3 +153,108 @@ exports.updatePaper = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 }; 
+/**
+ * author: caohongyuan
+ * date: 2020-8
+ */
+//based on the selected paper, the function of this method is to get the paper with the same 'paper_name' and the 'paper_batch' is the last one 
+//of the selected paper's.
+exports.getBatch = async (req, res) => {
+  try {
+    var paper_name = req.body.paper_name;
+    var paper_batch1 = req.body.paper_batch;
+    var data1 = await Paper.findOne({
+      paper_name: paper_name,
+      paper_batch: paper_batch1,
+    },'_id paper_name paper_batch paper_term');   
+    if (data1 != null) {
+      // if this exam is not the first time of the month
+      if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) != 1) 
+      {
+        var paper_bench2 = paper_batch1.replace(paper_batch1[paper_batch1.indexOf("第") + 1] , paper_batch1[paper_batch1.indexOf("第") + 1] - 1);
+        var data2 = await Paper.findOne({
+          paper_name: paper_name,
+          paper_batch: paper_bench2,
+        },'_id paper_name paper_batch paper_term');
+        if (data2 != null) {
+          res.status(200).json({
+            status: "success",
+            data1,
+            data2,
+          });
+        } 
+      }// if this exam is the first time of the month 
+        else if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) == 1)
+        {
+          // if this exam is not the first time of the year
+          if (paper_batch1.split("月")[0] != 1){
+            const result1 = await Paper.find({
+              paper_term: data1.paper_term,
+              paper_name: paper_name,
+            },'_id paper_name paper_batch paper_term');
+            var max = 1;
+            for (var i = 0; i < result1.length; i++){
+              var time = (result1[i].paper_batch).split("月")[0]; 
+              if (time > max && time < paper_batch1.split("月")[0]){
+                var max = time;
+              }
+            }
+            console.log(max);
+            const reg = new RegExp(max + "月", 'g');
+            const result2 = await Paper.find({
+              'paper_batch' : { $regex: reg },
+              paper_name: paper_name,
+            },'_id paper_name paper_batch paper_term');
+            var Max = 1;
+            for (var i = 0; i < result2.length; i++){
+              var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
+              if(time > Max){
+                var Max = time;
+                var data2 = result2[i];
+              }
+            }
+            res.status(200).json({
+              status: "success",
+              data1,
+              data2,
+            });
+          // if this exam is the first time of the year
+          } else {
+            const result1 = await Paper.find({
+              paper_term: (data1.paper_term) - 1,
+              paper_name: paper_name,
+            },'_id paper_name paper_batch paper_term');
+            var max = 1;
+            for (var i = 0; i < result1.length; i++){
+              var time = (result1[i].paper_batch).split("月")[0]; 
+              if (time > max){
+                var max = time;
+              }
+            }
+            const reg = new RegExp(max + "月", 'g');
+            const result2 = await Paper.find({
+              'paper_batch' : { $regex: reg },
+              paper_name: paper_name,
+            },'_id paper_name paper_batch paper_term');
+            var Max = 1;
+            for (var i=0; i < result2.length; i++){
+              var time = (result2[i].paper_batch).substring( (result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
+              if(time > Max){
+                var Max = time;
+                var data2 = result2[i];
+              }
+            }
+            res.status(200).json({
+              status: "success",
+              data1,
+              data2,
+            });
+          }
+        }
+      } else {
+        res.status(404).json({ status: "fail", message: "not found" });
+      };
+    } catch (err) {
+      res.status(404).json({ status: "fail", message: err });
+    }
+  };

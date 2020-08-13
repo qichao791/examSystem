@@ -22,7 +22,9 @@ router
 router
   .route("/getLikePapers")
   .post(paperController.getLikePapers);
-  
+router
+  .route("/batch")
+  .post(paperController.getBatch);
 router
   .route("/:paper_id")
   .get(paperController.getPaper)
