@@ -13,8 +13,33 @@ exports.getPaper = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-
-
+//get the papers between the start year and month and end year and month,eg. [2020-7,2020-9]
+exports.getPapersByYearAndMonth = async (req, res) => {
+  try {
+    const papers = await Paper.find({ start_time: {$gte: req.body.startTime, $lte: req.body.endTime}});
+    res.status(200).json({
+      status: true,
+      papers:papers || []
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
+exports.getLikePapers = async (req, res) => {
+  try {
+    const reg = new RegExp(req.body.batch, "g");
+    //RegExp对象表示正则表达式，它可以对字符串执行模式匹配，‘g’表示执行全局配置
+    const papers = await Paper.find({
+      "paper_batch": { $regex: reg } //$regex用于实现模糊查询
+    });
+    res.status(200).json({
+      status: "success",
+      papers:papers || []
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 exports.getAllPapers = async (req, res) => {
   try{
     const paperes = await Paper.find();

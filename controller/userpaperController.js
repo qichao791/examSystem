@@ -805,7 +805,7 @@ async function getQuesByQid(qs, whichquestionBank) {
           user_answer: qs[i].user_answer,
           attachment: statement[0].attachment,
         };
-      result.push(item);
+        result.push(item);
       }
     }
     return result;
