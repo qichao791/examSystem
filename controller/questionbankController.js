@@ -79,6 +79,7 @@ exports.createPublicQues = async (req, res) => {
     const newQues = await PublicQues.create(req.body);
     res.send(newQues);
   } catch (err) {
+    console.log("异常")
     res.status(404).json({ status: "fail", message: err });
   }
 };

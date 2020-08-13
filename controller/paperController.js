@@ -18,7 +18,7 @@ exports.getPaper = async (req, res) => {
 exports.getAllPapers = async (req, res) => {
   try{
     const paperes = await Paper.find();
-
+    console.log("123");
     res.status(200).json({
       status: "success",
       results: paperes.length,

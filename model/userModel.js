@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },
   avatar: { 
       type: String, 
-      default: '/avatar/default.png'
+      default: 'null'
   },
   password: {
     type: String,
