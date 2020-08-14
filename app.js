@@ -1,8 +1,14 @@
+<<<<<<< HEAD
+const express = require("express");
+const morgan = require("morgan");
+const bodyParser = require("body-parser");
+=======
 const express = require("./node_modules/express");
 const morgan = require("./node_modules/morgan");
 const bodyParser = require('./node_modules/body-parser')
 
 
+>>>>>>> 1a8e81b5166f1427df0d5c097a61ac24f768255c
 const departRouter = require("./routes/departRoutes");
 const branchRouter = require("./routes/branchRoutes");
 const userRouter = require("./routes/userRoutes");
@@ -16,8 +22,10 @@ const scoreRouter = require("./routes/scoreRoutes");
 const systemsettingRouter = require("./routes/systemsettingRoutes");
 
 const app = express();
-app.use(bodyParser.json({limit: '1024mb'}));
-app.use(bodyParser.urlencoded({limit: '1024mb', extended: true}));
+app.use(bodyParser.json({ limit: "1024mb" }));
+app.use(bodyParser.urlencoded({ limit: "1024mb", extended: true }));
+app.use("/attachment", express.static("attachment"));
+app.use("/avatar", express.static("avatar"));
 
 console.log(process.env.NODE_ENV);
 if (process.env.NODE_ENV === "development") {
@@ -28,7 +36,6 @@ app.use(express.json());
 
 // app.use(bodyParser.urlencoded({ extended: false }))
 // app.use(bodyParser.json())
-
 
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/users", userRouter);

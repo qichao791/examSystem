@@ -43,13 +43,13 @@ exports.addQuestion = async (req, res) => {
         status: true
       });
     } else {
-      res.status(200).json({
+      res.status(204).json({
         status: false
       });
     }
     //console.log("result:", result)
   } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+    res.status(500).json({ status: "fail", message: err });
   }
 };
 
