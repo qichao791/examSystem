@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 const express = require("express");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
-=======
-const express = require("./node_modules/express");
-const morgan = require("./node_modules/morgan");
-const bodyParser = require('./node_modules/body-parser')
-
-
->>>>>>> 1a8e81b5166f1427df0d5c097a61ac24f768255c
+//const express = require("./node_modules/express");
+//const morgan = require("./node_modules/morgan");
+//const bodyParser = require('./node_modules/body-parser')
 const departRouter = require("./routes/departRoutes");
 const branchRouter = require("./routes/branchRoutes");
 const userRouter = require("./routes/userRoutes");
