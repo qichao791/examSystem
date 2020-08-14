@@ -26,5 +26,5 @@ router.route("/getUsersByPidAndGroupByDepartment").post(upController.getUsersByP
 
 router.route("/getUserInfoByPid").post(upController.getUserInfoByPid);
 router.route("/getUPEssentialsByPid").post(upController.getUPEssentialsByPid);
-
+router.route("/modifyGrades").post(upController.modifyGrades);
 module.exports = router;

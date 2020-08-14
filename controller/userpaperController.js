@@ -1104,3 +1104,28 @@ exports.getUPEssentialsByPid = async (req, res) => {
       console.log(err);
   }
 };
+/**
+ * author: caohongyuan
+ * date: 2020-8
+ */
+exports.modifyGrades = async (req, res) => {
+  try{
+    var data = await Userpaper.findOne({
+      user_id: req.body.user_id,
+      paper_id: req.body.paper_id,
+    });
+    //the value of section is 1 or 2 or 3.
+    //1 means the question which will update is from public_score
+    //2 means the question which will update is from subpublic_score
+    //3 means the question which will update is from professional_score
+    const section = req.body.section;
+    if (section === 1) data.public_score = req.body.newscore;
+    else if (section === 2) data.subpublic_score  = req.body.newscore;
+    else if (section === 3) data.professional_score = req.body.newscore;
+    
+    data.save();
+    res.status(200).json({ status: "update success" , data});
+  }catch (err) {
+    res.status(404).json({ status: "update fail", message: err });
+  }
+};
