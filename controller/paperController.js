@@ -56,29 +56,39 @@ exports.getAllPapers = async (req, res) => {
 
 exports.createPaper = async (req, res) => {
   try {
-    const newPaper = await Paper.create(req.body);
-    res.send(newPaper);
-
+    const paper = await Paper.findOne({paper_batch:req.body.paper_batch},'_id');
+    if(paper===null){
+      const newPaper = await Paper.create(req.body);
+      res.send(newPaper);
+    }
+    else{
+      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
+    }
   } catch (err) {
       res.status(404).json({ status: "fail", message: err });
   }
 };
 
 exports.addPaper = async (req, res) => {
-  //console.log(req)
   try {
-    const newPaper = await Paper.create(req.body);
-    //console.log("newPaper",newPaper)
-    if (newPaper != null) {
-      res.status(200).json({
-        status: true
-      })
-    } else {
-      res.status(404).json({
-        status: false
-      })
+    // const newPaper = await Paper.create(req.body);
+    // if (newPaper != null) {
+    //   res.status(200).json({
+    //     status: true
+    //   })
+    // } else {
+    //   res.status(404).json({
+    //     status: false
+    //   })
+    // }
+    const paper = await Paper.findOne({paper_batch:req.body.paper_batch},'_id');
+    if(paper===null){
+      const newPaper = await Paper.create(req.body);
+      res.send(newPaper);
     }
-
+    else{
+      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
+    }
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
