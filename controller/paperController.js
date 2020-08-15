@@ -42,8 +42,8 @@ exports.getLikePapers = async (req, res) => {
 };
 exports.getAllPapers = async (req, res) => {
   try{
-    const paperes = await Paper.find();
-    console.log("123");
+    const paperes = await Paper.find().sort('-start_time');
+
     res.status(200).json({
       status: "success",
       results: paperes.length,

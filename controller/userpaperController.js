@@ -520,7 +520,7 @@ exports.getPaperByUid = async (req, res) => {
       };
       papers.push(item);
     }
-    */
+    */console.log("--->"+result)
     let papers = result.map((item) => {
       return {
         paper_id: item.paper_id,
