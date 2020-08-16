@@ -720,6 +720,21 @@ exports.getPaperByUidPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+exports.getThreeScoresByUidPid = async (req, res) => {
+  try {
+    const data = await Userpaper.findOne({
+      user_id: req.query.user_id,
+      paper_id: req.query.paper_id,
+    },'public_score subpublic_score professional_score');
+
+    res.status(200).json({
+      status: "success",
+      data
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 /**
  * author: qichao
  * date: 2020-7

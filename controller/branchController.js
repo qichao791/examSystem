@@ -2,6 +2,8 @@ const Branch = require("../model/branchModel");
 const Depart = require("../model/departModel");
 const User = require("../model/userModel");
 const mongoose = require("mongoose");
+const SubQues = require("../model/subpublicbankModel");
+const ProfQues= require("../model/professionalbankModel");
 
 exports.getBranch = async (req, res) => {
  try {
@@ -46,7 +48,8 @@ exports.deleteBranch = async (req, res) => {
     var depart;
     var readyToDeleteBranch;
     let user = await User.findOne({branch_id:req.params.branch_id},'_id');
-    if(user==null){
+    let quess = await ProfQues.findOne({_id:req.params.branch_id},'_id');
+    if(user===null&&quess===null){
       
         //-------delete the branch from the field branches of the depart which has connected to this branch
         depart = await belongedToWhichDepart(req.params.branch_id);//get the depart which connected to the branch to be deleted

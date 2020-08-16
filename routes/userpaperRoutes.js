@@ -14,6 +14,8 @@ router.route("/").post(upController.generateUPforUsers);
 router.route("/getPaperByPid").post(upController.getPaperByPid);
 router.route("/getPaperByUid").get(upController.getPaperByUid);
 router.route("/getPaperByUidPid").get(upController.getPaperByUidPid);
+router.route("/getThreeScoresByUidPid").get(upController.getThreeScoresByUidPid);
+
 router.route("/updateByUidPid").post(upController.updateOneByUidPid);
 //router.route("/calculateByUidPid").post(upController.calculateByUidPid);
 router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
