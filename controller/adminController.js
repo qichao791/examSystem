@@ -83,9 +83,12 @@ exports.modifyQuestion = async (req, res) => {
 
 exports.deleteQuestion = async (req, res) => {
   try {
-    //console.log("deleteReq:", req)
+    // console.log("deleteReq:", req)
     var ques_list = req.body.ques_list;
     var bank_type = req.body.bank_type;
+    // console.log("ques_list",ques_list)
+    // console.log("bank_type",bank_type)
+
     var ques_model = await getQuesModel(bank_type);
     for (var i = 0; i < ques_list.length; i++) {
       var ques_id = ques_list[i];
@@ -99,8 +102,9 @@ exports.deleteQuestion = async (req, res) => {
     });
   } catch (err) {
     //console.log(err)
-    res.status(200).json({
-      status: false
+    res.status(500).json({
+      status: false,
+      msg:err
     });
   }
 };
@@ -293,21 +297,26 @@ async function getFileType(mimetype) {
  * @param {题目附件} attachment 
  */
 async function deleteAttachmentFile(attachment) {
-  if (attachment.image.length != 0) {
-    for (var i = 0; i < attachment.image.length; i++) {
-      fs.unlinkSync(attachment.image[i]);
+  try{
+    if (attachment.image.length != 0) {
+      for (var i = 0; i < attachment.image.length; i++) {
+        fs.unlinkSync(attachment.image[i]);
+      }
     }
-  }
-  if (attachment.video.length != 0) {
-    for (var i = 0; i < attachment.video.length; i++) {
-      fs.unlinkSync(attachment.video[i]);
+    if (attachment.video.length != 0) {
+      for (var i = 0; i < attachment.video.length; i++) {
+        fs.unlinkSync(attachment.video[i]);
+      }
     }
-  }
-  if (attachment.voice.length != 0) {
-    for (var i = 0; i < attachment.voice.length; i++) {
-      fs.unlinkSync(attachment.voice[i]);
+    if (attachment.voice.length != 0) {
+      for (var i = 0; i < attachment.voice.length; i++) {
+        fs.unlinkSync(attachment.voice[i]);
+      }
     }
+  }catch(err){
+    console.log(err)
   }
+ 
 }
 /**
  * 删除数组array中的element
