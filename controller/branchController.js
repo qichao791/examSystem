@@ -57,13 +57,19 @@ exports.deleteBranch = async (req, res) => {
         if(depart[0].belongedToDepart[0]!=null){
           let depart_id = depart[0].belongedToDepart[0]._id;           //obtain the _id of the depart
         
+          // const originalDepart = await Depart.findOne({_id:depart_id});
+          // for(let i=0;i<originalDepart.branches.length;i++){
+          //   let branch = originalDepart.branches.pop();
+          //   if(branch!=req.params.branch_id){
+          //     originalDepart.branches.push(branch);}
+          // }
+          // await originalDepart.save();
           const originalDepart = await Depart.findOne({_id:depart_id});
-          for(let i=0;i<originalDepart.branches.length;i++){
-            let branch = originalDepart.branches.pop();
-            if(branch!=req.params.branch_id){
-              originalDepart.branches.push(branch);}
-          }
-          await originalDepart.save();
+          let index = originalDepart.branches.findIndex(item=>{
+            return item===req.params.branch_id
+          });
+        
+          originalDepart.branches.splice(index,1);
         }
         //--------------------------------------------------------------------------------
 
