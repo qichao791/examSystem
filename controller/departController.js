@@ -1,6 +1,8 @@
 const Depart= require("../model/departModel");
 const mongoose = require("mongoose");
 const User = require("../model/userModel");
+const SubQues = require("../model/subpublicbankModel");
+const ProfQues= require("../model/professionalbankModel");
 
 exports.getDepart = async (req, res) => {
     try {
@@ -52,11 +54,12 @@ exports.addBranchToDepart = async (req, res) => {
 exports.delBranchFromDepart = async (req, res) => {
   try{
     const originalDepart = await Depart.findOne({_id:req.body.depart_id});
-    for(let i=0;i<originalDepart.branches.length;i++){
-      let branch = originalDepart.branches.pop();
-      if(branch!=req.body.branch_id)
-         originalDepart.branches.push(branch);
-    }
+    let index = originalDepart.branches.findIndex(item=>{
+      return item===req.body.branch_id
+    });
+  
+    originalDepart.branches.splice(index,1);
+  
     await originalDepart.save();
     res.status(200).json({
       status: "success",
@@ -70,8 +73,10 @@ exports.deleteDepart = async (req, res) => {
       var readyToDeleteDepart;
       let user = await User.findOne({depart_id:req.params.depart_id},'_id');
       let branch = await Depart.findOne({_id:req.params.depart_id},'branches');
+      let ques1 = await SubQues.findOne({_id:req.params.depart_id},'_id');
+      let ques2 = await ProfQues.findOne({_id:req.params.depart_id},'_id');
       //---if the depart to be delete doesn't be connected to any user or branch, the depart canbe allowed to delete.
-      if(user == null && branch.branches.length==0){
+      if(user === null && ques1=== null && ques2=== null && branch.branches.length===0){
           readyToDeleteDepart = await Depart.findOneAndDelete({_id:req.params.depart_id});
           if (readyToDeleteDepart!= null) {
             res.status(204).json({
