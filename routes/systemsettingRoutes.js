@@ -11,9 +11,10 @@ router.all("*", (req, res, next) => {
 });
 
 router.route("/").get(sysController.getParameters);
+router.route("/modifyParameters").put(sysController.modifyParameters);
 router.route("/createParameters").post(sysController.createParameters);
 router.route("/addParameters").post(sysController.addParameters);
 // router.route("/getPaperByUidPid").get(sysController.getPaperByUidPid);
-// router.route("/updateByUidPid").post(sysController.updateOneByUidPid);
+router.route("/deleteParameters").delete(sysController.deleteParameters);
 
 module.exports = router;

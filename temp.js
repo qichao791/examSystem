@@ -18,7 +18,7 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
- */
+
 mongoose
     .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
         user: "root",
@@ -393,4 +393,23 @@ async function Prof() {
       console.log(err)
     }
   }
-  Sub()
+  function uu() {
+    try{const pinyin = require('pinyin');
+        let py= pinyin('采煤系统', {
+          style: pinyin.STYLE_NORMAL, // 设置拼音风格
+        });
+        let translate='';
+        for(let i=0;i<py.length;i++){
+          translate=translate+py[i][0]
+        }
+        
+        
+        console.log(translate)
+        //const newDepart = await Depart.create(req.body);
+        //res.send(newDepart);
+      
+    }catch (err) {
+        console.log(err);
+    }
+  }
+  uu()

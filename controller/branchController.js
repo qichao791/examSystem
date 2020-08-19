@@ -4,6 +4,7 @@ const User = require("../model/userModel");
 const mongoose = require("mongoose");
 const SubQues = require("../model/subpublicbankModel");
 const ProfQues= require("../model/professionalbankModel");
+const pinyin = require('pinyin');
 
 exports.getBranch = async (req, res) => {
  try {
@@ -34,29 +35,52 @@ exports.getAllBranches = async (req, res) => {
     res.status(404).json({ status: "failed", message: err });
   }
 };
+// exports.createBranch = async (req, res) => {
+//   try {
+//     const newBranch = await Branch.create(req.body);
+//     res.send(newBranch);
+//   } catch (err) {
+//     res.status(404).json({ status: "failed", message: err });
+//   }
+// };
 exports.createBranch = async (req, res) => {
-  try {
-    const newBranch = await Branch.create(req.body);
-    res.send(newBranch);
-  } catch (err) {
-    res.status(404).json({ status: "failed", message: err });
+  try{
+      let py= pinyin(req.body.branch_name, {
+        style: pinyin.STYLE_NORMAL, // 设置拼音风格
+      });
+      let translate='';
+      for(let i=0;i<py.length;i++){
+        translate=translate+py[i][0]
+      }
+      
+      req.body._id = translate;
+      console.log(req.body._id)
+      const newBranch = await Branch.create(req.body);
+      res.send(newBranch);
+    
+  }catch (err) {
+      console.log(err);
   }
 };
-
 exports.deleteBranch = async (req, res) => {
   try {
     var depart;
     var readyToDeleteBranch;
     let user = await User.findOne({branch_id:req.params.branch_id},'_id');
-    let quess = await ProfQues.findOne({_id:req.params.branch_id},'_id');
+    let quess = await ProfQues.findOne({branch_id:req.params.branch_id},'_id');
+    //console.log("branch:"+req.params.branch_id)
+     //console.log("usr:"+user)
+     //console.log("qs:"+quess)
     if(user===null&&quess===null){
       
         //-------delete the branch from the field branches of the depart which has connected to this branch
         depart = await belongedToWhichDepart(req.params.branch_id);//get the depart which connected to the branch to be deleted
+     
         //console.log("--------->>>>>>>"+Object.keys(depart[0]))
+      
         if(depart[0].belongedToDepart[0]!=null){
           let depart_id = depart[0].belongedToDepart[0]._id;           //obtain the _id of the depart
-        
+          //console.log("depart_id:"+depart_id)
           // const originalDepart = await Depart.findOne({_id:depart_id});
           // for(let i=0;i<originalDepart.branches.length;i++){
           //   let branch = originalDepart.branches.pop();
@@ -70,6 +94,7 @@ exports.deleteBranch = async (req, res) => {
           });
         
           originalDepart.branches.splice(index,1);
+          await originalDepart.save();
         }
         //--------------------------------------------------------------------------------
 

@@ -47,8 +47,8 @@ exports.addParameters = async (req, res) => {
 
 exports.modifyParameters = async (req, res) => {
     try {
-      const result = await Sys.replaceOne({ _id: req.body._id}, req.body);
-      //console.log("result", result)
+      const data = await getParameters_id(req, res);
+      const result = await Sys.replaceOne({ _id: data}, req.body);
       if (result.nModified == 1) {
         res.status(200).json({
           status: "true",
@@ -62,11 +62,18 @@ exports.modifyParameters = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
     }
 }
+async function getParameters_id (req, res) {
+  try{
+    const data = await Sys.findOne({}, '_id');
+    return data;
+  } catch (err) {
+    return false;
+  }
+}
 
 exports.deleteParameters = async (req, res) => {
     try {
-      const readyToDeleteParameters = await Sys.findOneAndDelete({ _id: req.params._id });
-  
+      const readyToDeleteParameters = await Sys.findOneAndDelete({ _id: req.body._id });
       if (readyToDeleteParameters != null) {
         res.status(204).json({
           status: "success",
