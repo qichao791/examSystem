@@ -8,7 +8,7 @@ const Branch = require("./model/branchModel");
 const Userpaper = require("./model/userpaperModel");
 const { subscribe } = require("./routes/professionalbankRoutes");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
- /*
+
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -18,7 +18,7 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
-
+ /*
 mongoose
     .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
         user: "root",
@@ -393,23 +393,22 @@ async function Prof() {
       console.log(err)
     }
   }
-  function uu() {
-    try{const pinyin = require('pinyin');
-        let py= pinyin('采煤系统', {
-          style: pinyin.STYLE_NORMAL, // 设置拼音风格
-        });
-        let translate='';
-        for(let i=0;i<py.length;i++){
-          translate=translate+py[i][0]
-        }
-        
-        
-        console.log(translate)
-        //const newDepart = await Depart.create(req.body);
-        //res.send(newDepart);
-      
-    }catch (err) {
-        console.log(err);
+  async function getKnowlege(){
+    try{
+        const data = await PublicQues.aggregate([
+          { $group: { _id: "$knowlege",  } }, 
+          
+          ]);
+          var knowlegeList=[];
+          for(let i=0;i<data.length;i++)
+            if(data[i]._id!="")
+              knowlegeList.push(data[i]._id)
+          
+       console.log(knowlegeList)
+     
+    
+    }catch(err){
+      console.log(err)
     }
-  }
-  uu()
+  };
+  getKnowlege()

@@ -62,9 +62,20 @@ exports.createDepart = async (req, res) => {
 exports.addBranchToDepart = async (req, res) => {
   try{
     const originalDepart = await Depart.findOne({_id:req.body.depart_id});
-    console.log("--->"+req.body.branch_id);
-    for(let i = 0;i < req.body.branch_id.length;i++ )
+   
+    for(let i = 0;i < req.body.branch_id.length;i++ ){
+      if(req.body.branch_id[i]===null)
+          continue;
+      let index = originalDepart.branches.findIndex(item=>{
+        return item===req.body.branch_id[i]
+      });
+      if(index===-1){//to avoid inserting the duplicated branch to the depart
         originalDepart.branches.push(req.body.branch_id[i]);
+          //originalDepart.branches.splice(index,1);
+          //await originalDepart.save();
+      }
+        
+    }
     await originalDepart.save();
     res.status(200).json({
       status: "success",

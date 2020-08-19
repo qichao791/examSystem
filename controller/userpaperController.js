@@ -171,18 +171,32 @@ async function updateGradeForBank(whichquestionBank) {
 // generate the questions based on public_amount from public question bank randomly
 async function getPublicQues(req, res) {
   try {
-    let result = await PublicQues.aggregate([
-      { $match: { grade: req.body.grade } },
-      { $sample: { size: req.body.public_amount } },
-      //{ $project: { _id: 1 } },
-    ]);
+    let knowlege = req.body.knowlege;
+    var result;
+    if(knowlege === 'all' ){//if knowlege is null, it means that any question selected comes from the whole public question bank
+      result = await PublicQues.aggregate([
+        { $match: { grade: req.body.grade } },
+        { $sample: { size: req.body.public_amount } },
+      ]);
+    }else{ 
+      result = await PublicQues.aggregate([
+        { $match: { grade: req.body.grade } },
+        { $match: { knowlege: req.body.knowlege } },
+        { $sample: { size: req.body.public_amount } },
+      ]);
+    }
     //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
     if(result.length < req.body.public_amount){
       req.body.result_length=result.length;
-      let replenish = await replenishPublicQues(req);
+      var replenish;
+      if(knowlege === 'all' )
+        replenish = await replenishPublicQues(req);
+      else
+        replenish = await replenishPublicQuesByKnowlege(req);
+      
       if(replenish!=null)
-        for(let i=0;i<replenish.length;i++)
-          result.push(replenish[i]);
+          for(let i=0;i<replenish.length;i++)
+            result.push(replenish[i]);
     }
     //--**-----------------------------
     return result;
@@ -241,6 +255,63 @@ async function replenishPublicQues(req) {
   } catch (err) {
     return false;
   }
+}
+async function replenishPublicQuesByKnowlege(req) {
+  try {
+       var result1=null;
+       var result2=null;
+  
+      let amount1 = req.body.public_amount - req.body.result_length;
+      if(req.body.grade==2){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 1 } },
+          { $match: { knowlege: req.body.knowlege } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { knowlege: req.body.knowlege } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==1){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { knowlege: req.body.knowlege } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 3 } },
+              { $match: { knowlege: req.body.knowlege } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }else if(req.body.grade==3){
+        result1 = await PublicQues.aggregate([
+          { $match: { grade: 2 } },
+          { $match: { knowlege: req.body.knowlege } },
+          { $sample: { size: amount1 } },
+        ]);
+        if(req.body.result_length + result1.length < req.body.public_amount){
+          let amount2 = req.body.public_amount - req.body.result_length - result1.length;
+          result2 = await PublicQues.aggregate([
+              { $match: { grade: 1 } },
+              { $match: { knowlege: req.body.knowlege } },
+              { $sample: { size: amount2 } },
+            ]);
+        }
+      }
+      if(result2!=null)
+        for(let j=0;j<result2.length;j++)
+          result1.push(result2[j]);
+       return result1;
+    } catch (err) {
+       return false;
+    }
 }
 /**
  * author: qichao

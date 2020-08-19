@@ -73,7 +73,26 @@ exports.getPublicQuesByGrade = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
-
+exports.getPublicQuesByKnowlege = async (req, res) => {
+  try {
+    var data;
+    if (req.body.amount == null) {
+      data = await PublicQues.find({ knowlege: req.body.knowlege });
+    } else {
+      data = await PublicQues.aggregate([
+        { $match: { knowlege: req.body.knowlege } },
+        { $sample: { size: req.body.amount } }
+        //{$project:{ _id:0,statement:1 }}
+      ]);
+    }
+    res.status(200).json({
+      status: "success",
+      data
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 exports.createPublicQues = async (req, res) => {
   try {
     const newQues = await PublicQues.create(req.body);
@@ -188,5 +207,23 @@ exports.getStatementByKeyWords = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
   }
 }
-
+//get all the different knowleges from bank
+exports.getKnowlege = async (req, res) => {
+  try{
+      const data = await PublicQues.aggregate([
+                   { $group: { _id: "$knowlege",  } }, 
+                   ]);
+      let knowlegeList=[];
+      for(let i=0;i<data.length;i++)
+          if(data[i]._id!="")
+             knowlegeList.push(data[i]._id)
+   
+      res.status(200).json({
+          status: "success",
+          knowlegeList
+    });
+  }catch(err){
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 
