@@ -76,15 +76,9 @@ exports.getPublicQuesByGrade = async (req, res) => {
 exports.getPublicQuesByKnowlege = async (req, res) => {
   try {
     var data;
-    if (req.body.amount == null) {
-      data = await PublicQues.find({ knowlege: req.body.knowlege });
-    } else {
-      data = await PublicQues.aggregate([
-        { $match: { knowlege: req.body.knowlege } },
-        { $sample: { size: req.body.amount } }
-        //{$project:{ _id:0,statement:1 }}
-      ]);
-    }
+   
+    data = await PublicQues.find({ knowlege: req.body.knowlege });
+  
     res.status(200).json({
       status: "success",
       data
@@ -159,8 +153,14 @@ exports.importQuessToPublicBank = async (req, res) => {
            options: data[i].options.split('$'),
            right_answer:data[i].right_answer,
         }
-        ques.analysis = data[i].analysis;
-        ques.knowlege = data[i].knowlege;
+        if("undefined" == typeof data[i].analysis || data[i].analysis===null)
+            ques.analysis='';
+        else
+            ques.analysis = data[i].analysis;
+        if("undefined" == typeof data[i].analysis || data[i].knowlege===null)
+            ques.knowlege='';
+        else
+            ques.knowlege = data[i].knowlege;
         ques.grade = data[i].grade;
         
         var images,voices,videos;

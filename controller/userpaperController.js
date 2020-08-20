@@ -173,7 +173,7 @@ async function getPublicQues(req, res) {
   try {
     let knowlege = req.body.knowlege;
     var result;
-    if(knowlege === null){//if knowlege is null, it means that any question selected comes from the whole public question bank
+    if(knowlege === null || "undefined" == typeof knowlege){//if knowlege is null, it means that any question selected comes from the whole public question bank
       result = await PublicQues.aggregate([
         { $match: { grade: req.body.grade } },
         { $sample: { size: req.body.public_amount } },
@@ -189,7 +189,7 @@ async function getPublicQues(req, res) {
     if(result.length < req.body.public_amount){
       req.body.result_length=result.length;
       var replenish;
-      if(knowlege === null )
+      if(knowlege === null || "undefined" == typeof knowlege)
         replenish = await replenishPublicQues(req);
       else
         replenish = await replenishPublicQuesByKnowlege(req);
