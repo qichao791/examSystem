@@ -8,7 +8,7 @@ const Branch = require("./model/branchModel");
 const Userpaper = require("./model/userpaperModel");
 const { subscribe } = require("./routes/professionalbankRoutes");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
- /*
+
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -18,7 +18,7 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
- */
+ /*
 mongoose
     .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
         user: "root",
@@ -393,4 +393,22 @@ async function Prof() {
       console.log(err)
     }
   }
-  Sub()
+  async function getKnowlege(){
+    try{
+        const data = await PublicQues.aggregate([
+          { $group: { _id: "$knowlege",  } }, 
+          
+          ]);
+          var knowlegeList=[];
+          for(let i=0;i<data.length;i++)
+            if(data[i]._id!="")
+              knowlegeList.push(data[i]._id)
+          
+       console.log(knowlegeList)
+     
+    
+    }catch(err){
+      console.log(err)
+    }
+  };
+  getKnowlege()

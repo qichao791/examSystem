@@ -15,11 +15,13 @@ router
   .post(questionbankController.createPublicQues);
 
 router
-  .route("/:ques_id")
-  .get(questionbankController.getPublicQuesByID)
-  .patch(questionbankController.updatePublicQues)
-  .delete(questionbankController.deletePublicQues);
+  .route("/getKnowlege")
+  .post(questionbankController.getKnowlege)
 
+router
+  .route("/getPublicQuesByKnowlege")
+  .post(questionbankController.getPublicQuesByKnowlege)
+  
 router
   .route("/getPublicQuesByGrade")
   .post(questionbankController.getPublicQuesByGrade)
@@ -33,4 +35,10 @@ router
 router
   .route("/getLikeQuestion")
   .post(questionbankController.getLikeQuestion)
+  
+router
+  .route("/:ques_id")
+  .get(questionbankController.getPublicQuesByID)
+  .patch(questionbankController.updatePublicQues)
+  .delete(questionbankController.deletePublicQues);
 module.exports = router;

@@ -7,7 +7,7 @@ const app = require("./app");
 
 const DB = process.env.DATABASE;
 console.log(DB);
- /*
+/* 
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
