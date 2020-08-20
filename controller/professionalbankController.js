@@ -160,7 +160,7 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
             ques.analysis='';
         else
             ques.analysis = data[i].analysis;
-        if("undefined" == typeof data[i].analysis || data[i].knowlege===null)
+        if("undefined" == typeof data[i].knowlege || data[i].knowlege===null)
             ques.knowlege='';
         else
             ques.knowlege = data[i].knowlege;
