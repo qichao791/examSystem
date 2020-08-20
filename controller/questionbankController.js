@@ -76,8 +76,9 @@ exports.getPublicQuesByGrade = async (req, res) => {
 exports.getPublicQuesByKnowlege = async (req, res) => {
   try {
     var data;
+   
     data = await PublicQues.find({ knowlege: req.body.knowlege });
-
+  
     res.status(200).json({
       status: "success",
       data
@@ -147,29 +148,42 @@ exports.importQuessToPublicBank = async (req, res) => {
     let data = req.body;
     for (let i = 0; i < data.length; i++) {
       let ques = new PublicQues();
-      ques.statement = {
-        stem: data[i].stem,
-        options: data[i].options.split("$"),
-        right_answer: data[i].right_answer
-      };
-      ques.analysis = data[i].analysis;
-      ques.knowlege = data[i].knowlege;
-      ques.grade = data[i].grade;
-
-      var images, voices, videos;
-      if (data[i].images == null) images = [];
-      else images = data[i].images.split("$");
-      if (data[i].voices == null) voices = [];
-      else voices = data[i].voices.split("$");
-      if (data[i].videos == null) videos = [];
-      else videos = data[i].videos.split("$");
-      ques.attachment = {
-        image: images,
-        voice: voices,
-        video: videos
-      };
-      await ques.save();
-    }
+        ques.statement = {
+           stem: data[i].stem,
+           options: data[i].options.split('$'),
+           right_answer:data[i].right_answer,
+        }
+        if("undefined" == typeof data[i].analysis || data[i].analysis===null)
+            ques.analysis='';
+        else
+            ques.analysis = data[i].analysis;
+        if("undefined" == typeof data[i].knowlege || data[i].knowlege===null)
+            ques.knowlege='';
+        else
+            ques.knowlege = data[i].knowlege;
+        ques.grade = data[i].grade;
+        
+        var images,voices,videos;
+        if(data[i].images==null)
+            images=[];
+        else 
+            images = data[i].images.split('$')
+        if(data[i].voices==null)
+            voices=[];
+        else
+           voices=data[i].voices.split('$')
+        if(data[i].videos==null)
+           videos=[];
+        else
+           videos=data[i].videos.split('$')
+        ques.attachment = {
+          image:images,
+            voice:voices,
+            video:videos,
+      
+        }
+       await ques.save();
+    } 
     res.status(200).json({
       status: "success"
     });

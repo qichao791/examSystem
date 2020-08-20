@@ -136,7 +136,14 @@ exports.importQuessToSubPublicBank = async (req, res) => {
         right_answer: data[i].right_answer,
       }
       ques.analysis = data[i].analysis;
-      ques.knowlege = data[i].knowlege;
+      if("undefined" == typeof data[i].analysis || data[i].analysis===null)
+          ques.analysis='';
+      else
+          ques.analysis = data[i].analysis;
+      if("undefined" == typeof data[i].knowlege || data[i].knowlege===null)
+          ques.knowlege='';
+      else
+          ques.knowlege = data[i].knowlege;
       ques.grade = data[i].grade;
       var images, voices, videos;
       if (data[i].images == null)

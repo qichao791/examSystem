@@ -115,7 +115,7 @@ exports.updateProfQues = async (req, res) => {
 exports.importQuessToProfessionalBank = async(req,res) =>{ 
   try{
     let data = req.body;
-    console.log("professionalBankData:",data)
+    //console.log("professionalBankData:",data)
       for(let i=0,j=0;i<data.length;i++){
         let ques = new ProfQues();  
 
@@ -155,8 +155,16 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
             options: data[i].options.split('$'),
             right_answer:data[i].right_answer,
         }
-        ques.analysis = data[i].analysis;
-        ques.knowlege = data[i].knowlege;
+ 
+        if("undefined" == typeof data[i].analysis || data[i].analysis===null)
+            ques.analysis='';
+        else
+            ques.analysis = data[i].analysis;
+        if("undefined" == typeof data[i].knowlege || data[i].knowlege===null)
+            ques.knowlege='';
+        else
+            ques.knowlege = data[i].knowlege;
+     
         ques.grade = data[i].grade;
 
         var images,voices,videos;
