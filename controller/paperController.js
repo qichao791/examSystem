@@ -56,14 +56,14 @@ exports.getAllPapers = async (req, res) => {
 
 exports.createPaper = async (req, res) => {
   try {
-    //const paper = await Paper.findOne({paper_batch:req.body.paper_batch},'_id');
-    //if(paper===null){
+    const paper = await Paper.findOne({paper_batch:req.body.paper_batch,paper_name:req.body.paper_name,paper_term:req.body.paper_term},'_id');
+    if(paper===null){
       const newPaper = await Paper.create(req.body);
       res.send(newPaper);
-    //}
-    //else{
-      //res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
-    //}
+    }
+    else{
+      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
+    }
   } catch (err) {
       res.status(404).json({ status: "fail", message: err });
   }
