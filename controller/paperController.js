@@ -57,6 +57,7 @@ exports.getAllPapers = async (req, res) => {
 exports.createPaper = async (req, res) => {
   try {
     const paper = await Paper.findOne({paper_batch:req.body.paper_batch,paper_name:req.body.paper_name,paper_term:req.body.paper_term},'_id');
+    console.log(paper)
     if(paper===null){
       const newPaper = await Paper.create(req.body);
       res.send(newPaper);
@@ -68,29 +69,22 @@ exports.createPaper = async (req, res) => {
       res.status(404).json({ status: "fail", message: err });
   }
 };
-
+ 
 exports.addPaper = async (req, res) => {
   try {
-    // const newPaper = await Paper.create(req.body);
-    // if (newPaper != null) {
-    //   res.status(200).json({
-    //     status: true
-    //   })
-    // } else {
-    //   res.status(404).json({
-    //     status: false
-    //   })
-    // }
-    const paper = await Paper.findOne({paper_batch:req.body.paper_batch},'_id');
+    const paper = await Paper.findOne({paper_batch:req.body.paper_batch,paper_name:req.body.paper_name,paper_term:req.body.paper_term},'_id');
+    console.log(paper)
     if(paper===null){
       const newPaper = await Paper.create(req.body);
-      res.send(newPaper);
+      res.send(
+      {status:true,message:'success'}
+      );
     }
     else{
       res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
     }
   } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+      res.status(404).json({ status: "fail", message: err });
   }
 };
 

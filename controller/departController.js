@@ -69,6 +69,7 @@ exports.addBranchToDepart = async (req, res) => {
       let index = originalDepart.branches.findIndex(item=>{
         return item===req.body.branch_id[i]
       });
+      
       if(index===-1){//to avoid inserting the duplicated branch to the depart
         originalDepart.branches.push(req.body.branch_id[i]);
           //originalDepart.branches.splice(index,1);
