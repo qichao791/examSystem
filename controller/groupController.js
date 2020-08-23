@@ -1,23 +1,22 @@
 const Group = require("../model/groupModel");
 const mongoose = require("mongoose");
 const User = require("../model/userModel");
-const pinyin = require('pinyin');
 /**
  * author: caohongyuan
  * date: 2020-8
  */
 exports.createGroup = async (req, res) => {
     try{
-        let py = pinyin(req.body.group_name, {
-          style: pinyin.STYLE_NORMAL, // 设置拼音风格
-        });
-        let translate='';
-        for(let i = 0; i < py.length; i++){
-          translate = translate + py[i][0]
-        }     
-        req.body._id = translate;
+        // let py = pinyin(req.body.group_name, {
+        //   style: pinyin.STYLE_NORMAL, // 设置拼音风格
+        // });
+        // let translate='';
+        // for(let i = 0; i < py.length; i++){
+        //   translate = translate + py[i][0]
+        // }     
+        // req.body._id = translate;
         const newGroup = await Group.create(req.body);
-        res.send(newGroup);    
+        res.send({status:true,message:'success'});    
     }catch (err) {
         console.log(err);
     }
@@ -59,7 +58,7 @@ exports.addUserToGroup = async (req, res) => {
         }
       }
     }
-    console.log(user_id);
+    //console.log(user_id);
     if(user_id[0] == null){
       res.status(502).json({
         status: "fail",
