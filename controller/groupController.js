@@ -1,37 +1,38 @@
 const Group = require("../model/groupModel");
 const mongoose = require("mongoose");
 const User = require("../model/userModel");
+const pinyin = require('pinyin');
 /**
  * author: caohongyuan
  * date: 2020-8
  */
 exports.createGroup = async (req, res) => {
     try{
-        // let py = pinyin(req.body.group_name, {
-        //   style: pinyin.STYLE_NORMAL, // 设置拼音风格
-        // });
-        // let translate='';
-        // for(let i = 0; i < py.length; i++){
-        //   translate = translate + py[i][0]
-        // }     
-        // req.body._id = translate;
-        const newGroup = await Group.create(req.body);
-        res.send({status:true,message:'success'});    
-    }catch (err) {
-        console.log(err);
+      let py = pinyin(req.body.group_name, {
+        style: pinyin.STYLE_NORMAL, // 设置拼音风格
+      });
+      let translate='';
+      for(let i = 0; i < py.length; i++){
+        translate = translate + py[i][0]
+      }     
+      req.body._id = translate;
+      const newGroup = await Group.create(req.body);
+      res.send(newGroup);    
+    } catch (err) {
+      console.log(err);
     }
   };
 
 exports.getGroup = async (req, res) => {
-    try {
-        const group = await Group.findOne({ _id:req.params.group_id});
-        res.status(200).json({
-        status: "success",
-        group,
-        });
-    } catch (err) {
-        res.status(404).json({ status: "fail", message: err });
-    }
+  try {
+    const group = await Group.findOne({ _id:req.params.group_id});
+    res.status(200).json({
+    status: "success",
+    group,
+    });
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
 };
 
 exports.getAllGroup = async (req, res) => {
@@ -57,18 +58,18 @@ exports.addUserToGroup = async (req, res) => {
           user_id.splice(i, 1);
         }
       }
+      if(user_id.length === i + 1){
+        originalGroup.users.push(user_id[i]);
+        await originalGroup.save();
+      }
     }
-    //console.log(user_id);
+    console.log(user_id);
     if(user_id[0] == null){
       res.status(502).json({
         status: "fail",
         message: "User already exists",
       });
       return;
-    }
-    for(let t = 0; t < user_id.length; t++){
-      originalGroup.users.push(user_id[t]);
-      await originalGroup.save();
     }
     res.status(200).json({
       status: "success",
@@ -134,6 +135,11 @@ exports.getUsersByGroup = async (req, res) => {
         }
       },
       {
+        $match: {
+          _id: req.body.group_id
+        }
+      },
+      {
         $project: {
           _id:1,
           group_name: 1,
@@ -147,7 +153,7 @@ exports.getUsersByGroup = async (req, res) => {
     ]);
     res.status(200).json({
       status: "success",
-      data
+      data,
     });
   } catch(err) {
       res.status(404).json({ status: "fail", message: err });
