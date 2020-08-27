@@ -2,6 +2,8 @@ const Group = require("../model/groupModel");
 const mongoose = require("mongoose");
 const User = require("../model/userModel");
 const pinyin = require('pinyin');
+const Depart= require("../model/departModel");
+const Branch = require("../model/branchModel");
 /**
  * author: caohongyuan
  * date: 2020-8
@@ -90,7 +92,7 @@ exports.delUserFromGroup = async (req, res) => {
         let index = originalGroup.users[i].includes(req.body.user_id);
         if(index === true){
           originalGroup.users.splice(i, 1);
-          await originalDepart.save();
+          await originalGroup.save();
         }
       }    
       res.status(200).json({
@@ -151,6 +153,12 @@ exports.getUsersByGroup = async (req, res) => {
         }
       }
     ]);
+    for(let i = 0; i < data[0].Users.length; i++){
+      let depart = await Depart.findOne({_id: data[0].Users[i].depart_id}, 'depart_name');
+      data[0].Users[i].depart_id = depart.depart_name;
+      let branch = await Branch.findOne({_id: data[0].Users[i].branch_id}, 'branch_name');
+      data[0].Users[i].branch_id = branch.branch_name;
+    }
     res.status(200).json({
       status: "success",
       data,
