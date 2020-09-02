@@ -26,7 +26,7 @@ exports.createGroup = async (req, res) => {
           newGroup,
           });
       } else {
-        res.status(406).json({
+        res.status(200).json({
           status: "fail",
           message: "Group already exists",
         });
@@ -83,7 +83,7 @@ exports.addUserToGroup = async (req, res) => {
     }
     console.log(user_id);
     if(user_id[0] == null && is_update == 0){
-      res.status(406).json({
+      res.status(200).json({
         status: "fail",
         message: "User already exists",
       });

@@ -16,10 +16,10 @@ exports.getPaper = async (req, res) => {
 //get the papers between the start year and month and end year and month,eg. [2020-7,2020-9]
 exports.getPapersByYearAndMonth = async (req, res) => {
   try {
-    const papers = await Paper.find({ start_time: {$gte: req.body.startTime, $lte: req.body.endTime}});
+    const papers = await Paper.find({ start_time: { $gte: req.body.startTime, $lte: req.body.endTime } });
     res.status(200).json({
       status: true,
-      papers:papers || []
+      papers: papers || []
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -34,14 +34,14 @@ exports.getLikePapers = async (req, res) => {
     });
     res.status(200).json({
       status: "success",
-      papers:papers || []
+      papers: papers || []
     });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
 };
 exports.getAllPapers = async (req, res) => {
-  try{
+  try {
     const paperes = await Paper.find().sort('-start_time');
 
     res.status(200).json({
@@ -56,35 +56,35 @@ exports.getAllPapers = async (req, res) => {
 
 exports.createPaper = async (req, res) => {
   try {
-    const paper = await Paper.findOne({paper_batch:req.body.paper_batch,paper_name:req.body.paper_name,paper_term:req.body.paper_term},'_id');
+    const paper = await Paper.findOne({ paper_batch: req.body.paper_batch, paper_name: req.body.paper_name, paper_term: req.body.paper_term }, '_id');
     console.log(paper)
-    if(paper===null){
+    if (paper === null) {
       const newPaper = await Paper.create(req.body);
       res.send(newPaper);
     }
-    else{
-      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
+    else {
+      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!" });
     }
   } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: "fail", message: err });
   }
 };
- 
+
 exports.addPaper = async (req, res) => {
   try {
-    const paper = await Paper.findOne({paper_batch:req.body.paper_batch,paper_name:req.body.paper_name,paper_term:req.body.paper_term},'_id');
+    const paper = await Paper.findOne({ paper_batch: req.body.paper_batch, paper_name: req.body.paper_name, paper_term: req.body.paper_term }, '_id');
     console.log(paper)
-    if(paper===null){
+    if (paper === null) {
       const newPaper = await Paper.create(req.body);
       res.send(
-      {status:true,message:'success'}
+        { status: true, message: 'success' }
       );
     }
-    else{
-      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!"});
+    else {
+      res.status(404).json({ status: "fail", message: "创建失败，试卷批次重复!" });
     }
   } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: "fail", message: err });
   }
 };
 
@@ -107,18 +107,18 @@ exports.modifyPaper = async (req, res) => {
 }
 
 exports.removePaper = async (req, res) => {
-  try{
+  try {
     var paper_id = req.query.paper_id
     var userpaper = await UserPaper.find({ paper_id: req.query.paper_id })
 
     if (userpaper.length == 0) {
-      await Paper.findByIdAndDelete({ _id:paper_id })
+      await Paper.findByIdAndDelete({ _id: paper_id })
       res.status(200).json({
-        status:true
+        status: true
       })
-    }else{
+    } else {
       res.status(200).json({
-        status:false
+        status: false
       })
     }
   } catch (err) {
@@ -131,9 +131,9 @@ exports.deletePaper = async (req, res) => {
     const readyToDeletePaper = await Paper.findOneAndDelete({ _id: req.params.paper_id });
 
     if (readyToDeletePaper != null) {
-      res.status(204).json({
-        status: "success",
-        data: null,
+      res.status(200).json({
+        status: true,
+        message: "删除成功",
       });
     } else {
       res.status(404).json({ status: "fail", message: "not found" });
@@ -156,7 +156,7 @@ exports.updatePaper = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
-}; 
+};
 /**
  * author: caohongyuan
  * date: 2020-8
@@ -172,20 +172,19 @@ exports.getBatch = async (req, res) => {
       paper_name: paper_name,
       paper_batch: paper_batch1,
       paper_term: paper_term,
-    },'_id paper_name paper_batch paper_term');   
+    }, '_id paper_name paper_batch paper_term');
     if (data1 != null) {
       // if this exam is not the first time of the month
-      if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) != 1) 
-      {       
+      if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) != 1) {
         var t = 1;
-        do{
-          var paper_bench2 = paper_batch1.replace("第" + paper_batch1[paper_batch1.indexOf("次") - 1] , "第" + (paper_batch1[paper_batch1.indexOf("次") - 1] - t));
+        do {
+          var paper_bench2 = paper_batch1.replace("第" + paper_batch1[paper_batch1.indexOf("次") - 1], "第" + (paper_batch1[paper_batch1.indexOf("次") - 1] - t));
           var data2 = await Paper.findOne({
             paper_name: paper_name,
             paper_batch: paper_bench2,
             paper_term: paper_term,
-          },'_id paper_name paper_batch paper_term');
-          if(data2 == null && Number(paper_batch1[paper_batch1.indexOf("次") - 1] - t) == 1){
+          }, '_id paper_name paper_batch paper_term');
+          if (data2 == null && Number(paper_batch1[paper_batch1.indexOf("次") - 1] - t) == 1) {
             res.status(404).json({
               data1,
               message: "此次考试为本月第一次考试，请更改批次名为x月第1次！"
@@ -193,96 +192,95 @@ exports.getBatch = async (req, res) => {
             return false;
           }
           t++;
-        } while(data2 == null);
+        } while (data2 == null);
         res.status(200).json({
           status: "success",
           data1,
           data2,
         });
       }// if this exam is the first time of the month 
-        else if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) == 1)
-        {
-          var month = 0;
-          const result = await Paper.find({
-            paper_term: data1.paper_term,
-            paper_name: paper_name,
-          },'_id paper_name paper_batch paper_term');
-          for (var i = 0; i < result.length; i++){
-            var time = (result[i].paper_batch).split("月")[0]; 
-            if (time >= month && time < Number(paper_batch1.split("月")[0])){
-              var month = time;
-            }
-          }
-          // if this exam is not the first time of the year
-          if (month != 0){
-            const reg = new RegExp(month + "月", 'g');
-            const result2 = await Paper.find({
-              'paper_batch' : { $regex: reg },
-              paper_name: paper_name,
-              paper_term: paper_term,
-            },'_id paper_name paper_batch paper_term');
-            var Max = 1;
-            for (var i = 0; i < result2.length; i++){
-              var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
-              if(time >= Max && month == Number(result2[i].paper_batch.split("月")[0])){
-                var Max = time;
-                var data2 = result2[i];
-              }
-            }
-            res.status(200).json({
-              status: "success",
-              data1,
-              data2,
-            });
-          // if this exam is the first time of the year
-          } else if(month == 0){
-            var t = 1;
-            var max = 1;
-            do{
-              var result1 = await Paper.find({
-                paper_term: (data1.paper_term) - t,
-                paper_name: paper_name,
-              },'_id paper_name paper_batch paper_term');
-              t++;
-              if(result1[0] == null && t == 30){
-                res.status(404).json({
-                  status: "success",
-                  data1,
-                  message: "此前无数据"
-                });
-              }
-            }while(result1[0] == null);
-            for (var i = 0; i < result1.length; i++){
-              var time = Number((result1[i].paper_batch).split("月")[0]); 
-              if (time > max){
-                var max = time;
-              }
-            }
-            const reg = new RegExp(max + "月", 'g');
-            const result2 = await Paper.find({
-              'paper_batch' : { $regex: reg },
-              paper_name: paper_name,
-              paper_term: (data1.paper_term) - t + 1,
-            },'_id paper_name paper_batch paper_term');
-            var Max = 1;
-            for (var i = 0; i < result2.length; i++){
-              var time = (result2[i].paper_batch).substring( (result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
-              if(time >= Max && max == Number(result2[i].paper_batch.split("月")[0])){
-                var Max = time;
-                var data2 = result2[i];
-              }
-            }
-            res.status(200).json({
-              status: "success",
-              data1,
-              data2,
-            });
+      else if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) == 1) {
+        var month = 0;
+        const result = await Paper.find({
+          paper_term: data1.paper_term,
+          paper_name: paper_name,
+        }, '_id paper_name paper_batch paper_term');
+        for (var i = 0; i < result.length; i++) {
+          var time = (result[i].paper_batch).split("月")[0];
+          if (time >= month && time < Number(paper_batch1.split("月")[0])) {
+            var month = time;
           }
         }
-      } else {
-        res.status(404).json({ status: "fail", message: "not found" });
-      };
-    } catch (err) {
-      res.status(404).json({ status: "fail", message: err });
-    }
-  };
+        // if this exam is not the first time of the year
+        if (month != 0) {
+          const reg = new RegExp(month + "月", 'g');
+          const result2 = await Paper.find({
+            'paper_batch': { $regex: reg },
+            paper_name: paper_name,
+            paper_term: paper_term,
+          }, '_id paper_name paper_batch paper_term');
+          var Max = 1;
+          for (var i = 0; i < result2.length; i++) {
+            var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
+            if (time >= Max && month == Number(result2[i].paper_batch.split("月")[0])) {
+              var Max = time;
+              var data2 = result2[i];
+            }
+          }
+          res.status(200).json({
+            status: "success",
+            data1,
+            data2,
+          });
+          // if this exam is the first time of the year
+        } else if (month == 0) {
+          var t = 1;
+          var max = 1;
+          do {
+            var result1 = await Paper.find({
+              paper_term: (data1.paper_term) - t,
+              paper_name: paper_name,
+            }, '_id paper_name paper_batch paper_term');
+            t++;
+            if (result1[0] == null && t == 30) {
+              res.status(404).json({
+                status: "success",
+                data1,
+                message: "此前无数据"
+              });
+            }
+          } while (result1[0] == null);
+          for (var i = 0; i < result1.length; i++) {
+            var time = Number((result1[i].paper_batch).split("月")[0]);
+            if (time > max) {
+              var max = time;
+            }
+          }
+          const reg = new RegExp(max + "月", 'g');
+          const result2 = await Paper.find({
+            'paper_batch': { $regex: reg },
+            paper_name: paper_name,
+            paper_term: (data1.paper_term) - t + 1,
+          }, '_id paper_name paper_batch paper_term');
+          var Max = 1;
+          for (var i = 0; i < result2.length; i++) {
+            var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
+            if (time >= Max && max == Number(result2[i].paper_batch.split("月")[0])) {
+              var Max = time;
+              var data2 = result2[i];
+            }
+          }
+          res.status(200).json({
+            status: "success",
+            data1,
+            data2,
+          });
+        }
+      }
+    } else {
+      res.status(404).json({ status: "fail", message: "not found" });
+    };
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};

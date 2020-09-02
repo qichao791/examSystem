@@ -3,9 +3,7 @@ const PublicQues = require("../model/questionbankModel");
 const SubQues = require("../model/subpublicbankModel");
 const ProfQues = require("../model/professionalbankModel");
 const Admin = require("../model/adminModel");
-var fs = require("fs");
-const e = require("express");
-const { get } = require("http");
+const fs = require("fs");
 
 exports.adminLogin = async (req, res) => {
   try {
@@ -113,12 +111,9 @@ exports.deleteQuestion = async (req, res) => {
  * 上传文件（用户头像/题目附件）
  */
 exports.upLoadFile = async (req, res) => {
-  //console.log("req:", req);
   try {
-    //console.log("req:", req)
     var type = req.body.type;
     if (type == "avatar") {
-      //上传用户头像
       var user_id = req.body.user_id;
       var avatarPath = `avatar/${req.body.user_id}.png`;
       try {
@@ -127,7 +122,6 @@ exports.upLoadFile = async (req, res) => {
           { $set: { avatar: avatarPath } }
         );
         if (!result) {
-          //console.log(err)
           res.status(500).json({
             status: false,
             msg: "failed update user avatar "
