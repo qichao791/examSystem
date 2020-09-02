@@ -16,12 +16,23 @@ exports.createGroup = async (req, res) => {
       let translate='';
       for(let i = 0; i < py.length; i++){
         translate = translate + py[i][0]
-      }     
+      }
       req.body._id = translate;
-      const newGroup = await Group.create(req.body);
-      res.send(newGroup);    
+      const is_newGroup = await Group.findOne({_id: req.body._id})
+      if(is_newGroup == null){
+        const newGroup = await Group.create(req.body);
+        res.status(200).json({
+          status: "success",
+          newGroup,
+          });
+      } else {
+        res.status(406).json({
+          status: "fail",
+          message: "Group already exists",
+        });
+      }
     } catch (err) {
-      console.log(err);
+      res.status(404).json({ status: "fail", message: err });
     }
   };
 
@@ -54,20 +65,25 @@ exports.addUserToGroup = async (req, res) => {
   try{
     const originalGroup = await Group.findOne({_id: req.body.group_id});
     const user_id = req.body.user_id;
+    let is_update = 0;
     for(let i = user_id.length - 1; i >= 0; i--){
+      let t = 0;
       for(let j = 0; j < originalGroup.users.length; j++){
-        if(originalGroup.users[j] === user_id[i]){
+        if(originalGroup.users[j] == user_id[i]){
           user_id.splice(i, 1);
+          t += 1;
         }
       }
-      if(user_id.length === i + 1){
+      console.log(t,user_id);
+      if(t === 0){
+        is_update = 1;
         originalGroup.users.push(user_id[i]);
         await originalGroup.save();
       }
     }
     console.log(user_id);
-    if(user_id[0] == null){
-      res.status(502).json({
+    if(user_id[0] == null && is_update == 0){
+      res.status(406).json({
         status: "fail",
         message: "User already exists",
       });
@@ -101,7 +117,7 @@ exports.delUserFromGroup = async (req, res) => {
       });
     }
     else{
-      res.status(502).json({ status: "fail", message: "can't remove the User" });
+      res.status(406).json({ status: "fail", message: "can't remove the User" });
     }
   }catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -112,7 +128,7 @@ exports.deleteGroup = async (req, res) => {
   try{
     const group = await Group.findOne({_id: req.params.group_id});
     if(group === null){
-      res.status(502).json({ status: "fail", message: "can't find the group." });
+      res.status(406).json({ status: "fail", message: "can't find the group." });
     } else {
       const newgroup = await Group.findOneAndDelete({_id: req.params.group_id});
       res.status(200).json({
@@ -155,9 +171,18 @@ exports.getUsersByGroup = async (req, res) => {
     ]);
     for(let i = 0; i < data[0].Users.length; i++){
       let depart = await Depart.findOne({_id: data[0].Users[i].depart_id}, 'depart_name');
+      if(depart == null){
+        res.status(406).json({ status: "fail", message: "can't find the depart." });
+        return;
+      }
       data[0].Users[i].depart_id = depart.depart_name;
       let branch = await Branch.findOne({_id: data[0].Users[i].branch_id}, 'branch_name');
-      data[0].Users[i].branch_id = branch.branch_name;
+      console.log(branch);
+      if(branch != null){
+        data[0].Users[i].branch_id = branch.branch_name;
+      } else {
+        data[0].Users[i].branch_id = null;
+      }
     }
     res.status(200).json({
       status: "success",
