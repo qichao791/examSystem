@@ -1036,7 +1036,7 @@ exports.updateOneByUidPid = async (req, res) => {
     data.begin_time = req.body.begin_time;
     data.submit_time = req.body.submit_time;
     data.save();
-    res.status(200).json({ status: "update success" });
+    res.status(200).json({ is_finished:data.is_finished,status: "update success" });
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
