@@ -120,9 +120,14 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
         let ques = new ProfQues();  
 
         let departId = await Depart.findOne({ depart_name:data[i].depart_name},'_id');
+<<<<<<< HEAD
         let branchId = await Branch.findOne({ branch_name:data[i].branch_name},'_id');
         ques.depart_id = departId._id;
         // console.log("branchId_list",branchId_list)
+=======
+        // let branchId_list = await Branch.find({ branch_name:data[i].branch_name},'_id');
+        // ques.depart_id = departId._id;
+>>>>>>> 76643237fb7a2df3bbd14332a3547def4ee29ffb
         // for(j=0;j<branchId_list.length;j++){ 
         //   const br = await Branch.aggregate(
         //     [
@@ -144,6 +149,7 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
         //       },
         //     },
         //   ]);
+<<<<<<< HEAD
         //   console.log("br",br)
         //   console.log("br[0].belongedToDepart[0]",br[0].belongedToDepart[0])
         //   if(br[0].belongedToDepart[0]._id==ques.depart_id){
@@ -155,6 +161,15 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
         // console.log("branchId_list[j]",branchId_list[j])
         ques.branch_id = branchId._id;
        
+=======
+        
+        //   if(br[0].belongedToDepart[0]._id==ques.depart_id){
+        //       break;
+        //   }
+        let branchId = await Branch.findOne({ branch_name:data[i].branch_name},'_id');
+        ques.depart_id = departId._id;
+        ques.branch_id = branchId._id;
+>>>>>>> 76643237fb7a2df3bbd14332a3547def4ee29ffb
         ques.statement = {
             stem: data[i].stem,
             options: data[i].options.split('$'),

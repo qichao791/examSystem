@@ -3,9 +3,7 @@ const PublicQues = require("../model/questionbankModel");
 const SubQues = require("../model/subpublicbankModel");
 const ProfQues = require("../model/professionalbankModel");
 const Admin = require("../model/adminModel");
-var fs = require("fs");
-const e = require("express");
-const { get } = require("http");
+const fs = require("fs");
 
 exports.adminLogin = async (req, res) => {
   try {
@@ -104,7 +102,7 @@ exports.deleteQuestion = async (req, res) => {
     //console.log(err)
     res.status(500).json({
       status: false,
-      msg:err
+      msg: err
     });
   }
 };
@@ -113,42 +111,34 @@ exports.deleteQuestion = async (req, res) => {
  * 上传文件（用户头像/题目附件）
  */
 exports.upLoadFile = async (req, res) => {
-  //console.log("req:", req);
   try {
-    //console.log("req:", req)
     var type = req.body.type;
     if (type == "avatar") {
-      //上传用户头像
       var user_id = req.body.user_id;
-      var avatarPath = "avatar/" + req.file.filename;
+      var avatarPath = `avatar/${req.body.user_id}.png`;
       try {
         var result = await User.findByIdAndUpdate(
           { _id: user_id },
           { $set: { avatar: avatarPath } }
         );
-        if ((result = null)) {
-          //console.log(err)
+        if (!result) {
           res.status(500).json({
             status: false,
             msg: "failed update user avatar "
           });
         } else {
-          //console.log("upLoad Avatar Success")
-          res.status(200).json({
-            status: true
-          });
+          res.status(200).json({ status: true });
         }
       } catch (err) {
-        res.status(500).json({
-          status: false
-        });
+        console.log(err);
+        res.status(500).json({ status: false });
       }
     } else {
       //type：attachment 上传的是题目附件
       var ques_bank = req.body.ques_bank;
       var ques_id = req.body.ques_id;
-      console.log("ques_bank",ques_bank)
-      console.log("ques_id",ques_id)
+      console.log("ques_bank", ques_bank)
+      console.log("ques_id", ques_id)
       var fileType;
       var attachmentPath;
       var success_count = 0;
@@ -297,7 +287,7 @@ async function getFileType(mimetype) {
  * @param {题目附件} attachment 
  */
 async function deleteAttachmentFile(attachment) {
-  try{
+  try {
     if (attachment.image.length != 0) {
       for (var i = 0; i < attachment.image.length; i++) {
         fs.unlinkSync(attachment.image[i]);
@@ -313,10 +303,10 @@ async function deleteAttachmentFile(attachment) {
         fs.unlinkSync(attachment.voice[i]);
       }
     }
-  }catch(err){
+  } catch (err) {
     console.log(err)
   }
- 
+
 }
 /**
  * 删除数组array中的element

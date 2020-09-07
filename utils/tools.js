@@ -1,46 +1,36 @@
-var multer = require("../node_modules/multer")
-var path = require("path")
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
-let tools = {
-    
-    multer() {
-        var storage = multer.diskStorage({
-            //配置上传的目录
-            destination: function (req, file, cb) {
-                // console.log("req:",req)
-                // console.log("file",file)
-                
-                var mimetype = file.mimetype
-                var path
-                if(req.body.type=="avatar"){
-                    path="/avatar/"
-                }else{
-                    if(req.body.type=="attachment"&&mimetype.startsWith("image")){//图像
-                        path="/attachment/image/"
-                    }else if(req.body.type=="attachment"&&mimetype.startsWith("video")){//视频
-                        path="/attachment/video/"
-                    }else if(req.body.type=="attachment"&&mimetype.startsWith("audio")){//音频
-                        path="/attachment/voice/"
-                    }
-                }
-                cb(null, process.cwd()+path)   //上传之前目录必须存在
-            },
-            //修改上传之后的文件名
-            filename: function (req, file, cb) {
-                //1.获取后缀名
-                let extname = path.extname(file.originalname);
-                //2.根据时间戳生成文件名
-                cb(null, Date.now() + extname)
-            }
-        })
-
-        var upload = multer({ storage: storage })
-
-        return upload;
-    },
-    md5(){
-
-    }
+module.exports = {
+  multer() {
+    let storage = multer.diskStorage({
+      destination: function (req, file, cb) {
+        let { type } = req.body;
+        let mimetype = file.mimetype
+        let file_path = "";
+        if (type === "avatar") {
+          file_path = "/avatar/";
+        } else {
+          if (mimetype.startsWith("image")) {
+            file_path = "/attachment/image/"
+          } else if (mimetype.startsWith("video")) {
+            file_path = "/attachment/video/"
+          } else if (mimetype.startsWith("audio")) {
+            file_path = "/attachment/voice/"
+          }
+        }
+        cb(null, process.cwd() + file_path)   //上传之前目录必须存在
+      },
+      filename: function (req, file, cb) {
+        let { type } = req.body;
+        let extname = path.extname(file.originalname);
+        let file_path = type === "avatar" ? file.originalname : Date.now() + extname;
+        cb(null, file_path);
+      }
+    })
+    let upload = multer({ storage: storage });
+    return upload;
+  },
+  md5() { }
 }
-
-module.exports = tools

@@ -9,7 +9,7 @@ const systemsettingSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please tell us the resolution."],
     },
-    threshole:{
+    threshold:{
         type: Number,
         default: 50,
         required: [true, "Please tell us the threshole."],

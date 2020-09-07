@@ -8,7 +8,6 @@ const Branch = require("./model/branchModel");
 const Userpaper = require("./model/userpaperModel");
 const { subscribe } = require("./routes/professionalbankRoutes");
 const DB = "mongodb://127.0.0.1:27017/exam_system_db";
-
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -18,9 +17,10 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
- /*
+/*
+
 mongoose
-    .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
+    .connect("mongodb://root@192.168.188.104:27017/exam_system_db", {
         user: "root",
         pass: "123456",
         authSource: "admin",
@@ -30,7 +30,7 @@ mongoose
         useFindAndModify: false,
     })
     .then(() => console.log("DB connection successful!"));
-/*
+
 async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
     try {
        
@@ -178,7 +178,7 @@ async function xxx(req, res) {
     console.log("结果数量：",branch_users_paperscore.length)
     console.log(branch_users_paperscore)
 
-}*/
+}
 
 async function belongedToWhichDepart(branch_id){
     try{
@@ -392,23 +392,13 @@ async function Prof() {
     } catch (err) {
       console.log(err)
     }
-  }
-  async function getKnowlege(){
-    try{
-        const data = await PublicQues.aggregate([
-          { $group: { _id: "$knowlege",  } }, 
-          
-          ]);
-          var knowlegeList=[];
-          for(let i=0;i<data.length;i++)
-            if(data[i]._id!="")
-              knowlegeList.push(data[i]._id)
-          
-       console.log(knowlegeList)
-     
-    
-    }catch(err){
-      console.log(err)
+  }*/
+  async function updateAnwser(){
+    try {
+      await ProfQues.updateMany({'statement.right_answer': '错误',},{$set: {'statement.right_answer': 'B'}})
+    } catch (err) {
+      console.log(mongoose.Error)
     }
   };
-  getKnowlege()
+ 
+  updateAnwser();

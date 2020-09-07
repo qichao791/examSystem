@@ -12,6 +12,8 @@ const userpaperRouter = require("./routes/userpaperRoutes");
 const adminRouter = require("./routes/adminRoutes");
 const scoreRouter = require("./routes/scoreRoutes");
 const systemsettingRouter = require("./routes/systemsettingRoutes");
+const groupRouter = require("./routes/groupRoutes");
+
 
 const app = express();
 app.use(bodyParser.json({ limit: "1024mb" }));
@@ -40,5 +42,6 @@ app.use("/api/v1/userpaper", userpaperRouter);
 app.use("/api/v1/paper", paperRouter);
 app.use("/api/v1/score", scoreRouter);
 app.use("/api/v1/systemsetting",systemsettingRouter);
+app.use("/api/v1/group",groupRouter);
 
 module.exports = app;
