@@ -120,56 +120,9 @@ exports.importQuessToProfessionalBank = async(req,res) =>{
         let ques = new ProfQues();  
 
         let departId = await Depart.findOne({ depart_name:data[i].depart_name},'_id');
-<<<<<<< HEAD
-        let branchId = await Branch.findOne({ branch_name:data[i].branch_name},'_id');
-        ques.depart_id = departId._id;
-        // console.log("branchId_list",branchId_list)
-=======
-        // let branchId_list = await Branch.find({ branch_name:data[i].branch_name},'_id');
-        // ques.depart_id = departId._id;
->>>>>>> 76643237fb7a2df3bbd14332a3547def4ee29ffb
-        // for(j=0;j<branchId_list.length;j++){ 
-        //   const br = await Branch.aggregate(
-        //     [
-        //     {
-        //       $lookup: {
-        //         from: "department", //the colletion named department in the database qc of mongodb
-        //         localField: "_id", //the field of the collection branch which also is the model Branch in mongoose
-        //         foreignField: "branches", //the field of the collection department
-        //         as: "belongedToDepart",
-        //       },
-        //     },
-        //     {
-        //       $match:{_id:branchId_list[j]._id}
-        //     },
-        //     {
-        //       $project: {
-        //         _id: 0,
-        //         "belongedToDepart._id": 1,
-        //       },
-        //     },
-        //   ]);
-<<<<<<< HEAD
-        //   console.log("br",br)
-        //   console.log("br[0].belongedToDepart[0]",br[0].belongedToDepart[0])
-        //   if(br[0].belongedToDepart[0]._id==ques.depart_id){
-        //       break;
-        //   }
-              
-        // }
-        // console.log("j",j)
-        // console.log("branchId_list[j]",branchId_list[j])
-        ques.branch_id = branchId._id;
-       
-=======
-        
-        //   if(br[0].belongedToDepart[0]._id==ques.depart_id){
-        //       break;
-        //   }
         let branchId = await Branch.findOne({ branch_name:data[i].branch_name},'_id');
         ques.depart_id = departId._id;
         ques.branch_id = branchId._id;
->>>>>>> 76643237fb7a2df3bbd14332a3547def4ee29ffb
         ques.statement = {
             stem: data[i].stem,
             options: data[i].options.split('$'),

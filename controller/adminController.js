@@ -8,17 +8,28 @@ const fs = require("fs");
 exports.adminLogin = async (req, res) => {
   try {
     //console.log("req.body:", req.body)
+    var admin_id = req.body._id;
     var password = req.body.password;
-    var admin = await Admin.find({ password: password });
+
+    var admin = await Admin.findById(admin_id);
     //console.log("admin:", admin)
-    if (admin.length != 0) {
+    if (admin == null) {
       res.status(200).json({
-        status: true
+        status: false,
+        message: "用户不存在"
       });
     } else {
-      res.status(200).json({
-        status: false
-      });
+      if (admin.password != password) {
+        res.status(200).json({
+          status: false,
+          message: "密码错误"
+        });
+      }else{
+        res.status(200).json({
+          status: true,
+          message:"登录成功"
+      })
+      }
     }
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
@@ -137,8 +148,8 @@ exports.upLoadFile = async (req, res) => {
       //type：attachment 上传的是题目附件
       var ques_bank = req.body.ques_bank;
       var ques_id = req.body.ques_id;
-      console.log("ques_bank", ques_bank)
-      console.log("ques_id", ques_id)
+      console.log("ques_bank", ques_bank);
+      console.log("ques_id", ques_id);
       var fileType;
       var attachmentPath;
       var success_count = 0;
@@ -304,9 +315,8 @@ async function deleteAttachmentFile(attachment) {
       }
     }
   } catch (err) {
-    console.log(err)
+    console.log(err);
   }
-
 }
 /**
  * 删除数组array中的element
