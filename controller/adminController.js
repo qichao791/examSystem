@@ -32,7 +32,7 @@ exports.adminLogin = async (req, res) => {
       }
     }
   } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
+    res.status(404).json({ status: true, message: err });
   }
 };
 
@@ -58,7 +58,7 @@ exports.addQuestion = async (req, res) => {
     }
     //console.log("result:", result)
   } catch (err) {
-    res.status(500).json({ status: "fail", message: err });
+    res.status(500).json({ status: false, message: err });
   }
 };
 
