@@ -905,6 +905,19 @@ async function getQuesByQid(qs, whichquestionBank) {
  */
 exports.deleteOneByUidPid = async (req, res) => {
   try {
+    let user_idList=[]; 
+    user_idList = req.query.user_list;
+    for(let i=0;i<user_idList.length;i++){
+      await Userpaper.findOneAndDelete({
+        user_id: user_idList[i],
+        paper_id: req.query.paper_id,
+      });
+    }
+      res.status(204).json({status: "success"});
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+    /*  9-12 qichao delete
     const data = await Userpaper.findOneAndDelete({
       user_id: req.query.user_id,
       paper_id: req.query.paper_id,
@@ -921,6 +934,7 @@ exports.deleteOneByUidPid = async (req, res) => {
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
   }
+  //9-12 qichao delete */
 };
 exports.deleteByPid = async (req, res) => {
   try {
