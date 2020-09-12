@@ -636,6 +636,54 @@ exports.getPaperByPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+exports.getExamPaperInfoByPid = async (req, res) => {
+  try {
+    let data = await Userpaper.aggregate([
+      {
+        $match: {
+          paper_id: req.body.paper_id
+        }
+      },
+      {
+        $addFields: {
+          score: {
+            $add: ["$public_score", "$subpublic_score", "$professional_score"],
+          },
+        }, // 添加一个score字段，值为原有三个字段相加之和，即总分之意
+      },
+      {
+        $group:{
+          _id:null,
+          highest_score:{$max:'$score'},
+          lowest_score:{$min:'$score'},
+          average_score:{$avg:'$score'},
+          count:{$sum:1},
+   
+        }
+      },
+    ]);
+    let presentNumber = await Userpaper.aggregate([
+      { $match: {paper_id: req.body.paper_id} },
+      { $match: { is_finished: true } },
+      { $count:'number'}
+    ]);
+    let absentNumber = await Userpaper.aggregate([
+      { $match: {paper_id: req.body.paper_id} },
+      { $match: { is_finished: false } },
+      { $count:'number'}
+    ]);
+ 
+    data.push(presentNumber);
+    data.push(absentNumber);
+    console.log(data)
+    res.status(200).json({
+      status: "success",
+      data,
+    });
+  } catch (err) {console.log(err)
+    res.status(404).json({ status: "fail", message: err });
+  }
+};
 //based on paper_id, this function will return some infomation from userpaper and user collection
 exports.getUPinfoByPid = async (req, res) => {
   try {
