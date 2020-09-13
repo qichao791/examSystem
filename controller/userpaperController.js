@@ -668,8 +668,8 @@ exports.getExamPaperInfoByPid = async (req, res) => {
       { $match: { paper_id: req.body.paper_id } },
       { $match: { is_finished: true } },
       { $count: 'number' }
-    ])[0];
-    presentNumber = presentNumber ? presentNumber.number : 0;
+    ]);
+    presentNumber = presentNumber[0] ? presentNumber[0].number : 0;
     let info = result.map((item) => {
       return {
         highest_score: item.highest_score,
