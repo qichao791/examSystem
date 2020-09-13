@@ -638,7 +638,7 @@ exports.getPaperByPid = async (req, res) => {
 };
 exports.getExamPaperInfoByPid = async (req, res) => {
   try {
-    let data = await Userpaper.aggregate([
+    let result = await Userpaper.aggregate([
       {
         $match: {
           paper_id: req.body.paper_id
@@ -672,10 +672,18 @@ exports.getExamPaperInfoByPid = async (req, res) => {
       { $match: { is_finished: false } },
       { $count:'number'}
     ]);
- 
-    data.push(presentNumber);
-    data.push(absentNumber);
-    console.log(data)
+
+    let info=result.map((item) => {
+      return {
+        highest_score: item.highest_score,
+        lowest_score: item.lowest_score,
+        average_score: item.average_score,
+        totalnum: item.count,
+        presentNumber:presentNumber[0].number,
+        absentNumber:absentNumber[0].number
+      };
+    });
+    let data=info[0]
     res.status(200).json({
       status: "success",
       data,
