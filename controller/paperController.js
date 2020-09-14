@@ -161,8 +161,8 @@ exports.updatePaper = async (req, res) => {
  * author: caohongyuan
  * date: 2020-8
  */
-//based on the selected paper, the function of this method is to get the paper with the same 'paper_name' and the 'paper_batch' is the last one 
-//of the selected paper's.
+//based on the current selected paper, the function of this method is to get the paper with the same 'paper_name' and the 'paper_batch' 
+//which is the last one of the selected paper's.
 exports.getBatch = async (req, res) => {
   try {
     var paper_name = req.body.paper_name;
@@ -172,19 +172,20 @@ exports.getBatch = async (req, res) => {
       paper_name: paper_name,
       paper_batch: paper_batch1,
       paper_term: paper_term,
-    }, '_id paper_name paper_batch paper_term');
+    },'_id paper_name paper_batch paper_term');   
     if (data1 != null) {
       // if this exam is not the first time of the month
-      if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) != 1) {
+      if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) != 1) 
+      {       
         var t = 1;
-        do {
-          var paper_bench2 = paper_batch1.replace("第" + paper_batch1[paper_batch1.indexOf("次") - 1], "第" + (paper_batch1[paper_batch1.indexOf("次") - 1] - t));
+        do{
+          var paper_bench2 = paper_batch1.replace("第" + paper_batch1[paper_batch1.indexOf("次") - 1] , "第" + (paper_batch1[paper_batch1.indexOf("次") - 1] - t));
           var data2 = await Paper.findOne({
             paper_name: paper_name,
             paper_batch: paper_bench2,
             paper_term: paper_term,
-          }, '_id paper_name paper_batch paper_term');
-          if (data2 == null && Number(paper_batch1[paper_batch1.indexOf("次") - 1] - t) == 1) {
+          },'_id paper_name paper_batch paper_term');
+          if(data2 == null && Number(paper_batch1[paper_batch1.indexOf("次") - 1] - t) == 1){
             res.status(404).json({
               data1,
               message: "此次考试为本月第一次考试，请更改批次名为x月第1次！"
@@ -192,95 +193,96 @@ exports.getBatch = async (req, res) => {
             return false;
           }
           t++;
-        } while (data2 == null);
+        } while(data2 == null);
         res.status(200).json({
           status: "success",
           data1,
           data2,
         });
       }// if this exam is the first time of the month 
-      else if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) == 1) {
-        var month = 0;
-        const result = await Paper.find({
-          paper_term: data1.paper_term,
-          paper_name: paper_name,
-        }, '_id paper_name paper_batch paper_term');
-        for (var i = 0; i < result.length; i++) {
-          var time = (result[i].paper_batch).split("月")[0];
-          if (time >= month && time < Number(paper_batch1.split("月")[0])) {
-            var month = time;
-          }
-        }
-        // if this exam is not the first time of the year
-        if (month != 0) {
-          const reg = new RegExp(month + "月", 'g');
-          const result2 = await Paper.find({
-            'paper_batch': { $regex: reg },
+        else if (paper_batch1.substring(paper_batch1.indexOf("第") + 1, paper_batch1.indexOf("次")) == 1)
+        {
+          var month = 0;
+          const result = await Paper.find({
+            paper_term: data1.paper_term,
             paper_name: paper_name,
-            paper_term: paper_term,
-          }, '_id paper_name paper_batch paper_term');
-          var Max = 1;
-          for (var i = 0; i < result2.length; i++) {
-            var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
-            if (time >= Max && month == Number(result2[i].paper_batch.split("月")[0])) {
-              var Max = time;
-              var data2 = result2[i];
+          },'_id paper_name paper_batch paper_term');
+          for (var i = 0; i < result.length; i++){
+            var time = (result[i].paper_batch).split("月")[0]; 
+            if (time >= month && time < Number(paper_batch1.split("月")[0])){
+              var month = time;
             }
           }
-          res.status(200).json({
-            status: "success",
-            data1,
-            data2,
-          });
-          // if this exam is the first time of the year
-        } else if (month == 0) {
-          var t = 1;
-          var max = 1;
-          do {
-            var result1 = await Paper.find({
-              paper_term: (data1.paper_term) - t,
+          // if this exam is not the first time of the year
+          if (month != 0){
+            const reg = new RegExp(month + "月", 'g');
+            const result2 = await Paper.find({
+              'paper_batch' : { $regex: reg },
               paper_name: paper_name,
-            }, '_id paper_name paper_batch paper_term');
-            t++;
-            if (result1[0] == null && t == 30) {
-              res.status(404).json({
-                status: "success",
-                data1,
-                message: "此前无数据"
-              });
+              paper_term: paper_term,
+            },'_id paper_name paper_batch paper_term');
+            var Max = 1;
+            for (var i = 0; i < result2.length; i++){
+              var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
+              if(time >= Max && month == Number(result2[i].paper_batch.split("月")[0])){
+                var Max = time;
+                var data2 = result2[i];
+              }
             }
-          } while (result1[0] == null);
-          for (var i = 0; i < result1.length; i++) {
-            var time = Number((result1[i].paper_batch).split("月")[0]);
-            if (time > max) {
-              var max = time;
+            res.status(200).json({
+              status: "success",
+              data1,
+              data2,
+            });
+          // if this exam is the first time of the year
+          } else if(month == 0){
+            var t = 1;
+            var max = 1;
+            do{
+              var result1 = await Paper.find({
+                paper_term: (data1.paper_term) - t,
+                paper_name: paper_name,
+              },'_id paper_name paper_batch paper_term');
+              t++;
+              if(result1[0] == null && t == 30){
+                res.status(500).json({
+                  status: "success",
+                  data1,
+                  message: "此前无数据"
+                });
+              }
+            }while(result1[0] == null);
+            for (var i = 0; i < result1.length; i++){
+              var time = Number((result1[i].paper_batch).split("月")[0]); 
+              if (time > max){
+                var max = time;
+              }
             }
+            const reg = new RegExp(max + "月", 'g');
+            const result2 = await Paper.find({
+              'paper_batch' : { $regex: reg },
+              paper_name: paper_name,
+              paper_term: (data1.paper_term) - t + 1,
+            },'_id paper_name paper_batch paper_term');
+            var Max = 1;
+            for (var i = 0; i < result2.length; i++){
+              var time = (result2[i].paper_batch).substring( (result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
+              if(time >= Max && max == Number(result2[i].paper_batch.split("月")[0])){
+                var Max = time;
+                var data2 = result2[i];
+              }
+            }
+            res.status(200).json({
+              status: "success",
+              data1,
+              data2,
+            });
           }
-          const reg = new RegExp(max + "月", 'g');
-          const result2 = await Paper.find({
-            'paper_batch': { $regex: reg },
-            paper_name: paper_name,
-            paper_term: (data1.paper_term) - t + 1,
-          }, '_id paper_name paper_batch paper_term');
-          var Max = 1;
-          for (var i = 0; i < result2.length; i++) {
-            var time = (result2[i].paper_batch).substring((result2[i].paper_batch).indexOf("第") + 1, (result2[i].paper_batch).indexOf("次"));
-            if (time >= Max && max == Number(result2[i].paper_batch.split("月")[0])) {
-              var Max = time;
-              var data2 = result2[i];
-            }
-          }
-          res.status(200).json({
-            status: "success",
-            data1,
-            data2,
-          });
         }
-      }
-    } else {
-      res.status(404).json({ status: "fail", message: "not found" });
-    };
-  } catch (err) {
-    res.status(404).json({ status: "fail", message: err });
-  }
-};
+      } else {
+        res.status(404).json({ status: "fail", message: "not found" });
+      };
+    } catch (err) {
+      res.status(404).json({ status: "fail", message: err });
+    }
+  };

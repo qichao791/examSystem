@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+/*const mongoose = require("mongoose");
 const User = require("./model/userModel");
 const PublicQues = require("./model/questionbankModel");
 const SubQues= require("./model/subpublicbankModel");
@@ -17,7 +17,7 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
-/*
+
 
 mongoose
     .connect("mongodb://root@192.168.188.104:27017/exam_system_db", {
@@ -393,12 +393,10 @@ async function Prof() {
       console.log(err)
     }
   }*/
-  async function updateAnwser(){
-    try {
-      await ProfQues.updateMany({'statement.right_answer': '错误',},{$set: {'statement.right_answer': 'B'}})
-    } catch (err) {
-      console.log(mongoose.Error)
-    }
-  };
+function abc({s,v}){
+    return "${s} ${v}";
+};
  
-  updateAnwser();
+const o={ s:"I",v:"am"}
+let result = abc(o);
+console.log(result)

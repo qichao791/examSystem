@@ -636,6 +636,9 @@ exports.getPaperByPid = async (req, res) => {
     res.status(404).json({ status: "fail", message: err });
   }
 };
+/*
+**this function generates the information needed by the exam report
+*/
 exports.getExamPaperInfoByPid = async (req, res) => {
   try {
     let result = await Userpaper.aggregate([
@@ -657,16 +660,18 @@ exports.getExamPaperInfoByPid = async (req, res) => {
           highest_score:{$max:'$score'},
           lowest_score:{$min:'$score'},
           average_score:{$avg:'$score'},
-          count:{$sum:1},
+          count:{$sum:1},//the amount of the users who should take part in the exam
    
         }
       },
     ]);
+    //the presentNumber means the amount of the users who took part in the exam
     let presentNumber = await Userpaper.aggregate([
       { $match: {paper_id: req.body.paper_id} },
       { $match: { is_finished: true } },
       { $count:'number'}
     ]);
+    //the absentNumber means the amount of the users who didn't take part in the exam
     let absentNumber = await Userpaper.aggregate([
       { $match: {paper_id: req.body.paper_id} },
       { $match: { is_finished: false } },
@@ -1185,7 +1190,7 @@ exports.getUserInfoByPid = async (req, res) => {
            $match: {
               paper_id: pid
             }
-        },
+          },
           {
              $project: {
                 _id:0,
@@ -1202,7 +1207,7 @@ exports.getUserInfoByPid = async (req, res) => {
             }
           }
         ]);
-        console.log("userinfo:", data)
+        //console.log("userinfo:", data)
         res.status(200).json({
             status: "ture",
             data
@@ -1251,7 +1256,7 @@ exports.getUPEssentialsByPid = async (req, res) => {
         }
       }
     ]);
-    console.log("userpaper essentials:", data)
+    //console.log("userpaper essentials:", data)
     res.status(200).json({
         status: "ture",
         data
