@@ -657,15 +657,6 @@ exports.getExamPaperInfoByPid = async (req, res) => {
         }, // 添加一个score字段，值为原有三个字段相加之和，即总分之意
       },
       {
-<<<<<<< HEAD
-        $group:{
-          _id:null,
-          highest_score:{$max:'$score'},
-          lowest_score:{$min:'$score'},
-          average_score:{$avg:'$score'},
-          count:{$sum:1},//the amount of the users who should take part in the exam
-   
-=======
         $group: {
           _id: null,
           highest_score: { $max: '$score' },
@@ -673,7 +664,6 @@ exports.getExamPaperInfoByPid = async (req, res) => {
           average_score: { $avg: '$score' },
           count: { $sum: 1 },
 
->>>>>>> b6fa52b2fd6ff2c7da917f16f9904031845873bd
         }
       },
     ]);
@@ -681,17 +671,7 @@ exports.getExamPaperInfoByPid = async (req, res) => {
     let presentNumber = await Userpaper.aggregate([
       { $match: { paper_id: req.body.paper_id } },
       { $match: { is_finished: true } },
-<<<<<<< HEAD
-      { $count:'number'}
-    ]);
-    //the absentNumber means the amount of the users who didn't take part in the exam
-    let absentNumber = await Userpaper.aggregate([
-      { $match: {paper_id: req.body.paper_id} },
-      { $match: { is_finished: false } },
-      { $count:'number'}
-=======
       { $count: 'number' }
->>>>>>> b6fa52b2fd6ff2c7da917f16f9904031845873bd
     ]);
     presentNumber = presentNumber[0] ? presentNumber[0].number : 0;
     let info = result.map((item) => {
@@ -1194,43 +1174,6 @@ exports.getUserInfoByPid = async (req, res) => {
         message: "查无此卷",
       })
     } else {
-<<<<<<< HEAD
-        const data = await Userpaper.aggregate([
-          {
-            $lookup: {
-              from: 'user',
-              localField: 'user_id',
-              foreignField: '_id',
-              as: 'Users',
-            }
-          },
-          {
-           $match: {
-              paper_id: pid
-            }
-          },
-          {
-             $project: {
-                _id:0,
-                paper_id: 1,
-                is_finished: 1,
-                public_score: 1,
-                subpublic_score: 1,
-                professional_score: 1,
-                begin_time: 1,
-                submit_time: 1,
-                'Users.user_name': 1,
-                'Users.depart_id': 1,
-                'Users.branch_id': 1,
-            }
-          }
-        ]);
-        //console.log("userinfo:", data)
-        res.status(200).json({
-            status: "ture",
-            data
-          })
-=======
       const data = await Userpaper.aggregate([
         {
           $lookup: {
@@ -1259,7 +1202,6 @@ exports.getUserInfoByPid = async (req, res) => {
             'Users.depart_id': 1,
             'Users.branch_id': 1,
           }
->>>>>>> b6fa52b2fd6ff2c7da917f16f9904031845873bd
         }
       ]);
       console.log("userinfo:", data)
