@@ -524,7 +524,7 @@ exports.getPaperByUid = async (req, res) => {
     console.log(req.query.user_id);
     console.log("req~~~~~",req.query.is_resit)
     var result;
-    if(req.query.is_resit==undefined){
+    if(req.query.is_resit==undefined&&req.query.is_finished === "true"){
       result = await Userpaper.aggregate([
         {
           $lookup: {
