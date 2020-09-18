@@ -522,65 +522,111 @@ exports.getOneQuesRandomly = async (req, res) => {
 exports.getPaperByUid = async (req, res) => {
   try {
     console.log(req.query.user_id);
-    let result = await Userpaper.aggregate([
-      {
-        $lookup: {
-          from: "paper",
-          localField: "paper_id",
-          foreignField: "_id",
-          as: "data",
+    console.log("req~~~~~",req.query.is_resit)
+    var result;
+    if(req.query.is_resit==undefined){
+      result = await Userpaper.aggregate([
+        {
+          $lookup: {
+            from: "paper",
+            localField: "paper_id",
+            foreignField: "_id",
+            as: "data",
+          },
         },
-      },
-      //{ $match: { user_id: req.query.user_id } },
-      //{ $match: { is_finished: req.query.is_finished === "true" } },
-      //{ $match: { "data.is_resit": req.query.is_resit === "true" } },
-      {
-        $match: {
-          $and: [
-            { user_id: req.query.user_id },
-            { is_finished: req.query.is_finished === "true" },
-            { "data.is_resit": req.query.is_resit === "true" }
-          ]
-        }
-      },
+        {
+          $match: {
+            $and: [
+              { user_id: req.query.user_id },
+              { is_finished: req.query.is_finished === "true" },
+            ]
+          }
+        },
+        {
+          $addFields: {
+            score: {
+              $add: ["$public_score", "$subpublic_score", "$professional_score"],
+            },
+          }, // 再添加一个score字段，值为原有三个字段相加之和
+        },
+        {
+          $project: {
+            _id: 0,
+            paper_id: 1,
+            score: 1,
+            begin_time: 1,
+            submit_time: 1,
+            "data.paper_name": 1,
+            "data.paper_batch": 1,
+            "data.paper_term": 1,
+            "data.duration": 1,
+            "data.start_time": 1,
+            "data.end_time": 1,
+          },
+        },
+      ]);
+    }else{
+      result = await Userpaper.aggregate([
+        {
+          $lookup: {
+            from: "paper",
+            localField: "paper_id",
+            foreignField: "_id",
+            as: "data",
+          },
+        },
+        //{ $match: { user_id: req.query.user_id } },
+        //{ $match: { is_finished: req.query.is_finished === "true" } },
+        //{ $match: { "data.is_resit": req.query.is_resit === "true" } },
+        {
+          $match: {
+            $and: [
+              { user_id: req.query.user_id },
+              { is_finished: req.query.is_finished === "true" },
+              { "data.is_resit": req.query.is_resit === "true" }
+            ]
+          }
+        },
+        {
+          $addFields: {
+            score: {
+              $add: ["$public_score", "$subpublic_score", "$professional_score"],
+            },
+          }, // 再添加一个score字段，值为原有三个字段相加之和
+        },
+        /*
+           //{
+           //    _id: 2,
+           //    student: "Ryan",
+           //    quiz: [ 8, 8 ],
+           //}
       {
         $addFields: {
-          score: {
-            $add: ["$public_score", "$subpublic_score", "$professional_score"],
+          totalQuiz: { $sum: "$quiz" } // 添加totalQuiz字段，值为quize数组字段的和
+        }
+      },
+     */
+        {
+          $project: {
+            _id: 0,
+            paper_id: 1,
+            //public_score:1,
+            //subpublic_score:1,
+            //professional_score:1,
+            score: 1,
+            begin_time: 1,
+            submit_time: 1,
+            "data.paper_name": 1,
+            "data.paper_batch": 1,
+            "data.paper_term": 1,
+            "data.duration": 1,
+            "data.start_time": 1,
+            "data.end_time": 1,
           },
-        }, // 再添加一个score字段，值为原有三个字段相加之和
-      },
-      /*
-         //{
-         //    _id: 2,
-         //    student: "Ryan",
-         //    quiz: [ 8, 8 ],
-         //}
-    {
-      $addFields: {
-        totalQuiz: { $sum: "$quiz" } // 添加totalQuiz字段，值为quize数组字段的和
-      }
-    },
-   */
-      {
-        $project: {
-          _id: 0,
-          paper_id: 1,
-          //public_score:1,
-          //subpublic_score:1,
-          //professional_score:1,
-          score: 1,
-          begin_time: 1,
-          submit_time: 1,
-          "data.paper_name": 1,
-          "data.paper_batch": 1,
-          "data.paper_term": 1,
-          "data.duration": 1,
-          "data.start_time": 1,
-          "data.end_time": 1,
         },
-      },
-    ]);
+      ]);
+    }
+     
     /* the function of the loop for is same as the array.map
     let papers = [];
     for (let i = 0; i < result.length; i++) {
