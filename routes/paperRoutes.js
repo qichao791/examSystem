@@ -26,6 +26,9 @@ router
   .route("/batch")
   .post(paperController.getBatch);
 router
+  .route("/grades")
+  .post(paperController.getLastExamReport);
+router
   .route("/:paper_id")
   .get(paperController.getPaper)
   .patch(paperController.updatePaper)
