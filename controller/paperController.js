@@ -496,7 +496,7 @@ exports.getLastExamReport = async (req, res) => {
               },'_id paper_name paper_batch paper_term');
               t++;
               if(result1[0] == null && t == 30){
-                res.status(500).json({
+                res.status(200).json({
                   status: "success",
                   message: "此前无数据"
                 });
