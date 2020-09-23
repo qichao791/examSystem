@@ -169,9 +169,9 @@ exports.deletePaper = async (req, res) => {
       const readyToDeletePaper = await Paper.findOneAndDelete({
         _id: req.params.paper_id,
       });
+      const data = await Userpaper.deleteMany({ paper_id: req.params.paper_id });
 
-      if (readyToDeletePaper != null) {
-        const data = await Userpaper.deleteMany({ paper_id: req.params.paper_id });
+      if (readyToDeletePaper != null && data != null) {
         res.status(200).json({
           status: true,
           message: "删除成功",
