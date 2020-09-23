@@ -164,17 +164,23 @@ exports.removePaper = async (req, res) => {
 
 exports.deletePaper = async (req, res) => {
   try {
-    const readyToDeletePaper = await Paper.findOneAndDelete({
-      _id: req.params.paper_id
-    });
-
-    if (readyToDeletePaper != null) {
-      res.status(200).json({
-        status: true,
-        message: "删除成功"
+    if (Date.now() - paperInfo.start_time < 0) {
+      const readyToDeletePaper = await Paper.findOneAndDelete({
+        _id: req.params.paper_id,
       });
+
+      if (readyToDeletePaper != null) {
+        res.status(200).json({
+          status: true,
+          message: "删除成功",
+        });
+      } else {
+        res.status(404).json({ status: "fail", message: "not found" });
+      }
     } else {
-      res.status(404).json({ status: "fail", message: "not found" });
+      res.status(204).json({
+        status: "out of date",
+      });
     }
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });

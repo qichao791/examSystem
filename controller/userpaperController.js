@@ -20,6 +20,16 @@ exports.generateUPforUsers = async (req, res) => {
     res.status(404).json({ status: "failed", message: err });
   }
 };
+exports.updateGradeForQuesBank = async (req, res) => {
+  try {
+    await updateGradeForBank(PublicQues);
+    await updateGradeForBank(SubPublicQues);
+    await updateGradeForBank(ProfessionalQues);
+    res.status(200).json({ status: "success" });
+  } catch (err) {
+    res.status(404).json({ status: "failed", message: err });
+  }
+};
 async function createUPforUsers(req, res) {
   try {
     //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
