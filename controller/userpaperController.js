@@ -32,11 +32,6 @@ exports.updateGradeForThreeQuesBanks = async (req, res) => {
 };
 async function createUPforUsers(req, res) {
   try {
-    //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
-    //await updateGradeForBank(PublicQues);
-    //await updateGradeForBank(SubPublicQues);
-    //await updateGradeForBank(ProfessionalQues);
-    //////////////////////////////////////////////////////////////////////
     let users = req.body.userid_list;
     // if there is no doc based the user_id and paper_id in the userpaper collection,
     // the new doc based on the current user_id and paper_id canbe created.
@@ -56,6 +51,7 @@ async function createUPforUsers(req, res) {
       req.body.branch_id = depart_branch.branch_id;
       await generateUPforOneUser(req, res);
     }
+   
     return true;
   } catch (err) {
     return false;
@@ -132,6 +128,11 @@ exports.reAssignPaperToNewUsers = async (req, res) => {
       res.status(200).json({
         status: "success"
       });
+       //At last,update all the questions' grade of 3 question banks based on wrong times and right times of each question
+      await updateGradeForBank(PublicQues);
+      await updateGradeForBank(SubPublicQues);
+      await updateGradeForBank(ProfessionalQues);
+      //////////////////////////////////////////////////////////////////////
     } else {
       res.status(204).json({
         status: "out of date"

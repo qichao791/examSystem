@@ -166,7 +166,7 @@ exports.deletePaper = async (req, res) => {
   try {
     let paperInfo = await Paper.findOne({ _id: req.params.paper_id });
     if (Date.now() - paperInfo.start_time < 0) {//if the start time of the paper with the paper_id is behind current time
-       const readyToDeleteUserpapers = await Userpaper.deleteMany({ paper_id: req.params.paper_id });
+       const readyToDeleteUserpapers = await UserPaper.deleteMany({ paper_id: req.params.paper_id });
        const readyToDeletePaper = await Paper.findOneAndDelete({_id: req.params.paper_id,});
        /*
        if (readyToDeletePaper != null && readyToDeleteUserpapers != null) 
