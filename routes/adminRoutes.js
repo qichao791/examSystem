@@ -17,6 +17,7 @@ router.all("*", (req, res, next) => {
 });
 
 router.route("/login").post(adminController.adminLogin);
+router.route("/modifyPassword").post(adminController.adminModifyPassword);
 router
   .route("/user")
   .post(userController.addUser)

@@ -36,6 +36,35 @@ exports.adminLogin = async (req, res) => {
   }
 };
 
+exports.adminModifyPassword = async (req, res) => {
+  try {
+    //console.log("req.body:", req.body)
+    var admin_id = req.body._id;
+    var oldPassword = req.body.oldPassword;
+    var newPassword = req.body.newPassword;
+
+    var admin = await Admin.findById(admin_id);
+    //console.log("admin:", admin)
+    if (admin.password == oldPassword) {
+      var result = await Admin.updateOne(
+        { _id: req.body._id },
+        { password: newPassword }
+      );
+      res.status(200).json({
+        status: true,
+        message: "密码修改成功",
+      });
+    } else {
+      res.status(200).json({
+        status: false,
+        message: "密码验证失败",
+      });
+    }
+  } catch (err) {
+    res.status(404).json({ status: false, message: err });
+  }
+};
+
 /**
  * 单个添加题目
  * 根据参数bank_type，向对应题库添加
