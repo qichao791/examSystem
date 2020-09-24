@@ -20,7 +20,7 @@ exports.generateUPforUsers = async (req, res) => {
     res.status(404).json({ status: "failed", message: err });
   }
 };
-exports.updateGradeForQuesBank = async (req, res) => {
+exports.updateGradeForThreeQuesBanks = async (req, res) => {
   try {
     await updateGradeForBank(PublicQues);
     await updateGradeForBank(SubPublicQues);
@@ -33,9 +33,9 @@ exports.updateGradeForQuesBank = async (req, res) => {
 async function createUPforUsers(req, res) {
   try {
     //At first,update all the questions' grade of 3 question banks based on wrong times and right times of each question
-    await updateGradeForBank(PublicQues);
-    await updateGradeForBank(SubPublicQues);
-    await updateGradeForBank(ProfessionalQues);
+    //await updateGradeForBank(PublicQues);
+    //await updateGradeForBank(SubPublicQues);
+    //await updateGradeForBank(ProfessionalQues);
     //////////////////////////////////////////////////////////////////////
     let users = req.body.userid_list;
     // if there is no doc based the user_id and paper_id in the userpaper collection,

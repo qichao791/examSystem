@@ -165,24 +165,18 @@ exports.removePaper = async (req, res) => {
 exports.deletePaper = async (req, res) => {
   try {
     let paperInfo = await Paper.findOne({ _id: req.params.paper_id });
-    if (Date.now() - paperInfo.start_time < 0) {
-      const readyToDeletePaper = await Paper.findOneAndDelete({
-        _id: req.params.paper_id,
-      });
-      const data = await Userpaper.deleteMany({ paper_id: req.params.paper_id });
-
-      if (readyToDeletePaper != null && data != null) {
-        res.status(200).json({
-          status: true,
-          message: "删除成功",
-        });
-      } else {
-        res.status(404).json({ status: "fail", message: "not found" });
-      }
+    if (Date.now() - paperInfo.start_time < 0) {//if the start time of the paper with the paper_id is behind current time
+       const readyToDeleteUserpapers = await Userpaper.deleteMany({ paper_id: req.params.paper_id });
+       const readyToDeletePaper = await Paper.findOneAndDelete({_id: req.params.paper_id,});
+       /*
+       if (readyToDeletePaper != null && readyToDeleteUserpapers != null) 
+         res.status(200).json({status: true,message: "删除成功",});
+       else
+         res.status(404).json({ status: "fail", message: "not found" });
+       */
+       res.status(200).json({status:true, message: "success",});
     } else {
-      res.status(204).json({
-        status: "out of date",
-      });
+       res.status(204).json({status:true, message:"cann't delete this paper!",});
     }
   } catch (err) {
     res.status(404).json({ status: "fail", message: err });
