@@ -39,7 +39,7 @@ exports.adminLogin = async (req, res) => {
 exports.adminModifyPassword = async (req, res) => {
   try {
     //console.log("req.body:", req.body)
-    var admin_id = req.body._id;
+    var admin_id = "admin";
     var oldPassword = req.body.oldPassword;
     var newPassword = req.body.newPassword;
 
@@ -47,7 +47,7 @@ exports.adminModifyPassword = async (req, res) => {
     //console.log("admin:", admin)
     if (admin.password == oldPassword) {
       var result = await Admin.updateOne(
-        { _id: req.body._id },
+        { _id: admin_id },
         { password: newPassword }
       );
       res.status(200).json({
