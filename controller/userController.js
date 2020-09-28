@@ -61,7 +61,6 @@ exports.getUser = async (req, res) => {
  * 更新员工的信息
  */
 exports.updateUser = async (req, res) => {
-    //console.log("req.body:", req.body)
     try {
         const result = await User.replaceOne({ _id: req.body.user_id }, req.body);
         //console.log("result", result)
@@ -82,7 +81,20 @@ exports.updateUser = async (req, res) => {
     }
 
 };
+exports.changePWD = async (req, res) => {
+    try {
+        const user = await User.findById(req.body._id);
+        user.password = req.body.password;
+        await user.save();
+        res.status(200).json({status: true,message:'success'})
+    } catch (err) {
+        //console.log(err)
+        res.status(200).json({
+            status: false,
+        })
+    }
 
+};
 /**
  * deleteUser
  *删除某个用户,先删userpaper中的数据，再删user中的数据
@@ -180,9 +192,6 @@ exports.getUsersByDepartId = async (req, res) => {
     } catch (err) {
         res.status(404).json({ status: "fail", message: err });
     }
-
-
-
 }
 
 async function getUserInfo(user) {  //获取用户及其部门、branch名称
@@ -260,7 +269,5 @@ async function getUsersOfDepart(depart_id) {
             }
         }
     ]);
-    //console.log("userinfo:", userinfo)
     return userinfo
-
 }

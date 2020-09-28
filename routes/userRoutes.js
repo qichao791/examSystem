@@ -13,7 +13,9 @@ router.all("*", (req, res, next) => {
 router
     .route("/login")
     .post(userController.userLogin)
-
+router
+    .route("/changePWD")
+    .post(userController.changePWD)
 router
     .route("/")
     .get(userController.getAllUsers)

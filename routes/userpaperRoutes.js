@@ -11,6 +11,7 @@ router.all("*", (req, res, next) => {
 });
 
 router.route("/").post(upController.generateUPforUsers);
+router.route("/updateGradeForQuesBank").post(upController.updateGradeForThreeQuesBanks);
 router.route("/getPaperByPid").post(upController.getPaperByPid);
 router.route("/getPaperByUid").get(upController.getPaperByUid);
 router.route("/getPaperByUidPid").get(upController.getPaperByUidPid);
