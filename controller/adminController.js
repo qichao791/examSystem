@@ -168,7 +168,7 @@ exports.upLoadFile = async (req, res) => {
           //音频
           attachmentPath = "attachment/voice/" + files[i].filename;
         }
-        //console.log("~~~~~",i)
+        // console.log("attachmentPath~~~~~~~~~",attachmentPath)
         fileType = await getFileType(files[i].mimetype);
         // console.log("fileType:", fileType);
         var result = await upLoadAttachment(
@@ -258,7 +258,7 @@ exports.deleteFile = async (req, res) => {
               });
             }
             break;
-          case "voice":
+          case "audio":
             {
               voice = await deleteElementOfArray(
                 ques.attachment.voice,
@@ -339,20 +339,27 @@ async function deleteElementOfArray(array, element) {
  */
 async function upLoadAttachment(ques_model, ques_id, fileType, attachmentPath) {
   var ques = await ques_model.findById(ques_id);
+  // console.log("ques~:",ques);
+  // console.log("fileType",fileType)
   switch (fileType) {
     case "image": {
       ques.attachment.image.push(attachmentPath);
       ques.save();
+      console.log("上传图片成功~");
+
       return true;
     }
     case "video": {
       ques.attachment.video.push(attachmentPath);
       ques.save();
+      console.log("上传视频频成功~");
+
       return true;
     }
-    case "voice": {
+    case "audio": {
       ques.attachment.voice.push(attachmentPath);
       ques.save();
+      console.log("上传音频成功~");
       return true;
     }
     default:
