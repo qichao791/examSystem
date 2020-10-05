@@ -49,6 +49,9 @@ const paperSchema = new mongoose.Schema({
         type: Number,
         default:0,
     },
+    knowlege: {
+        type: String,
+    },
 },{_id:false});
 
 const Paper = mongoose.model("Paper", paperSchema,'paper');

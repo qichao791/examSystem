@@ -19,7 +19,7 @@ router.route("/getThreeScoresByUidPid").get(upController.getThreeScoresByUidPid)
 
 router.route("/updateByUidPid").post(upController.updateOneByUidPid);
 //router.route("/calculateByUidPid").post(upController.calculateByUidPid);
-router.route("/deleteByUidPid").get(upController.deleteOneByUidPid);
+router.route("/deleteByUidPid").post(upController.deleteOneByUidPid);
 router.route("/deleteByPid").delete(upController.deleteByPid);
 router.route("/submitPaper").post(upController.submitPaper);
 router.route("/getOneQuesRandomly").post(upController.getOneQuesRandomly);

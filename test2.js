@@ -1,6 +1,7 @@
+const PublicQues = require("../model/questionbankModel");
 const mongoose = require("mongoose");
 mongoose
-  .connect("mongodb://root@192.168.1.104:27017/exam_system_db", {
+  .connect("mongodb://root@192.168.188.104:27017/exam_system_db", {
     user: "root",
     pass: "123456",
     authSource: "admin",
@@ -13,6 +14,7 @@ mongoose
     console.log("DB connection successful!");
   });
 //PASSWORD=SNNU_pro_3418!
+/*
 var animalSchema = new mongoose.Schema({ name: String, type: String });
 
 // assign a function to the "methods" object of our animalSchema
@@ -71,3 +73,15 @@ dog
 // console.log(dogs); // woof
 //});
 console.log("-----------------");
+*/
+async function modifyQues() {
+  try {
+    const data = await PublicQues.find( { 'statement.right_answer': '正确' },);
+    for(var i=0;i<data.length;i++){
+      console.log("data["+i+"]= "+data[i]._id)
+    }
+    
+  } catch (err) {
+    res.status(404).json({ status: "fail", message: err });
+  }
+};

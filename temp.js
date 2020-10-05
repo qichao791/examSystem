@@ -1,4 +1,4 @@
-/*const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 const User = require("./model/userModel");
 const PublicQues = require("./model/questionbankModel");
 const SubQues= require("./model/subpublicbankModel");
@@ -7,7 +7,7 @@ const Depart= require("./model/departModel");
 const Branch = require("./model/branchModel");
 const Userpaper = require("./model/userpaperModel");
 const { subscribe } = require("./routes/professionalbankRoutes");
-const DB = "mongodb://127.0.0.1:27017/exam_system_db";
+/*const DB = "mongodb://127.0.0.1:27017/exam_system_db";
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
@@ -18,7 +18,7 @@ mongoose
     console.log("DB connection successful!");
   });
 
-
+*/
 mongoose
     .connect("mongodb://root@192.168.188.104:27017/exam_system_db", {
         user: "root",
@@ -30,7 +30,7 @@ mongoose
         useFindAndModify: false,
     })
     .then(() => console.log("DB connection successful!"));
-
+/*
 async function getOneDepartUsers(depart_id) {  //获取用户及其部门、branch名称
     try {
        
@@ -392,7 +392,7 @@ async function Prof() {
     } catch (err) {
       console.log(err)
     }
-  }*/
+  }
 function abc({s,v}){
     return "${s} ${v}";
 };
@@ -400,3 +400,21 @@ function abc({s,v}){
 const o={ s:"I",v:"am"}
 let result = abc(o);
 console.log(result)
+*/
+async function modifyQues() {
+  try {
+    //const data = await ProfQues.find( { 'statement.right_answer': '错误' },);
+    const data = await ProfQues.find( { 'statement.right_answer': '正确' },);
+
+    
+    for(var i=0;i<data.length;i++){
+      console.log("data["+i+"]= "+data[i].statement.right_answer)
+      data[i].statement.right_answer='A';
+      //data[i].save();
+    }
+    //data.save();
+  } catch (err) {
+   console.log(err)
+  }
+}
+modifyQues()

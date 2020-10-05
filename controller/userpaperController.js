@@ -1021,15 +1021,15 @@ async function getQuesByQid(qs, whichquestionBank) {
 exports.deleteOneByUidPid = async (req, res) => {
   try {
     let user_idList = [];
-    user_idList = req.query.user_list;
+    user_idList = req.body.user_list;
     for (let i = 0; i < user_idList.length; i++) {
       await Userpaper.findOneAndDelete({
         user_id: user_idList[i],
-        paper_id: req.query.paper_id,
+        paper_id: req.body.paper_id,
       });
     }
     res.status(204).json({ status: "success" });
-  } catch (err) {
+  } catch (err) {console.log(err)
     res.status(404).json({ status: "fail", message: err });
   }
   /*  9-12 qichao delete
