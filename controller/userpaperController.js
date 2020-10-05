@@ -64,7 +64,7 @@ async function generateUPforOneUser(req, res) {
       {
         _id: req.body.paper_id,
       },
-      "bank_scale amount grade"
+      "bank_scale amount grade knowlege"
     );
     //based on the bank_scale, to set up the question's amount for each question bank
     let scale = onepaper.bank_scale;
@@ -77,7 +77,7 @@ async function generateUPforOneUser(req, res) {
     req.body.professional_amount =
       onepaper.amount - req.body.public_amount - req.body.subpublic_amount;
     req.body.grade = onepaper.grade;
-
+    req.body.knowlege= onepaper.knowlege;
     // create each field of the userpaper collection
     let up = new Userpaper();
     up.user_id = req.body.user_id;
@@ -184,9 +184,12 @@ async function getPublicQues(req, res) {
   try {
     let knowlege = req.body.knowlege;
     var result;
-    if (knowlege === null || "undefined" == typeof knowlege) {//if knowlege is null, it means that any question selected comes from the whole public question bank
+    if (!knowlege) {//if knowlege is null, it means that any question selected comes from the whole public question bank
+      console.log("abc")
+      console.log();
       result = await PublicQues.aggregate([
         { $match: { grade: req.body.grade } },
+        { $match: { knowlege: '' } },
         { $sample: { size: req.body.public_amount } },
       ]);
     } else {
@@ -195,12 +198,12 @@ async function getPublicQues(req, res) {
         { $match: { knowlege: req.body.knowlege } },
         { $sample: { size: req.body.public_amount } },
       ]);
-    }
+    } console.log({sss:result})
     //--*7-25 add*--the aim is to replenish other grade questions when the amount of current grade questions is not enough
     if (result.length < req.body.public_amount) {
       req.body.result_length = result.length;
       var replenish;
-      if (knowlege === null || "undefined" == typeof knowlege)
+      if (!knowlege)
         replenish = await replenishPublicQues(req);
       else
         replenish = await replenishPublicQuesByKnowlege(req);
@@ -225,36 +228,42 @@ async function replenishPublicQues(req) {
     if (req.body.grade == 2) {
       result1 = await PublicQues.aggregate([
         { $match: { grade: 1 } },
+        { $match: { knowlege: '' } },
         { $sample: { size: amount1 } },
       ]);
       if (req.body.result_length + result1.length < req.body.public_amount) {
         let amount2 = req.body.public_amount - req.body.result_length - result1.length;
         result2 = await PublicQues.aggregate([
           { $match: { grade: 3 } },
+          { $match: { knowlege: ''} },
           { $sample: { size: amount2 } },
         ]);
       }
     } else if (req.body.grade == 1) {
       result1 = await PublicQues.aggregate([
         { $match: { grade: 2 } },
+        { $match: { knowlege: '' } },
         { $sample: { size: amount1 } },
       ]);
       if (req.body.result_length + result1.length < req.body.public_amount) {
         let amount2 = req.body.public_amount - req.body.result_length - result1.length;
         result2 = await PublicQues.aggregate([
           { $match: { grade: 3 } },
+          { $match: { knowlege: '' } },
           { $sample: { size: amount2 } },
         ]);
       }
     } else if (req.body.grade == 3) {
       result1 = await PublicQues.aggregate([
         { $match: { grade: 2 } },
+        { $match: { knowlege: '' } },
         { $sample: { size: amount1 } },
       ]);
       if (req.body.result_length + result1.length < req.body.public_amount) {
         let amount2 = req.body.public_amount - req.body.result_length - result1.length;
         result2 = await PublicQues.aggregate([
           { $match: { grade: 1 } },
+          { $match: { knowlege: '' } },
           { $sample: { size: amount2 } },
         ]);
       }
