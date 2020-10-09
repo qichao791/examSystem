@@ -91,7 +91,7 @@ exports.createResitPaper = async (req, res) => {
       },
       "_id"
     );
-    console.log(paper);
+    console.log({paper:paper});
     if (paper === null) {
       const newPaper = await Paper.create(req.body);
 
@@ -120,8 +120,6 @@ exports.createResitPaper = async (req, res) => {
       req.body.paper_id = newPaper._id;
 
       await reAssignResitPaperToNewUsers(req, res);
-
-      res.status(200).json({ status: "success", message: "创建成功!" });
     } else {
       res
         .status(404)

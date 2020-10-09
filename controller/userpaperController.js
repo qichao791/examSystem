@@ -76,7 +76,7 @@ async function createResitUPforUsers(req, res) {
       let depart_branch = await User.findOne({ _id: req.body.user_id }, 'depart_id branch_id');
       req.body.depart_id = depart_branch.depart_id;
       req.body.branch_id = depart_branch.branch_id;
-      await generateUPforOneUser(req, res);
+      await generateResitUPforOneUser(req, res);
     }
    
     return true;
