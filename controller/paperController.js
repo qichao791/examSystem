@@ -91,7 +91,7 @@ exports.createResitPaper = async (req, res) => {
       },
       "_id"
     );
-    console.log({paper:paper});
+    //console.log({paper:paper});
     if (paper === null) {
       const newPaper = await Paper.create(req.body);
 
@@ -116,7 +116,8 @@ exports.createResitPaper = async (req, res) => {
         },
       ]);
       let users = userAndScores.filter((user) => user.score < 60);
-      req.body.userid_list = users;
+      let userid_list = users.map((user) => user.user_id);
+      req.body.userid_list = userid_list;
       req.body.paper_id = newPaper._id;
 
       await reAssignResitPaperToNewUsers(req, res);
