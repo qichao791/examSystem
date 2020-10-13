@@ -66,7 +66,7 @@ exports.createPaper = async (req, res) => {
       },
       "_id"
     );
-    console.log(paper);
+   
     if (paper === null) {
       const newPaper = await Paper.create(req.body);
       res.send(newPaper);
