@@ -67,7 +67,7 @@ exports.createPaper = async (req, res) => {
       },
       "_id"
     );
-   
+    console.log(paper);
     if (paper === null) {
       const newPaper = await Paper.create(req.body);
       res.send(newPaper);
@@ -95,6 +95,7 @@ exports.createResitPaper = async (req, res) => {
     if (paper === null) {
       const newPaper = await Paper.create(req.body);
 
+      //在UserPaper中找出符合以下条件的员工列表：1.成绩不及格，2.paper_id
       let userAndScores = await UserPaper.aggregate([
         { $match: { paper_id: req.body.paper_id } },
         {
@@ -117,6 +118,7 @@ exports.createResitPaper = async (req, res) => {
       ]);
       let users = userAndScores.filter((user) => user.score < 60);
       let userid_list = users.map((user) => user.user_id);
+      
       req.body.userid_list = userid_list;
       req.body.paper_id = newPaper._id;
 
