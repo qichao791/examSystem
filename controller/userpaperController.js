@@ -821,7 +821,7 @@ exports.getEPInfoByPidList = async (req, res) => {
     for (var i = 0; i < papers.length; i++) {
       if( !papers[i].isNeedGroupByDepart){
         one_exampaper = await obtainOneEPInfoByPid(papers[i].paper_id);
-        console.log(one_exampaper);
+        
         one_exampaper={
             paper_name:papers[i].paper_name,
             paper_batch:papers[i].paper_batch,
@@ -834,7 +834,7 @@ exports.getEPInfoByPidList = async (req, res) => {
         let result = await obtainOneEPInfoByPidGroupByDepartment(papers[i].paper_id); console.log(result.length);
         for( let j = 0; j < result.length ;j++){
           one_exampaper = result[j];
-          console.log(one_exampaper);
+    
           one_exampaper={
             paper_name:papers[i].paper_name,
             paper_batch:papers[i].paper_batch,
@@ -845,7 +845,7 @@ exports.getEPInfoByPidList = async (req, res) => {
         }
       }
     }
-    console.log(data);
+    
     res.status(200).json({
       status: "success",
       data,
