@@ -31,5 +31,5 @@ router.route("/getUserInfoByPid").post(upController.getUserInfoByPid);
 router.route("/getUPEssentialsByPid").post(upController.getUPEssentialsByPid);
 router.route("/modifyGrades").post(upController.modifyGrades);
 router.route("/getExamPaperInfoByPid").post(upController.getExamPaperInfoByPid); 
-router.route("/getAllExamPaperInfoDuringOnePeriod").post(getEPInfoByPidList); 
+router.route("/getAllExamPaperInfoDuringOnePeriod").post(upController.getEPInfoByPidList); 
 module.exports = router;

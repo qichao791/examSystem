@@ -821,31 +821,31 @@ exports.getEPInfoByPidList = async (req, res) => {
     for (var i = 0; i < papers.length; i++) {
       if( !papers[i].isNeedGroupByDepart){
         one_exampaper = await obtainOneEPInfoByPid(papers[i].paper_id);
-        info = one_exampaper.map((item)=>{
-          return{
+        console.log(one_exampaper);
+        one_exampaper={
             paper_name:papers[i].paper_name,
             paper_batch:papers[i].paper_batch,
             paper_term:papers[i].paper_term,
-            ...item,
-          }
-        });
-        data.push(info);
+            ...one_exampaper
+        }
+        
+        data.push(one_exampaper);
       }else{
-        let result = await obtainOneEPInfoByPidGroupByDepartment(papers[i].paper_id);
+        let result = await obtainOneEPInfoByPidGroupByDepartment(papers[i].paper_id); console.log(result.length);
         for( let j = 0; j < result.length ;j++){
           one_exampaper = result[j];
-          info = one_exampaper.map((item)=>{
-            return{
-              paper_name:papers[i].paper_name,
-              paper_batch:papers[i].paper_batch,
-              paper_term:papers[i].paper_term,
-              ...item,
-            }
-          });
-          data.push(info);
+          console.log(one_exampaper);
+          one_exampaper={
+            paper_name:papers[i].paper_name,
+            paper_batch:papers[i].paper_batch,
+            paper_term:papers[i].paper_term,
+            ...one_exampaper
+          }
+          data.push(one_exampaper);
         }
       }
     }
+    console.log(data);
     res.status(200).json({
       status: "success",
       data,
@@ -874,32 +874,54 @@ async function obtainOneEPInfoByPidGroupByDepartment(paperId) {
   try {
     let data = await obtainUsersByPidAndGroupByDepartment (paperId);
     let result=[];
+  
     for(let i = 0; i < data.length; i++ ){
-      let users = data[i].user_list;
-      let depart_name = users[0].depart_name;
-      let totalnum = users.length;
-      let presentNumber = 0;
-      let highest_score = users[0].public_score + users[0].subpublic_score +users[0].professional_score;
-      let lowest_score = hightest_score;
-      let total_score = hightest_score;
-      
+      let users = data[i].user_list;           
+      let depart_name = users[0].depart_name;  
+      let totalnum = users.length;             
+      let presentNumber = 0;      
+      let score = users[0].public_score + users[0].subpublic_score + users[0].professional_score;             
+      let highest_score = score;
+      let lowest_score = score;   
+      let total_score = score;
+    
+      let scoreBetween80and100 =0;
+      let scoreBetween70and79 =0;
+      let scoreBetween60and69 =0;
+      let scoreBetween0and59 =0;
+      if(score>=80) scoreBetween80and100++;
+      if(score>=70 && score<80) scoreBetween70and79++;
+      if(score>=60 && score<70) scoreBetween60and69++;
+      if(score<60) scoreBetween0and59++;
+
       for(let j = 1; j < users.length; j++){
-            if((users[j].public_score + users[j].subpublic_score +users[j].professional_score)>highest_score)
-               highest_score = users[j].public_score + users[j].subpublic_score +users[j].professional_score;
-            if((users[j].public_score + users[j].subpublic_score +users[j].professional_score)<lowest_score)
-               lowest_score = users[j].public_score + users[j].subpublic_score +users[j].professional_score;
-            total_score = total_score + users[j].public_score + users[j].subpublic_score +users[j].professional_score;
+            score = users[j].public_score + users[j].subpublic_score + users[j].professional_score;
+            if(score>highest_score)
+               highest_score = score;
+            if(score<lowest_score)
+               lowest_score = score;
+            total_score = total_score + score;
             if(users[j].is_finished === true)
               presentNumber++;
+            
+            if(score>=80) scoreBetween80and100++;
+            if(score>=70 && score<80) scoreBetween70and79++;
+            if(score>=60 && score<70) scoreBetween60and69++;
+            if(score<60) scoreBetween0and59++;
       }
-      var one_exampaper;
-      one_exampaper.depart_name = depart_name;
-      one_exampaper.highest_score = highest_score
-      one_exampaper.lowest_score = lowest_score
-      one_exampaper.average_score = total_score / totalnum;
-      one_exampaper.totalnum = totalnum
-      one_exampaper.presentNumber = presentNumber
-      one_exampaper.absentNumber = totalnum - presentNumber;
+      var one_exampaper={
+        depart_name:depart_name,
+        highest_score:highest_score,
+        lowest_score:lowest_score,
+        average_score:total_score / totalnum,
+        totalnum:totalnum,
+        presentNumber:presentNumber,
+        absentNumber:totalnum - presentNumber,
+        scoreBetween80and100: scoreBetween80and100,
+        scoreBetween70and79: scoreBetween70and79,
+        scoreBetween60and69: scoreBetween60and69,
+        scoreBetween0and59:scoreBetween0and59
+      };
       result.push(one_exampaper);
     }
     return result;
@@ -939,6 +961,39 @@ async function obtainOneEPInfoByPid(paperId) {
       { $count: "number" },
     ]);
     presentNumber = presentNumber[0] ? presentNumber[0].number : 0;
+ 
+    let scoreBetween80and100 = await Userpaper.aggregate([
+      { $match: { paper_id: paperId } },
+      { $addFields: { score: {$add: ["$public_score", "$subpublic_score", "$professional_score"],},},},
+      { $match: { score: {$gte:80}} } ,
+      { $count: "number" },
+    ]);
+    scoreBetween80and100 = scoreBetween80and100[0] ? scoreBetween80and100[0].number : 0;
+    let scoreBetween70and79 = await Userpaper.aggregate([
+      { $match: { paper_id: paperId } },
+      { $addFields: { score: {$add: ["$public_score", "$subpublic_score", "$professional_score"],},},},
+      { $match: { score: {$gte:70}} } ,
+      { $match: { score: {$lt:80}} } ,
+      { $count: "number" },
+    ]);
+    scoreBetween70and79 = scoreBetween70and79[0] ? scoreBetween70and79[0].number : 0;
+
+    let scoreBetween60and69 =await Userpaper.aggregate([
+      { $match: { paper_id: paperId } },
+      { $addFields: { score: {$add: ["$public_score", "$subpublic_score", "$professional_score"],},},},
+      { $match: { score: {$gte:60}} } ,
+      { $match: { score: {$lt:70}} } ,
+      { $count: "number" },
+    ]);
+    scoreBetween60and69 = scoreBetween60and69[0] ? scoreBetween60and69[0].number : 0;
+
+    let scoreBetween0and59 = await Userpaper.aggregate([
+      { $match: { paper_id: paperId } },
+      { $addFields: { score: {$add: ["$public_score", "$subpublic_score", "$professional_score"],},},},
+      { $match: { score: {$lt:60}} } ,
+      { $count: "number" },
+    ]);
+    scoreBetween0and59 = scoreBetween0and59[0] ? scoreBetween0and59[0].number : 0;
     let info = result.map((item) => {
       return {
         highest_score: item.highest_score,
@@ -947,6 +1002,10 @@ async function obtainOneEPInfoByPid(paperId) {
         totalnum: item.count,
         presentNumber: presentNumber,
         absentNumber: item.count - presentNumber,
+        scoreBetween0and59:scoreBetween0and59,
+        scoreBetween60and69:scoreBetween60and69,
+        scoreBetween70and79:scoreBetween70and79,
+        scoreBetween80and100:scoreBetween80and100
       };
     });
     let data = info[0];
