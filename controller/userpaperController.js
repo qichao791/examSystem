@@ -130,6 +130,66 @@ async function generateUPforOneUser(req, res) {
     return false;
   }
 }
+async function generateResitUPforOneUser(req, res) {
+  try {
+    //obtain the grade,bank_scale and amount from paper collection
+    const onepaper = await Paper.findOne(
+      {
+        _id: req.body.paper_id,
+      },
+      "bank_scale amount grade knowlege"
+    );
+    //based on the bank_scale, to set up the question's amount for each question bank
+    let scale = onepaper.bank_scale;
+    let publicScale = parseInt(scale.substring(0, scale.indexOf(","))) / 100;
+    let subpublicScale = parseInt(scale.substring(scale.indexOf(",") + 1, scale.lastIndexOf(","))) / 100;
+    //let professionalScale = parseInt(scale.substring(scale.lastIndexOf(",") + 1)) / 100;
+
+    req.body.public_amount = Math.round(onepaper.amount * publicScale);
+    req.body.subpublic_amount = Math.round(onepaper.amount * subpublicScale);
+    req.body.professional_amount =
+      onepaper.amount - req.body.public_amount - req.body.subpublic_amount;
+    req.body.grade = onepaper.grade;
+    req.body.knowlege= onepaper.knowlege;
+    // create each field of the userpaper collection
+    let up = new Userpaper();
+    up.user_id = req.body.user_id;
+    up.paper_id = req.body.paper_id;
+    // get the questions from public question bank and construct the public_questions field of userpaper
+    let publicQuestions = (await getPublicQues(req, res)) || [];
+    up.public_questions = publicQuestions.map((item) => {
+      return {
+        //ques_id: item,
+        ques_id: item._id,
+        user_answer: "Z",
+      };
+    });
+    // get the questions from sub public question bank and construct the subpublic_questions field of userpaper
+    let subPublicQuestions = (await getSubPublicQues(req, res)) || [];
+    up.subpublic_questions = subPublicQuestions.map((item) => {
+      return {
+        //ques_id: item,
+        ques_id: item._id,
+        user_answer: "Z",
+      };
+    });
+    // get the questions from professional question bank and construct the professional_questions field of userpaper
+    let professionalQuestions = (await getProfessionalQues(req, res)) || [];
+    up.professional_questions = professionalQuestions.map((item) => {
+      return {
+        //ques_id: item,
+        ques_id: item._id,
+        user_answer: "Z",
+      };
+    });
+    up.begin_time = "";
+    up.submit_time = "";
+    up.save(); //complete a new doc of userpaper collection
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 exports.reAssignPaperToNewUsers = async (req, res) => {
   try {
     let paperInfo = await Paper.findOne({ _id: req.body.paper_id });
@@ -759,7 +819,7 @@ exports.getEPInfoByPidList = async (req, res) => {
     let papers = req.body.papers;
     let info;
     for (var i = 0; i < papers.length; i++) {
-      if( !papers[i].needGroupByDepart){
+      if( !papers[i].isNeedGroupByDepart){
         one_exampaper = await obtainOneEPInfoByPid(papers[i].paper_id);
         info = one_exampaper.map((item)=>{
           return{
@@ -816,29 +876,30 @@ async function obtainOneEPInfoByPidGroupByDepartment(paperId) {
     let result=[];
     for(let i = 0; i < data.length; i++ ){
       let users = data[i].user_list;
+      let depart_name = users[0].depart_name;
       let totalnum = users.length;
       let presentNumber = 0;
-      let absentNumber = 0;
       let highest_score = users[0].public_score + users[0].subpublic_score +users[0].professional_score;
-      let lowest_score = users[0].public_score + users[0].subpublic_score +users[0].professional_score;
-      let total_score = users[0].public_score + users[0].subpublic_score +users[0].professional_score;
+      let lowest_score = hightest_score;
+      let total_score = hightest_score;
+      
       for(let j = 1; j < users.length; j++){
             if((users[j].public_score + users[j].subpublic_score +users[j].professional_score)>highest_score)
                highest_score = users[j].public_score + users[j].subpublic_score +users[j].professional_score;
             if((users[j].public_score + users[j].subpublic_score +users[j].professional_score)<lowest_score)
                lowest_score = users[j].public_score + users[j].subpublic_score +users[j].professional_score;
-            total_score += users[j].public_score + users[j].subpublic_score +users[j].professional_score;
+            total_score = total_score + users[j].public_score + users[j].subpublic_score +users[j].professional_score;
             if(users[j].is_finished === true)
               presentNumber++;
       }
-      absentNumber = totalnum - presentNumber;
       var one_exampaper;
+      one_exampaper.depart_name = depart_name;
       one_exampaper.highest_score = highest_score
       one_exampaper.lowest_score = lowest_score
-      one_exampaper.verage_score = average_score
+      one_exampaper.average_score = total_score / totalnum;
       one_exampaper.totalnum = totalnum
       one_exampaper.presentNumber = presentNumber
-      one_exampaper.absentNumber = absentNumber;
+      one_exampaper.absentNumber = totalnum - presentNumber;
       result.push(one_exampaper);
     }
     return result;

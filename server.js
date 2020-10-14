@@ -31,7 +31,11 @@ mongoose
   .then(() => {
     console.log("DB connection successful!");
   });
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> refs/remotes/origin/master
 const port = process.env.PORT || 3300;
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);

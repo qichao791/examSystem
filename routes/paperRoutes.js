@@ -14,11 +14,12 @@ router
   .route("/")
   .get(paperController.getAllPapers)
   .post(paperController.createPaper);
-
+router
+  .route("/createResitPaper")
+  .post(paperController.createResitPaper);
 router
   .route("/getPapersByYearAndMonth")
   .post(paperController.getPapersByYearAndMonth);
-
 router
   .route("/getLikePapers")
   .post(paperController.getLikePapers);
