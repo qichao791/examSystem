@@ -1,6 +1,6 @@
 const Paper = require("../model/paperModel");
 const UserPaper = require("../model/userpaperModel");
-const { reAssignResitPaperToNewUsers } = require("./userpaperController");
+const { reAssignPaperToNewUsers } = require("./userpaperController");
 const mongoose = require("mongoose");
 
 exports.getPaper = async (req, res) => {
@@ -122,7 +122,7 @@ exports.createResitPaper = async (req, res) => {
       req.body.userid_list = userid_list;
       req.body.paper_id = newPaper._id;
 
-      await reAssignResitPaperToNewUsers(req, res);
+      await reAssignPaperToNewUsers(req, res);
     } else {
       res
         .status(404)
