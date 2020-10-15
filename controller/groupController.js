@@ -184,7 +184,7 @@ exports.getUsersByGroup = async (req, res) => {
         { _id: data[0].Users[i].branch_id },
         "branch_name"
       );
-      console.log(branch);
+     
       if (branch != null) {
         data[0].Users[i].branch_id = branch.branch_name;
       } else {

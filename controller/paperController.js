@@ -1,6 +1,6 @@
 const Paper = require("../model/paperModel");
 const UserPaper = require("../model/userpaperModel");
-const { reAssignResitPaperToNewUsers } = require("./userpaperController");
+const { reAssignPaperToNewUsers } = require("./userpaperController");
 const mongoose = require("mongoose");
 
 exports.getPaper = async (req, res) => {
@@ -95,6 +95,7 @@ exports.createResitPaper = async (req, res) => {
     if (paper === null) {
       const newPaper = await Paper.create(req.body);
 
+      //在UserPaper中找出符合以下条件的员工列表：1.成绩不及格，2.paper_id
       let userAndScores = await UserPaper.aggregate([
         { $match: { paper_id: req.body.paper_id } },
         {
@@ -117,10 +118,11 @@ exports.createResitPaper = async (req, res) => {
       ]);
       let users = userAndScores.filter((user) => user.score < 60);
       let userid_list = users.map((user) => user.user_id);
+      
       req.body.userid_list = userid_list;
       req.body.paper_id = newPaper._id;
 
-      await reAssignResitPaperToNewUsers(req, res);
+      await reAssignPaperToNewUsers(req, res);
     } else {
       res
         .status(404)
