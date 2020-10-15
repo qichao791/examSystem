@@ -24,5 +24,9 @@ router
 router
     .route("/exam/examThreeQuesAccuracy")
     .get(scoreAnalysisController.examThreeQuesAccuracy)
+router
+    .route("/exam/analysisOneMonth")
+    .post(scoreAnalysisController.analysisOneMonth)
+
 
 module.exports = router;

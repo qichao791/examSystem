@@ -1,6 +1,71 @@
 const Userpaper = require("../model/userpaperModel");
 const User = require("../model/userModel");
 const Paper = require("../model/paperModel");
+const Depart = require("../model/departModel")
+const Branch = require("../model/branchModel")
+
+/**
+ * 班组长以上管理人员每月考试成绩汇总表
+ */
+exports.analysisOneMonth = async(req,res)=>{
+ // console.log(req)
+  var exam_month=req.body.paper_batch.length==5?req.body.paper_batch.substr(0,1):req.body.paper_batch.substr(0,2);
+  try {
+    var examList = await Paper.find({//根据名称和年份获取试卷
+      paper_name: req.body.paper_name,
+      paper_term: req.body.paper_term
+    });
+    var examListThisMonth = []; //某年份、某种名称、某个月份的所有考试
+    var examCount;
+   // console.log("examList:",examList)
+    for (examCount = 0; examCount < examList.length; examCount++) {//从上面试卷中筛选出某月的试卷
+      var batch_month =
+        examList[examCount].paper_batch.length == 5
+          ? examList[examCount].paper_batch.substr(0, 1)
+          : examList[examCount].paper_batch.substr(0, 2);
+      if (batch_month == exam_month) {
+        examListThisMonth.push(examList[examCount]);
+      }
+    }
+    //console.log("examListThisMonth:", examListThisMonth);
+    var usersId = await Userpaper.find({ paper_id: req.body.paper_id }, "user_id");//获取到该类考试中的所有考生ID
+    console.log("usersId:",usersId)
+    scoreList=[];
+    var user_score=[];
+    for(var i=0;i<usersId.length;i++){
+        var user=await User.findById(usersId[i].user_id);
+        console.log("user:",user)
+        var depart= await Depart.findById(user.depart_id)
+        var branch=await Branch.findById(user.branch_id)
+        var user_name=user.user_name
+        var depart_name=depart.depart_name
+        var branch_name=branch.branch_name
+        var score=[]
+        for(var j=0;j<examListThisMonth.length;j++){
+          var user_paper=await Userpaper.findOne({paper_id:examListThisMonth[j]._id,user_id:user._id})
+          if(user_paper==null) {score[j]=null}else{
+            score[j]=user_paper.public_score+user_paper.subpublic_score+user_paper.professional_score
+          }
+        }
+        var user_month_score={user_name,depart_name,branch_name,score}      
+        user_score.push(user_month_score)
+    }
+    console.log("user_score:",user_score)
+    
+    res.status(200).json({
+      examListThisMonth: examListThisMonth,
+      user_score: user_score
+    });
+
+
+  } catch (err) {
+    res.status(500).json({
+      err
+    });
+    console.log("获取信息失败,", err);
+  }
+
+}
 
 /**
  * 一个人某段时间的考试成绩分析
