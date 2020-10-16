@@ -118,11 +118,18 @@ exports.createResitPaper = async (req, res) => {
       ]);
       let users = userAndScores.filter((user) => user.score < 60);
       let userid_list = users.map((user) => user.user_id);
-      
-      req.body.userid_list = userid_list;
-      req.body.paper_id = newPaper._id;
 
-      await reAssignPaperToNewUsers(req, res);
+      if (userid_list.length > 0) {
+        req.body.userid_list = userid_list;
+        req.body.paper_id = newPaper._id;
+
+        await reAssignPaperToNewUsers(req, res);
+      } else {
+        const deletePaper = await Paper.deleteOne({_id: newPaper._id});
+        res
+        .status(404)
+        .json({ status: "fail", message: "没有符合条件的考生，无法创建补考试卷!" });
+      }
     } else {
       res
         .status(404)
