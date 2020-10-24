@@ -227,24 +227,22 @@ exports.upLoadFile = async (req, res) => {
 
 exports.deleteFile = async (req, res) => {
   try {
-    //console.log("deleteFileReq:", req)
+    //console.log("deleteFileReq:", req.body)
     var type = req.body.type;
     if (type == "avatar") {
       //删除用户的头像
       var user_id = req.body.user_id;
-      var avatarPath = req.body.path;
+      //var avatarPath = req.body.path;
       var re = await User.findByIdAndUpdate(
         { _id: user_id },
-        { $set: { avatar: null } }
+        { $set: { avatar: 'null' } }
       );
-      if (re.avatar == null) {
+      console.log("re:",re)
+      if (re.avatar != null) {
+        var avatarPath=re.avatar
         fs.unlinkSync(avatarPath);
         res.status(200).json({
-          status: true
-        });
-      } else {
-        res.status(200).json({
-          status: false
+          status: 'true'
         });
       }
     } else {
