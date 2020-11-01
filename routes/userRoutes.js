@@ -17,6 +17,9 @@ router
     .route("/changePWD")
     .post(userController.changePWD)
 router
+    .route("/getAllUsers")
+    .get(userController.getAllUserInfo)
+router
     .route("/")
     .get(userController.getAllUsers)
 

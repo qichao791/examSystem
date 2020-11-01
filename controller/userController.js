@@ -232,7 +232,40 @@ async function getUserInfo(user) {  //获取用户及其部门、branch名称
     return userinfo
 
 }
+exports.getAllUserInfo = async (req, res) => {  
+    try{
+      let users= await User.aggregate([
+        {
+            $lookup: {
+                from: 'department',
+                localField: 'depart_id',
+                foreignField: '_id',
+                as: 'user_department'
+            }
+        },
+        {
+            $lookup: {
+                from: 'branch',
+                localField: 'branch_id',
+                foreignField: '_id',
+                as: 'user_branch'
+            }
+        },
+        {
+            $project: {
+                _id: 0,
+                user_name: 1,
+                'user_department.depart_name': 1,
+                'user_branch.branch_name': 1,
+            }
+        }
+      ]);
+      res.status(200).json(users);
+    } catch (err) {
+       res.status(404).json({ status: "fail", message: err });
+    }
 
+}
 async function getUsersOfDepart(depart_id) {
 
     let userinfo = await User.aggregate([
