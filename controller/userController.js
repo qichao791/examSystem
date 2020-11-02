@@ -260,7 +260,17 @@ exports.getAllUserInfo = async (req, res) => {
             }
         }
       ]);
-      res.status(200).json(users);
+      let result = users.map((item) => {
+        return {
+          user_name: item.user_name,
+          depart_name: item.user_department[0].depart_name,
+          branch_name: (item.user_branch[0]||'').branch_name||'',
+          //...item.data[0],
+        };
+      });
+      res.status(200).json(result);
+
+      //res.status(200).json(users);
     } catch (err) {
        res.status(404).json({ status: "fail", message: err });
     }
